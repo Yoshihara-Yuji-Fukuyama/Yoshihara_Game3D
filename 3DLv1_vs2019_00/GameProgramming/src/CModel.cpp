@@ -11,7 +11,7 @@ void CModel::Render(const CMatrix& m)
 	//行列の退避
 	glPushMatrix();
 	//合成行列をかける
-	glMultMatrixf(m.M());
+	glMultMatrixf(m.GetM());
 	//頂点座標の位置を設定
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glVertexPointer(3, GL_FLOAT, sizeof(CVertex), (void*)&mpVertexes[0].mPosition);

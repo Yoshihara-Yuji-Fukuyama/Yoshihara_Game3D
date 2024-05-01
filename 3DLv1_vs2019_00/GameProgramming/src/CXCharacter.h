@@ -1,0 +1,40 @@
+#ifndef CXCHARACTER_H
+#define CXCHARACTER_H
+
+#include "CModelX.h"
+#include "CMatrix.h"
+#include "CCharacter3.h"
+
+class CXCharacter : public CCharacter3 {
+public:
+	CXCharacter();
+
+	//更新処理
+	void CXCharacter::Update();
+	//初期化処理
+	void Init(CModelX* model);
+	/// <summary>
+	/// アニメーションを切り替える
+	/// </summary>
+	/// <param name="index">アニメーション番号</param>
+	/// <param name="loop">trueなら繰り返す</param>
+	/// <param name="framesize">最後まで再生するのに使用されるフレーム数</param>
+	void ChangeAnimation(int index, bool loop, float framesize);
+	//更新処理
+	//matrix:移動、回転、拡大縮小の行列
+	void Update(CMatrix& matrix);
+	//描画処理
+	void Render();
+	//アニメーションの再生終了判定
+	//true:終了　false:再生中
+	bool IsAnimationFinished();
+	//アニメーション番号の取得
+	int GetAnimationIndex();
+protected:
+	CModelX* mpModel;   //モデルデータ
+	int mAnimationIndex;      //アニメーション番号
+	bool mAnimationLoopFlg;   //true:アニメーションを繰り返す
+	float mAnimationFrame;    //アニメーションの再生フレーム
+	float mAnimationFrameSize;//アニメーションの再生フレーム数
+};
+#endif

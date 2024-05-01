@@ -46,7 +46,7 @@ void CBillBoard::Render(CMaterial* mpMaterial)
 	//行列の保存
 	glPushMatrix();
 	//行列,回転,移動させる
-	glMultMatrixf((CApplication::ModelViewInverse() * mMatrix).M());
+	glMultMatrixf((CApplication::ModelViewInverse() * mMatrix).GetM());
 	//ライトオフ
 	glDisable(GL_LIGHTING);
 	//描画色の設定

@@ -309,10 +309,10 @@ void CModelX::AnimateFrame()
 		for (int j = 0; j < 4; j++)
 		{
 			printf("%10f %10f %10f %10f\n",
-				mFrame[i]->mTransformMatrix.M(j, 0),
-				mFrame[i]->mTransformMatrix.M(j, 1),
-				mFrame[i]->mTransformMatrix.M(j, 2),
-				mFrame[i]->mTransformMatrix.M(j, 3));
+				mFrame[i]->mTransformMatrix.GetM(j, 0),
+				mFrame[i]->mTransformMatrix.GetM(j, 1),
+				mFrame[i]->mTransformMatrix.GetM(j, 2),
+				mFrame[i]->mTransformMatrix.GetM(j, 3));
 		}
 	}
 #endif
@@ -386,7 +386,7 @@ CModelXFrame::CModelXFrame(CModelX* model)
 	//CModelXのフレーム配列に追加する
 	model->mFrame.push_back(this);
 	//変換行列を単位行列にする
-	mTransformMatrix.Identity();
+	mTransformMatrix.SetIdentity();
 	//次の単語（フレーム名の予定）を取得する
 	model->GetToken();//frame name
 	//フレーム名分エリアを確保する
@@ -412,9 +412,9 @@ CModelXFrame::CModelXFrame(CModelX* model)
 		else if (strcmp(model->mToken, "FrameTransformMatrix") == 0)
 		{
 			model->GetToken();// {
-			for (int i = 0; i < mTransformMatrix.Size(); i++)
+			for (int i = 0; i < mTransformMatrix.GetSize(); i++)
 			{
-				mTransformMatrix.M()[i] = atof(model->GetToken());
+				mTransformMatrix.GetM()[i] = atof(model->GetToken());
 			}
 			model->GetToken();// }
 		}
@@ -491,10 +491,10 @@ void CModelXFrame::SetAnimateCombined(CMatrix* parent)
 	for (int i = 0; i < 4; i++)
 	{
 		printf("%10f % 10f % 10f % 10f\n",
-			mCombinedMatrix.M(i, 0),
-			mCombinedMatrix.M(i, 1),
-			mCombinedMatrix.M(i, 2), 
-			mCombinedMatrix.M(i, 3));
+			mCombinedMatrix.GetM(i, 0),
+			mCombinedMatrix.GetM(i, 1),
+			mCombinedMatrix.GetM(i, 2), 
+			mCombinedMatrix.GetM(i, 3));
 	}
 #endif
 }
@@ -561,9 +561,9 @@ void CMesh::Init(CModelX* model)
 	//頂点数分データを取り込む
 	for (int i = 0; i < mVertexNum; i++)
 	{
-		mpVertex[i].X(atof(model->GetToken()));
-		mpVertex[i].Y(atof(model->GetToken()));
-		mpVertex[i].Z(atof(model->GetToken()));
+		mpVertex[i].SetX(atof(model->GetToken()));
+		mpVertex[i].SetY(atof(model->GetToken()));
+		mpVertex[i].SetZ(atof(model->GetToken()));
 	}
 
 	//面数読み込み
@@ -596,9 +596,9 @@ void CMesh::Init(CModelX* model)
 			CVector* pNormal = new CVector[mNormalNum];
 			for (int i = 0; i < mNormalNum; i++)
 			{
-				pNormal[i].X(atof(model->GetToken()));
-				pNormal[i].Y(atof(model->GetToken()));
-				pNormal[i].Z(atof(model->GetToken()));
+				pNormal[i].SetX(atof(model->GetToken()));
+				pNormal[i].SetY(atof(model->GetToken()));
+				pNormal[i].SetZ(atof(model->GetToken()));
 			}
 			//法線数＝面数×3
 			mNormalNum = atoi(model->GetToken()) * 3;//FaceNum
@@ -693,7 +693,7 @@ void CMesh::Init(CModelX* model)
 	for (int i = 0; i < mVertexNum; i++)
 	{
 		printf("%10f %10f %10f\n", 
-			mpVertex[i].X(), mpVertex[i].Y(), mpVertex[i].Z());
+			mpVertex[i].GetX(), mpVertex[i].GetY(), mpVertex[i].GetZ());
 	}
 	//面数
 	printf("FaceNum:%d\n", mFaceNum);
@@ -707,7 +707,7 @@ void CMesh::Init(CModelX* model)
 	for (int i = 0; i < mNormalNum; i++)
 	{
 		printf("%12f %12f %12f\n", 
-			mpNormal[i].X(), mpNormal[i].Y(), mpNormal[i].Z());
+			mpNormal[i].GetX(), mpNormal[i].GetY(), mpNormal[i].GetZ());
 	}
 
     #endif
@@ -828,7 +828,7 @@ CSkinWeights::CSkinWeights(CModelX* model)
 	//オフセット行列
 	for (int i = 0; i < 16; i++)
 	{
-		mOffset.M()[i] = atof(model->GetToken());
+		mOffset.GetM()[i] = atof(model->GetToken());
 	}
 	model->GetToken(); // }
 
@@ -843,7 +843,7 @@ CSkinWeights::CSkinWeights(CModelX* model)
 	for (int i = 0; i < 16; i += 4)
 	{
 		printf("%9f %9f %9f %9f\n",
-			mOffset.M()[i], mOffset.M()[i + 1], mOffset.M()[i + 2], mOffset.M()[i + 3]);
+			mOffset.GetM()[i], mOffset.GetM()[i + 1], mOffset.GetM()[i + 2], mOffset.GetM()[i + 3]);
 	}
     #endif
 }
@@ -1057,7 +1057,7 @@ CAnimation::CAnimation(CModelX* model)
 					float y = atof(model->GetToken());
 					float z = atof(model->GetToken());
 					//拡大・縮小行列に変換
-					key[type][i].Scale(x, y, z);
+					key[type][i].SetScale(x, y, z);
 				}
 				break;
 			case 2: //移動の行列作成
@@ -1076,7 +1076,7 @@ CAnimation::CAnimation(CModelX* model)
 					float y = atof(model->GetToken());
 					float z = atof(model->GetToken());
 					//移動行列に変換
-					key[type][i].Translate(x, y, z);
+					key[type][i].SetTranlate(x, y, z);
 				}
 				break;
 			case 4: //行列データを取得
@@ -1087,7 +1087,7 @@ CAnimation::CAnimation(CModelX* model)
 					model->GetToken(); //16
 					for (int j = 0; j < 16; j++)
 					{
-						mpKey[i].mMatrix.M()[j] = atof(model->GetToken());
+						mpKey[i].mMatrix.GetM()[j] = atof(model->GetToken());
 					}
 				}
 				break;
@@ -1126,7 +1126,7 @@ CAnimation::CAnimation(CModelX* model)
 	for (int i = 0; i < 16; i += 4)
 	{
 		printf("%9f %9f %9f %9f\n",
-			mpKey[1].mMatrix.M()[i], mpKey[1].mMatrix.M()[i + 1], mpKey[1].mMatrix.M()[i + 2], mpKey[1].mMatrix.M()[i + 3]);
+			mpKey[1].mMatrix.GetM()[i], mpKey[1].mMatrix.GetM()[i + 1], mpKey[1].mMatrix.GetM()[i + 2], mpKey[1].mMatrix.GetM()[i + 3]);
 	}
 #endif
 }

@@ -25,7 +25,7 @@ void CColliderTriangle::Render()
 	//行列退避
 	glPushMatrix();
 	//行列適用
-	glMultMatrixf(mpMatrix->M());
+	glMultMatrixf(mpMatrix->GetM());
 	//αブレンドを有効にする
 	glEnable(GL_BLEND);
 	//ブレンド方法を指定
@@ -40,9 +40,9 @@ void CColliderTriangle::Render()
 
 	//三角形描画
 	glBegin(GL_TRIANGLES);
-	glVertex3f(mV[0].X(), mV[0].Y(), mV[0].Z());
-	glVertex3f(mV[1].X(), mV[1].Y(), mV[1].Z());
-	glVertex3f(mV[2].X(), mV[2].Y(), mV[2].Z());
+	glVertex3f(mV[0].GetX(), mV[0].GetY(), mV[0].GetZ());
+	glVertex3f(mV[1].GetX(), mV[1].GetY(), mV[1].GetZ());
+	glVertex3f(mV[2].GetX(), mV[2].GetY(), mV[2].GetZ());
 	glEnd();
 
 	//ライトオン

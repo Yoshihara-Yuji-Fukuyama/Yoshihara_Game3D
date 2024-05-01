@@ -44,23 +44,15 @@ void CApplication::Start()
 {
 	//3Dモデルファイルの読み込み
 	mModelX.Load(MODEL_FILE);
+	//キャラクターにモデルを設定
+	mXPlayer.Init(&mModelX);
 	mFont.Load("FontG.png", 1, 4096 / 64);
 }
 
 void CApplication::Update()
 {	
-	//最初のアニメーションの現在時間を設定する
-	mModelX.GetAnimationSet()[0]->SetTime(
-		mModelX.GetAnimationSet()[0]->GetTime() + 1.0f);
-	mModelX.GetAnimationSet()[0]->SetTime(
-		(int)mModelX.GetAnimationSet()[0]->GetTime() %
-		(int)(mModelX.GetAnimationSet()[0]->GetMaxTime() + 1));
-	//最初のアニメーションの重みを1.0(100%)にする
-	mModelX.GetAnimationSet()[0]->SetWeight(1.0f);
-	//フレームの変換行列をアニメーションで更新する
-	mModelX.AnimateFrame();
-	//フレームの合成行列を計算する
-	mModelX.GetFrames()[0]->SetAnimateCombined(&mMatrix);
+	//キャラクタクラスの更新
+	mXPlayer.Update();
 
 	//カメラのパラメータを作成する
 	CVector  e, c, u;//視点、注視点、上方向
@@ -71,11 +63,11 @@ void CApplication::Update()
 	//上方向を求める
 	u = CVector(0.0f, 1.0f, 0.0f);
 	//カメラの設定
-	gluLookAt(e.X(), e.Y(), e.Z(), c.X(), c.Y(), c.Z(), u.X(), u.Y(), u.Z());
+	gluLookAt(e.GetX(), e.GetY(), e.GetZ(), c.GetX(), c.GetY(), c.GetZ(), u.GetX(), u.GetY(), u.GetZ());
 	//モデルビュー行列の取得
-	glGetFloatv(GL_MODELVIEW_MATRIX, mModelViewInverse.M());
+	glGetFloatv(GL_MODELVIEW_MATRIX, mModelViewInverse.GetM());
 	//逆行列の取得
-	mModelViewInverse = mModelViewInverse.Transpose();
+	mModelViewInverse = mModelViewInverse.GetTranspose();
 	mModelViewInverse.M(0, 3, 0);
 	mModelViewInverse.M(1, 3, 0);
 	mModelViewInverse.M(2, 3, 0);
@@ -83,30 +75,30 @@ void CApplication::Update()
 	//X軸＋回転
 	if (mInput.Key('K'))
 	{
-		mMatrix = mMatrix * CMatrix().RotateX(1);
+		mMatrix = mMatrix * CMatrix().SetRotateX(1);
 	}
 	//X軸－回転
 	if (mInput.Key('I'))
 	{
-		mMatrix = mMatrix * CMatrix().RotateX(-1);
+		mMatrix = mMatrix * CMatrix().SetRotateX(-1);
 	}
 	//Y軸＋回転
 	if (mInput.Key('L'))
 	{
-		mMatrix = mMatrix * CMatrix().RotateY(1);
+		mMatrix = mMatrix * CMatrix().SetRotateY(1);
 	}
 	//Y軸－回転
 	if (mInput.Key('J'))
 	{
-		mMatrix = mMatrix * CMatrix().RotateY(-1);
+		mMatrix = mMatrix * CMatrix().SetRotateY(-1);
 	}
 	//行列設定
-	glMultMatrixf(mMatrix.M());
+	glMultMatrixf(mMatrix.GetM());
 
 	//頂点にアニメーションを適用する
 	mModelX.AnimateVertex();
 	//モデル描画
-	mModelX.Render();
+	mXPlayer.Render();
 
 	//2D描画開始
 	CCamera::Start(0, 800, 0, 600);

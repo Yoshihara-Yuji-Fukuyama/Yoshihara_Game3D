@@ -13,14 +13,12 @@ class CCollider;
 class CCharacter3 :public CTransform ,public CTask
 {
 public:
-	//コンストラクタ
+	CCharacter3();
 	CCharacter3(int priority);
+	~CCharacter3();
+
 	//衝突処理
 	virtual void Collision(CCollider* m, CCollider* o) {}
-	//コンストラクタ
-	CCharacter3();
-	//デストラクタ
-	~CCharacter3();
 	//モデルの設定
 	//Model(CModel*m);
 	void Model(CModel* m);

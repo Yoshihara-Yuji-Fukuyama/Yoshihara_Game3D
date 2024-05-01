@@ -29,8 +29,8 @@ void CPlayer::Update()
 	{
 		CBullet* bullet = new CBullet();
 		bullet->Set(0.1f, 1.5f);
-		bullet->Position(CVector(0.0f, 0.0f, 10.0f) * mMatrix);
-		bullet->Rotation(mRotation);
+		bullet->SetPosition(CVector(0.0f, 0.0f, 10.0f) * mMatrix);
+		bullet->SetRotation(mRotation);
 		bullet->Update();
 		//CApplication::TaskManager()->Add(bullet);
 	}         
@@ -71,9 +71,9 @@ void CPlayer::Update()
 	CTransform::Update();
 
 	//UIÝ’è
-	CApplication::GetUi()->PosY(mPosition.Y());
-	CApplication::GetUi()->RotX(mRotation.X());
-	CApplication::GetUi()->RotY(mRotation.Y());
+	CApplication::GetUi()->PosY(mPosition.GetY());
+	CApplication::GetUi()->RotX(mRotation.GetX());
+	CApplication::GetUi()->RotY(mRotation.GetY());
 }
 
 CPlayer::CPlayer()

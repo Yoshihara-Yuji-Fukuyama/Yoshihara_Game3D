@@ -61,13 +61,13 @@ void CEnemy3::Update()
 	if (player != nullptr)
 	{
 		//プレイヤーまでのベクトルを求める
-		CVector vp = player->Position() - mPosition;
+		CVector vp = player->GetPosition() - mPosition;
 		//左ベクトルとの内積を求める
-		float dx = vp.Dot(mMatrixRotate.VectorX());
+		float dx = vp.Dot(mMatrixRotate.GetVectorX());
 		//上ベクトルとの内積を求める
-		float dy = vp.Dot(mMatrixRotate.VectorY());
+		float dy = vp.Dot(mMatrixRotate.GetVectorY());
 		//前ベクトルとの内積を求める
-		float dz = vp.Dot(mMatrixRotate.VectorZ());
+		float dz = vp.Dot(mMatrixRotate.GetVectorZ());
 
 		//X軸のずれが2.0以下
 		if (-2.0f < dx && dx < 2.0f)
@@ -81,8 +81,8 @@ void CEnemy3::Update()
 					//弾を発射します
 					CBullet* bullet = new CBullet();
 					bullet->Set(0.1f, 1.5f);
-					bullet->Position(CVector(0.0f, 0.0f, 10.0f) * mMatrix);
-					bullet->Rotation(mRotation);
+					bullet->SetPosition(CVector(0.0f, 0.0f, 10.0f) * mMatrix);
+					bullet->SetRotation(mRotation);
 					bullet->Update();
 				}
 			}
@@ -92,9 +92,9 @@ void CEnemy3::Update()
 	CVector vp = mPoint - mPosition;
 	//課題
 	//左ベクトルとの内積を求める
-	float dx = vp.Dot(mMatrixRotate.VectorX());
+	float dx = vp.Dot(mMatrixRotate.GetVectorX());
 	//上ベクトルとの内積を求める
-	float dy = vp.Dot(mMatrixRotate.VectorY());
+	float dy = vp.Dot(mMatrixRotate.GetVectorY());
 	const float margin = 0.1f;
 	//左右方向へ回転
 	if (dx > margin)
@@ -121,7 +121,7 @@ void CEnemy3::Update()
 		mRotation = mRotation + CVector(1.0f, 0.0f, 0.0f);
 	}
 	//機体前方へ移動する
-	mPosition = mPosition + mMatrixRotate.VectorZ() * VELOCITY;
+	mPosition = mPosition + mMatrixRotate.GetVectorZ() * VELOCITY;
 	CTransform::Update();//行列更新
 	//およそ3秒ごとに目標地点を更新
 	int r = rand() % 180;//rand()は整数の乱数を返す
@@ -130,11 +130,11 @@ void CEnemy3::Update()
 	{
 		if (player != nullptr)
 		{
-			mPoint = player->Position();
+			mPoint = player->GetPosition();
 		}
 		else
 		{
-			mPoint = mPoint * CMatrix().RotateY(45);
+			mPoint = mPoint * CMatrix().SetRotateY(45);
 		}
 	}
 }
@@ -152,7 +152,7 @@ void CEnemy3::Collision(CCollider* m, CCollider* o)
 		{
 			mHp--;//ヒットポイントの減算
 			//エフェクト生成
-			new CEffect(o->Parent()->Position(), 1.0f, 1.0f, "exp.tga", 4, 4, 2);
+			new CEffect(o->Parent()->GetPosition(), 1.0f, 1.0f, "exp.tga", 4, 4, 2);
 			//衝突している時は無効にする
 			//mEnabled=false;
 		}

@@ -23,7 +23,7 @@ void CColliderLine::Render()
 	//行列退避
 	glPushMatrix();
 	//行列適用
-	glMultMatrixf(mpMatrix->M());
+	glMultMatrixf(mpMatrix->GetM());
 
 	//αブレンドを有効にする
 	glEnable(GL_BLEND);
@@ -39,8 +39,8 @@ void CColliderLine::Render()
 
 	//線分描画
 	glBegin(GL_LINES);
-	glVertex3f(mV[0].X(), mV[0].Y(), mV[0].Z());
-	glVertex3f(mV[1].X(), mV[1].Y(), mV[1].Z());
+	glVertex3f(mV[0].GetX(), mV[0].GetY(), mV[0].GetZ());
+	glVertex3f(mV[1].GetX(), mV[1].GetY(), mV[1].GetZ());
 	glEnd();
 
 	//ライトオン

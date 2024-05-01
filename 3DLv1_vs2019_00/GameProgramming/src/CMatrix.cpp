@@ -21,11 +21,11 @@ void CMatrix::Print()
 
 CMatrix::CMatrix()
 {
-	Identity();
+	SetIdentity();
 }
 
 //単位行列の作成
-CMatrix CMatrix::Identity()
+CMatrix CMatrix::SetIdentity()
 {
 	mM[0][0] = 1.0f; mM[0][1] = 0.0f; mM[0][2] = 0.0f; mM[0][3] = 0.0f;
 	mM[1][0] = 0.0f; mM[1][1] = 1.0f; mM[1][2] = 0.0f; mM[1][3] = 0.0f;
@@ -37,7 +37,7 @@ CMatrix CMatrix::Identity()
 
 //拡大縮小行列の作成
 //Scale(倍率X,倍率Y,倍率Z)
-CMatrix CMatrix::Scale(float sx, float sy, float sz)
+CMatrix CMatrix::SetScale(float sx, float sy, float sz)
 {
 	mM[0][0] = sx;   mM[0][1] = 0.0f; mM[0][2] = 0.0f; mM[0][3] = 0.0f;
 	mM[1][0] = 0.0f; mM[1][1] = sy;   mM[1][2] = 0.0f; mM[1][3] = 0.0f;
@@ -47,19 +47,19 @@ CMatrix CMatrix::Scale(float sx, float sy, float sz)
 	return *this;
 }
 
-float CMatrix::M(int r, int c)const
+float CMatrix::GetM(int r, int c)const
 {
 	return mM[r][c];
 }
 
 //回転行列(Y軸)の作成
-//RotateY(角度)
-CMatrix CMatrix::RotateY(float degree)
+//SetRotateY(角度)
+CMatrix CMatrix::SetRotateY(float degree)
 {
 	//角度からラジアンを求める
 	float rad = degree / 180.0f * M_PI;
 	//単位行列にする
-	Identity();
+	SetIdentity();
 	//Y軸で回転する行列の設定
 	mM[0][0] = mM[2][2] = cosf(rad);
 	mM[0][2] = -sinf(rad);
@@ -69,13 +69,13 @@ CMatrix CMatrix::RotateY(float degree)
 }
 
 //回転行列(Z軸)の作成
-//RotateZ(角度)
-CMatrix CMatrix::RotateZ(float degree)
+//SetRotateZ(角度)
+CMatrix CMatrix::SetRotateZ(float degree)
 {
 	//角度からラジアンを求める
 	float rad = degree / 180.0f * M_PI;
 	//単位行列にする
-	Identity();
+	SetIdentity();
 	//Z軸で回転する行列の設定
 	mM[0][0] = mM[1][1] = cosf(rad);
 	mM[0][1] = sinf(rad);
@@ -85,13 +85,13 @@ CMatrix CMatrix::RotateZ(float degree)
 }
 
 //回転行列(X軸)の作成
-//RotateX(角度)
-CMatrix CMatrix::RotateX(float degree)
+//SetRotateX(角度)
+CMatrix CMatrix::SetRotateX(float degree)
 {
 	//角度からラジアンを求める
 	float rad = degree / 180.0f * M_PI;
 	//単位行列にする
-	Identity();
+	SetIdentity();
 	//X軸で回転する行列の設定
 	mM[1][1] = mM[2][2] = cosf(rad);
 	mM[1][2] = sinf(rad);
@@ -101,11 +101,11 @@ CMatrix CMatrix::RotateX(float degree)
 }
 
 //移動行列の作成
-//Translate(移動量X,移動量Y,移動量Z)
-CMatrix CMatrix::Translate(float mx, float my, float mz)
+//SetTranlate(移動量X,移動量Y,移動量Z)
+CMatrix CMatrix::SetTranlate(float mx, float my, float mz)
 {
 	//単位行列にする
-	Identity();
+	SetIdentity();
 	//移動量の設定
 	mM[3][0] = mx;
 	mM[3][1] = my;
@@ -135,12 +135,12 @@ const CMatrix CMatrix::operator*(const CMatrix& m)const
 	return t;
 }
 
-float* CMatrix::M() const
+float* CMatrix::GetM() const
 {
 	return (float*)mM[0];
 }
 
-CMatrix CMatrix::Transpose() const
+CMatrix CMatrix::GetTranspose() const
 {
 	CMatrix tmp;//返却用のCMatrixインスタンスを作成
 
@@ -156,23 +156,23 @@ CMatrix CMatrix::Transpose() const
 	return tmp;//代入されたtmpを返す
 }
 
-CVector CMatrix::VectorZ() const
+CVector CMatrix::GetVectorZ() const
 {
 	return CVector(mM[2][0], mM[2][1], mM[2][2]);
 }
 
-CVector CMatrix::VectorX() const
+CVector CMatrix::GetVectorX() const
 {
 	return CVector(mM[0][0], mM[0][1], mM[0][2]);
 }
 
-CVector CMatrix::VectorY() const
+CVector CMatrix::GetVectorY() const
 {
 	return CVector(mM[1][0], mM[1][1], mM[1][2]);
 }
 
 
-int CMatrix::Size()
+int CMatrix::GetSize()
 {
 	return sizeof(mM) / sizeof(float);
 }

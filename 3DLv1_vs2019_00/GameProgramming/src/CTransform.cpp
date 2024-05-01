@@ -1,31 +1,31 @@
 #include "CTransform.h"
 
-const CVector& CTransform::Position() const
+const CVector& CTransform::GetPosition() const
 {
 	return mPosition;
 }
 
-void CTransform::Position(const CVector& v)
+void CTransform::SetPosition(const CVector& v)
 {
 	mPosition = v;
 }
 
-void CTransform::Rotation(const CVector& v)
+void CTransform::SetRotation(const CVector& v)
 {
 	mRotation = v;
 }
 
-void CTransform::Scale(const CVector& v)
+void CTransform::SetScale(const CVector& v)
 {
 	mScale = v;
 }
 
-const CMatrix& CTransform::Matrix() const
+const CMatrix& CTransform::GetMatrix() const
 {
 	return mMatrix;
 }
 
-const CMatrix& CTransform::MatrixRotate() const
+const CMatrix& CTransform::GetMatrixRotate() const
 {
 	return mMatrixRotate;
 }
@@ -42,14 +42,14 @@ void CTransform::Update(const CVector& pos, const CVector& rot, const CVector& s
 void CTransform::Update()
 {
 	//拡大縮小行列の設定
-	mMatrixScale.Scale(mScale.X(), mScale.Y(), mScale.Z());
+	mMatrixScale.SetScale(mScale.GetX(), mScale.GetY(), mScale.GetZ());
 	//回転行列の設定
 	mMatrixRotate = 
-		CMatrix().RotateZ(mRotation.Z()) *
-		CMatrix().RotateX(mRotation.X()) * 
-		CMatrix().RotateY(mRotation.Y());
+		CMatrix().SetRotateZ(mRotation.GetZ()) *
+		CMatrix().SetRotateX(mRotation.GetX()) * 
+		CMatrix().SetRotateY(mRotation.GetY());
 	//平行移動行列の設定
-	mMatrixTranslate.Translate(mPosition.X(), mPosition.Y(), mPosition.Z());
+	mMatrixTranslate.SetTranlate(mPosition.GetX(), mPosition.GetY(), mPosition.GetZ());
 	//合成行列の設定
 	mMatrix = mMatrixScale * mMatrixRotate * mMatrixTranslate;
 }

@@ -8,21 +8,22 @@
 class CTransform
 {
 public:
-	//位置の取得
-	const CVector& Position() const;
 	//位置の設定
-	//Position(位置)
-	void Position(const CVector& v);
+    //SetPosition(位置)
+	void SetPosition(const CVector& v);
+	//位置の取得
+	const CVector& GetPosition() const;
 	//回転値の設定
-	//Rotation(回転値);
-	void Rotation(const CVector& v);
+	//SetRotation(回転値);
+	void SetRotation(const CVector& v);
 	//拡大縮小の設定
-	//Scale(拡大縮小)
-	void Scale(const CVector& v);
+	//SetScale(拡大縮小)
+	void SetScale(const CVector& v);
+
 	//合成行列の取得
-	const CMatrix& Matrix() const;
+	const CMatrix& GetMatrix() const;
 	//回転行列の取得
-	const CMatrix& MatrixRotate() const;
+	const CMatrix& GetMatrixRotate() const;
 	//行列更新処理
 	void Update();
 	//Update(位置,回転,スケール)

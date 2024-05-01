@@ -20,6 +20,8 @@
 #include "CColliderMesh.h"
 #include "CUi.h"
 #include "CModelX.h"
+#include "CXCharacter.h"
+#include "CXPlayer.h"
 
 #include "CSound.h"
 
@@ -52,6 +54,10 @@ private:
 	CMatrix mMatrix;
 
 	CPlayer mPlayer;
+	CXPlayer mXPlayer;
+
+	CPlayer* mpPlayer;
+	CEnemy* mpEnemy;
 
 	CInput mInput;
 	CFont mFont;
@@ -70,7 +76,4 @@ private:
 		EOVER,	//ゲームオーバー
 	};
 	EState mState;
-
-	CPlayer* mpPlayer;
-	CEnemy* mpEnemy;
 };
