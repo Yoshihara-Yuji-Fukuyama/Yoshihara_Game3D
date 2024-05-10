@@ -13,6 +13,15 @@ class CCollider;
 class CCharacter3 :public CTransform ,public CTask
 {
 public:
+	//キャラタグ種類
+	enum class ECharaTag
+	{
+		EPLAYER,
+		EENEMY,
+	};
+	//自分のキャラタグを返す
+	ECharaTag GetCharaTag();
+
 	CCharacter3();
 	CCharacter3(int priority);
 	~CCharacter3();
@@ -26,5 +35,6 @@ public:
 	void Render();
 protected:
 	CModel* mpModel;//モデルのポインタ
+	ECharaTag mCharaTag;   //自分のキャラタグ
 };
 #endif

@@ -1,21 +1,21 @@
-#ifndef CXPLAYER_H
-#define CXPLAYER_H
+#ifndef CXENEMY_H
+#define CXENEMY_H
 
 #include "CXCharacter.h"
-#include "CInput.h"
 #include "CCollider.h"
 
-class CXPlayer : public CXCharacter
+class CXEnemy : public CXCharacter
 {
 public:
-	CXPlayer();
-	void Update();
+	CXEnemy();
+
+	//衝突処理
+	void Collision(CCollider* m, CCollider* o);
 	//球コライダの生成とボーンとの連動
 	void Init(CModelX* model);
 private:
 	CCollider mColSphereHead; //頭
 	CCollider mColSphereBody; //体
 	CCollider mColSphereSword;//剣
-	CInput mInput;//CInputのインスタンス作成
 };
 #endif

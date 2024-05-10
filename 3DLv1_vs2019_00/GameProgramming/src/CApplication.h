@@ -1,28 +1,31 @@
 #pragma once
-#include "CCharacter3.h"
-#include "CTransform.h"
-#include "CTriangle.h"
-#include "CMatrix.h"
 #include "CModel.h"
-#include "CVector.h"
-#include "CTexture.h"
-#include "CBullet.h"
-#include "CEnemy.h"
-#include "CEnemy3.h"
-#include "CPlayer.h"
-#include "CInput.h"
-#include "CFont.h"
-#include <vector>
-#include "CTaskManager.h"
-#include "CCollisionManager.h"
-#include "CBillBoard.h"
-#include "CColliderTriangle.h"
-#include "CColliderMesh.h"
-#include "CUi.h"
 #include "CModelX.h"
 #include "CXCharacter.h"
-#include "CXPlayer.h"
+#include "CCharacter3.h"
+#include "CTexture.h"
+#include "CTriangle.h"
+#include "CBillBoard.h"
+#include "CCollisionManager.h"
+#include "CColliderTriangle.h"
+#include "CColliderMesh.h"
+#include "CTaskManager.h"
 
+#include "CPlayer.h"
+#include "CEnemy.h"
+#include "CEnemy3.h"
+#include "CBullet.h"
+#include "CXPlayer.h"
+#include "CXEnemy.h"
+
+#include "CTransform.h"
+#include "CMatrix.h"
+#include "CVector.h"
+#include <vector>
+
+#include "CInput.h"
+#include "CFont.h"
+#include "CUi.h"
 #include "CSound.h"
 
 class CApplication
@@ -49,12 +52,12 @@ private:
 	CModel mModel;
 	CModel mModelC5;
 	CModel mBackGround;
-	CModelX mModelX;
+	CModelX mModelX; //プレイヤーと敵のモデル
 	CColliderMesh mColliderMesh;
 	CMatrix mMatrix;
 
-	CPlayer mPlayer;
 	CXPlayer mXPlayer;
+	CXEnemy mXEnemy;
 
 	CPlayer* mpPlayer;
 	CEnemy* mpEnemy;

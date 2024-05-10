@@ -18,6 +18,11 @@ CCharacter3::~CCharacter3()
 	CTaskManager::Instance()->Remove(this);
 }
 
+CCharacter3::ECharaTag CCharacter3::GetCharaTag()
+{
+	return mCharaTag;
+}
+
 CCharacter3::CCharacter3()
 	:mpModel(nullptr)
 {

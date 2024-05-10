@@ -1,7 +1,7 @@
 #ifndef CCOLLIDER_H
 #define CCOLLIDER_H
 //キャラクタクラスのインクルード
-#include "CCharacter3.h"
+#include "CXCharacter.h"
 class CCollisionManager;
 
 /*
@@ -10,52 +10,79 @@ class CCollisionManager;
 */
 class CCollider :public CTransform, public CTask
 {
-
 	friend CCollisionManager;
 public:
+	//コライダタイプ
+	enum class EType
+	{
+		ESPHERE,  //球コライダ
+		ETRIANGLE,//三角コライダ
+		ELINE,    //線分コライダ
+	};
+	//mTypeの値を返す
+	CCollider::EType GetType();
+	//タグ
+	enum class ETag
+	{
+		EBODY, //体
+		ESWORD,//剣
+	};
+	//mTagの値を返す
+	ETag GetTag();
+
+	CCollider();
+	~CCollider();
+	/// <summary>
+	/// コンストラクタ
+	/// </summary>
+	/// <param name="parent">親</param>
+	/// <param name="matrix">親行列</param>
+	/// <param name="position">位置</param>
+	/// <param name="radius">半径</param>
+	/// <param name="tag">タグ</param>
+	CCollider(CCharacter3* parent, CMatrix* matrix,
+		const CVector& position, float radius, ETag tag = ETag::EBODY);
+	void Render();
+
 	//優先度の変更
 	virtual void ChangePriority();
 	//優先度の変更
 	void ChangePriority(int priority);
-	//CCollisionTriangleSpher(三角コライダ,球コライダ,調整値)
-	//return:true(衝突している)false(衝突していない)
-	//調整値:衝突しない位置まで戻す値
-	static bool CollisionTriangleSphere(CCollider* triangle, CCollider* sphere, CVector* adjust);
-	//CollisionTriangleLine(三角コライダ,線分コライダ,調整値)
-	//return:true(衝突している)false(衝突していない)
-	//調整値:衝突しない位置まで戻す値
-	static bool CollisionTriangleLine(CCollider* triangle, CCollider* line, CVector* adjust);
-	//コライダタイプ
-	enum class EType
-	{
-		ESPHERE,//球コライダ
-		ETRIANGLE,//三角コライダ
-		ELINE,//線分コライダ
-	};
-	//デフォルトコンストラクタ
-	CCollider();
-	//衝突判定
-	//Collision(コライダ1,コライダ2)
-	//return:true(衝突している)false(衝突していない)
+
+	/// <summary>
+	/// コライダ1と2の衝突判定
+	/// </summary>
+	/// <param name="m">コライダ1</param>
+	/// <param name="o">コライダ2</param>
+	/// <returns>衝突の可否</returns>
 	static bool Collision(CCollider* m, CCollider* o);
-	//デストラクタ
-	~CCollider();
-	//コンストラクタ
-	//CCollider(親,親行列,位置,半径)
-	CCollider(CCharacter3* parent, CMatrix* matrix,
-		const CVector& position, float radius);
+	/// <summary>
+	/// 三角コライダと球コライダの衝突判定
+	/// </summary>
+	/// <param name="triangle">三角コライダ</param>
+	/// <param name="sphere">球コライダ</param>
+	/// <param name="adjust">調整値(衝突しない位置まで戻す値)</param>
+	/// <returns>衝突の可否</returns>
+	static bool CollisionTriangleSphere(CCollider* triangle, CCollider* sphere, CVector* adjust);
+	/// <summary>
+	/// 三角コライダと線分コライダの衝突判定
+	/// </summary>
+	/// <param name="triangle">三角コライダ</param>
+	/// <param name="line">線分コライダ</param>
+	/// <param name="adjust">調整値(衝突しない位置まで戻す値)</param>
+	/// <returns>衝突の可否</returns>
+	static bool CollisionTriangleLine(CCollider* triangle, CCollider* line, CVector* adjust);
+
 	//親ポインタの取得
-	CCharacter3* Parent();
-	//描画
-	void Render();	
-	//mTypeの値を返す
-	CCollider::EType Type();
+	CCharacter3* GetParent();
+	//親行列の設定
+	void SetMatrix(CMatrix* m);
 protected:
-	EType mType;//コライダタイプ
-	//頂点
-	CVector mV[3];
+	EType mType;  //コライダタイプ
+	ETag mTag;    //タグ
+	CVector mV[3];//頂点
 	CCharacter3* mpParent;//親
-	CMatrix* mpMatrix;//親行列
+	CMatrix* mpMatrix;    //親行列
 	float mRadius;//半径
 };
 #endif

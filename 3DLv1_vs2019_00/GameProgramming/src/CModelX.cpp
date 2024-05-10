@@ -214,7 +214,7 @@ void CModelX::Render()
 //トークンがなくなったらtrue
 bool CModelX::EOT()
 {
-	if (strcmp(mpPointer, "\0") == 0)
+	if (*mpPointer == '\0')
 	{
 		return true;
 	}
@@ -346,6 +346,21 @@ void CModelX::AnimateVertex()
 		{
 			//頂点をアニメーションで更新する
 			mFrame[i]->mpMesh->AnimateVertex(this);
+		}
+	}
+}
+
+//頂点計算を指定した合成行列で行う
+void CModelX::AnimateVertex(CMatrix* mat)
+{
+	//フレーム数分繰り返し
+	for (size_t i = 0; i < mFrame.size(); i++)
+	{
+		//メッシュがあれば
+		if (mFrame[i]->mpMesh)
+		{
+			//頂点をアニメーションで更新する
+			mFrame[i]->mpMesh->AnimateVertex(mat);
 		}
 	}
 }
@@ -507,7 +522,7 @@ const CMatrix& CModelXFrame::GetCombinedMatrix()
 
 //CMeshのコンストラクタ
 CMesh::CMesh()
-	:mVertexNum(0)
+	: mVertexNum(0)
 	, mpVertex(nullptr)
 	, mFaceNum(0)
 	, mpVertexIndex(nullptr)
@@ -791,6 +806,38 @@ void CMesh::AnimateVertex(CModelX* model)
 	}
 }
 
+void CMesh::AnimateVertex(CMatrix* mat)
+{
+	//アニメーション用の頂点エリアクリア
+	memset(mpAnimateVertex, 0, sizeof(CVector) * mVertexNum);
+	memset(mpAnimateNormal, 0, sizeof(CVector) * mNormalNum);
+	//スキンウェイト分繰り返し
+	for (size_t i = 0; i < mSkinWeights.size(); i++)
+	{
+		//フレーム番号取得
+		int frameIndex = mSkinWeights[i]->mFrameIndex;
+		//フレーム合成行列にオフセット行列を合成
+		CMatrix mSkinningMatrix = mSkinWeights[i]->mOffset * mat[frameIndex];
+		//頂点数分繰り返し
+		for (int j = 0; j < mSkinWeights[i]->mIndexNum; j++)
+		{
+			//頂点番号取得
+			int index = mSkinWeights[i]->mpIndex[j];
+			//重み取得
+			float weight = mSkinWeights[i]->mpWeight[j];
+			//頂点と法線を更新する
+			mpAnimateVertex[index] += mpVertex[index] * mSkinningMatrix * weight;
+			mpAnimateNormal[index] += mpNormal[index] * mSkinningMatrix * weight;
+		}
+
+	}
+	//法線を正規化
+	for (int i = 0; i < mNormalNum; i++)
+	{
+		mpAnimateNormal[i] = mpAnimateNormal[i].Normalize();
+	}
+}
+
 
 
 /*
@@ -798,7 +845,7 @@ CSkinWeights
 スキンウェイトの読み込み
 */
 CSkinWeights::CSkinWeights(CModelX* model)
-	:mpFrameName(nullptr)
+	: mpFrameName(nullptr)
 	, mFrameIndex(0)
 	, mIndexNum(0)
 	, mpIndex(nullptr)
@@ -861,7 +908,7 @@ CSkinWeights::~CSkinWeights()
 CAnimationSet
 */
 CAnimationSet::CAnimationSet(CModelX* model)
-	:mpName(nullptr)
+	: mpName(nullptr)
 	, mTime(0)
 	, mWeight(0)
 	, mMaxTime(0)
@@ -979,7 +1026,7 @@ std::vector<CAnimation*>& CAnimationSet::GetAnimation()
 
 
 CAnimation::CAnimation(CModelX* model)
-	:mpFrameName(nullptr)
+	: mpFrameName(nullptr)
 	, mFrameIndex(0)
 	, mKeyNum(0)
 	, mpKey(nullptr)

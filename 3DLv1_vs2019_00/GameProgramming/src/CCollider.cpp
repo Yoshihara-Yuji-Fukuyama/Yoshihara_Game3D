@@ -2,6 +2,28 @@
 #include "CCollisionManager.h"
 #include "CColliderLine.h"
 
+//mTypeの値を返す
+CCollider::EType CCollider::GetType()
+{
+	return mType;
+}
+
+//mTagの値を返す
+CCollider::ETag CCollider::GetTag()
+{
+	return mTag;
+}
+
+CCollider::CCollider()
+	: mpParent(nullptr)
+	, mpMatrix(&mMatrix)
+	, mType(EType::ESPHERE)
+	, mRadius(0)
+{
+	//コリジョンマネージャに追加
+	CCollisionManager::Instance()->Add(this);
+}
+
 CCollider::~CCollider()
 {
 	//コリジョンリストから削除
@@ -9,9 +31,11 @@ CCollider::~CCollider()
 }
 
 CCollider::CCollider(CCharacter3* parent, CMatrix* matrix,
-	const CVector& position, float radius)
+	const CVector& position, float radius, ETag tag)
 	: CCollider()
 {
+	//タグの設定
+	mTag = tag;
 	//親決定
 	mpParent = parent;
 	//親行列設定
@@ -22,11 +46,6 @@ CCollider::CCollider(CCharacter3* parent, CMatrix* matrix,
 	mRadius = radius;
 	//コリジョンマネージャに追加
 	//CCollisionManager::Instance()->Add(this);
-}
-
-CCharacter3* CCollider::Parent()
-{
-	return mpParent;
 }
 
 void CCollider::Render()
@@ -45,9 +64,22 @@ void CCollider::Render()
 	glPopMatrix();
 }
 
-//衝突判定
-//Collision(コライダ1,コライダ2)
-//return:true(衝突している)false(衝突していない)
+void CCollider::ChangePriority()
+{
+	//自分の座標×親の変換行列をかけてワールド座標を求める
+	CVector pos = mPosition * *mpMatrix;
+	//ベクトルの長さが優先度
+	CCollider::ChangePriority(pos.Length());
+}
+
+void CCollider::ChangePriority(int priority)
+{
+	mPriority = priority;
+	CCollisionManager::Instance()->Remove(this);//一旦削除
+	CCollisionManager::Instance()->Add(this);//追加
+}
+
+//コライダ1と2の衝突判定
 bool CCollider::Collision(CCollider* m, CCollider* o)
 {
 	//各コライダの中心座標を求める
@@ -65,18 +97,23 @@ bool CCollider::Collision(CCollider* m, CCollider* o)
 	//衝突していない
 	return false;
 }
-
-//デフォルトコンストラクタ
-CCollider::CCollider()
-	: mpParent(nullptr)
-	, mpMatrix(&mMatrix)
-	, mType(EType::ESPHERE)
-	, mRadius(0)
+//三角コライダと球コライダの衝突判定
+bool CCollider::CollisionTriangleSphere(CCollider* t, CCollider* s, CVector* a)
 {
-	//コリジョンマネージャに追加
-	CCollisionManager::Instance()->Add(this);
+	CVector v[3], sv, ev;
+	v[0] = t->mV[0] * *t->mpMatrix;
+	v[1] = t->mV[1] * *t->mpMatrix;
+	v[2] = t->mV[2] * *t->mpMatrix;
+	//面の法線を、外積を正規化して求める
+	CVector normal = (v[1] - v[0]).Cross(v[2] - v[0]).Normalize();
+	//線コライダをワールド座標で作成
+	sv = s->mPosition * *s->mpMatrix + normal * s->mRadius;
+	ev = s->mPosition * *s->mpMatrix - normal * s->mRadius;
+	CColliderLine line(nullptr, nullptr, sv, ev);
+	//三角コライダと線コライダの衝突処理
+	return CollisionTriangleLine(t, &line, a);
 }
-
+//三角コライダと線分コライダの衝突判定
 bool CCollider::CollisionTriangleLine(CCollider* t, CCollider* l, CVector* a)
 {
 	CVector v[3], sv, ev;
@@ -149,41 +186,14 @@ bool CCollider::CollisionTriangleLine(CCollider* t, CCollider* l, CVector* a)
 	return true;
 }
 
-CCollider::EType CCollider::Type()
+//親ポインタの取得
+CCharacter3* CCollider::GetParent()
 {
-	return mType;
+	return mpParent;
 }
 
-//CollisionTriangleSphere(三角コライダ,球コライダ,調整値)
-//return:true(衝突している)false(衝突していない)
-//調整値:衝突しない位置まで戻す値
-bool CCollider::CollisionTriangleSphere(CCollider* t, CCollider* s, CVector* a)
+//親行列の設定
+void CCollider::SetMatrix(CMatrix* m)
 {
-	CVector v[3], sv, ev;
-	v[0] = t->mV[0] * *t->mpMatrix;
-	v[1] = t->mV[1] * *t->mpMatrix;
-	v[2] = t->mV[2] * *t->mpMatrix;
-	//面の法線を、外積を正規化して求める
-	CVector normal = (v[1] - v[0]).Cross(v[2] - v[0]).Normalize();
-	//線コライダをワールド座標で作成
-	sv = s->mPosition * *s->mpMatrix + normal * s->mRadius;
-	ev = s->mPosition * *s->mpMatrix - normal * s->mRadius;
-	CColliderLine line(nullptr, nullptr, sv, ev);
-	//三角コライダと線コライダの衝突処理
-	return CollisionTriangleLine(t, &line, a);
-}
-
-void CCollider::ChangePriority(int priority)
-{
-	mPriority = priority;
-	CCollisionManager::Instance()->Remove(this);//一旦削除
-	CCollisionManager::Instance()->Add(this);//追加
-}
-
-void CCollider::ChangePriority()
-{
-	//自分の座標×親の変換行列をかけてワールド座標を求める
-	CVector pos = mPosition * *mpMatrix;
-	//ベクトルの長さが優先度
-	CCollider::ChangePriority(pos.Length());
+	mpMatrix = m;
 }

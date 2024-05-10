@@ -56,6 +56,8 @@ public:
 	void SetSkinWeightFrameIndex();
 	//頂点にアニメーションを適用
 	void AnimateVertex();
+	//頂点計算を指定した合成行列で行う
+	void AnimateVertex(CMatrix*);
 	//mFrame配列を返す
 	std::vector<CModelXFrame*>& GetFrames();
 	//mAnimationSet配列を返す
@@ -87,7 +89,7 @@ public:
 	int GetIndex();
 	//合成行列の作成
 	void SetAnimateCombined(CMatrix* parent);
-	//mCombinedMatrixを返す
+	//mCombinedMatrix(合成行列)を返す
 	const CMatrix& GetCombinedMatrix();
 private:
 	std::vector<CModelXFrame*> mChild;//子フレームの配列
@@ -112,6 +114,8 @@ public:
 	void SetSkinWeightFrameIndex(CModelX* model);
 	//頂点にアニメーションを適用
 	void AnimateVertex(CModelX* model);
+	//頂点計算を指定した合成行列で行う
+	void AnimateVertex(CMatrix*);
 private:
 	int mVertexNum;    //頂点数
 	CVector* mpVertex; //頂点データ
