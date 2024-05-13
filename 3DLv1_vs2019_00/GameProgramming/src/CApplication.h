@@ -32,7 +32,7 @@ class CApplication
 {
 public:
 	//モデルビュー行列の取得
-	static const CMatrix& ModelViewInverse();
+	static const CMatrix& GetModelViewInverse();
 	//Textureクラスのインスタンスを取得
 	static CTexture* GetTexture();
 	//UIクラスのインスタンスを取得
@@ -52,7 +52,9 @@ private:
 	CModel mModel;
 	CModel mModelC5;
 	CModel mBackGround;
-	CModelX mModelX; //プレイヤーと敵のモデル
+	CModelX mPlayerModel; //プレイヤーのモデル
+	CModelX mKnightModel; //Knightのモデル
+
 	CColliderMesh mColliderMesh;
 	CMatrix mMatrix;
 

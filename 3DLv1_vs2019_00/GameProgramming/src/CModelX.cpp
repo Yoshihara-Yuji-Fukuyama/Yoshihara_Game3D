@@ -3,35 +3,7 @@
 #include "CModelX.h"
 #include "glut.h"
 #include <ctype.h> //isspace関数の宣言
-/*
-IsDelimiter(c)
-cが\t\r\nスペースなどの空白文字
-または,;"などの文字であれば
-区切り文字としてtrueを返す
-*/
-
-bool CModelX::IsDelimiter(char c)
-{
-	//cが0より小さい時、falseを返す
-	if (c < 0)
-	{
-		return false;
-	}
-	//isspace(c)
-	//cが空白文字なら0以外を返す
-	if (isspace(c) != 0)
-		return true;
-	/*
-	strchr(文字列,文字)
-	文字列に文字が含まれていれば
-	見つかった文字へのポインタを返す
-	見つからなかったらNULLを返す
-	*/
-	if (strchr(",;\"", c) != NULL)
-		return true;
-	//区切り文字ではない
-	return false;
-}
+#include "CMaterial.h"//CMaterialを使えるようにするため
 
 CModelX::CModelX()
 	:mpPointer(nullptr)
@@ -91,6 +63,14 @@ void CModelX::Load(char* file)
 	buf[size] = '\0';
 	fclose(fp); //ファイルをクローズする
 
+	//ダミールートフレームの作成
+	CModelXFrame* p = new CModelXFrame();
+	//名前なし
+	p->mpName = new char[1];
+	p->mpName[0] = '\0';
+	//フレーム配列に追加
+	mFrame.push_back(p);
+
 	//文字列の最後まで繰り返し
 	while (*mpPointer != '\0')
 	{
@@ -108,8 +88,23 @@ void CModelX::Load(char* file)
 		//単語がFrameの場合
 		else if (strcmp(mToken, "Frame") == 0)
 		{
-			//フレームを作成
-			new CModelXFrame(this);
+			//フレーム名取得
+			GetToken();
+			if (strchr(mToken, '{'))
+			{
+				//フレーム名なし　スキップ
+				SkipNode();
+				GetToken(); // }
+			}
+			else
+			{
+				//フレームがなければ
+				if (FindFrame(mToken) == 0)
+				{
+					//フレームを作成する
+					p->mChild.push_back(new CModelXFrame(this));
+				}
+			}
 		}
 		//単語がAnimationSetの場合
 		else if (strcmp(mToken, "AnimationSet") == 0)
@@ -371,26 +366,55 @@ std::vector<CModelXFrame*>& CModelX::GetFrames()
 	return mFrame;
 
 }
-
 //mAnimationSet配列を返す
 std::vector<CAnimationSet*>& CModelX::GetAnimationSet()
 {
 	return mAnimationSet;
 }
-
+//mMaterial配列を返す
 std::vector<CMaterial*>& CModelX::GetMaterial()
 {
 	return mMaterial;
 }
 
+//cが区切り文字ならtrueを返す
+bool CModelX::IsDelimiter(char c)
+{
+	//cが0より小さい時、falseを返す
+	if (c < 0)
+	{
+		return false;
+	}
+	//isspace(c)
+	//cが空白文字なら0以外を返す
+	if (isspace(c) != 0)
+		return true;
+	/*
+	strchr(文字列,文字)
+	文字列に文字が含まれていれば
+	見つかった文字へのポインタを返す
+	見つからなかったらNULLを返す
+	*/
+	if (strchr(",;\"", c) != NULL)
+		return true;
+	//区切り文字ではない
+	return false;
+}
+
+
+
+CModelXFrame::CModelXFrame()
+	: mpMesh(nullptr)
+	, mpName(nullptr)
+	, mIndex(0)
+{
+}
 
 /*
-CModelXFrame
 model:CModelXインスタンスへのポインタ
 フレームを作成する
 読み込み中にFrameが見つかれば、フレームを作成し、
-子フレームに追加する
-*/
+子フレームに追加する*/
 CModelXFrame::CModelXFrame(CModelX* model)
 	: mpName(nullptr)
 	, mIndex(0)
@@ -402,8 +426,6 @@ CModelXFrame::CModelXFrame(CModelX* model)
 	model->mFrame.push_back(this);
 	//変換行列を単位行列にする
 	mTransformMatrix.SetIdentity();
-	//次の単語（フレーム名の予定）を取得する
-	model->GetToken();//frame name
 	//フレーム名分エリアを確保する
 	mpName = new char[strlen(model->mToken) + 1];
 	//フレーム名をコピーする
@@ -420,8 +442,23 @@ CModelXFrame::CModelXFrame(CModelX* model)
 		//新たなフレームの場合は、子フレームに追加
 		if (strcmp(model->mToken, "Frame") == 0)
 		{
-			//フレームを作成し、子フレームの配列に追加
-			mChild.push_back(new CModelXFrame(model));
+			//フレーム名取得
+			model->GetToken();
+			if (strchr(model->mToken, '{'))
+			{
+				//フレーム名なし スキップ
+				model->SkipNode();
+				model->GetToken(); // }
+			}
+			else
+			{
+				//フレームがなければ
+				if (model->FindFrame(model->mToken) == 0)
+				{
+					//フレームを作成し、子フレームの配列に追加
+					mChild.push_back(new CModelXFrame(model));
+				}
+			}
 		}
 		//FrameTransformMatrixの場合、行列に追加する
 		else if (strcmp(model->mToken, "FrameTransformMatrix") == 0)

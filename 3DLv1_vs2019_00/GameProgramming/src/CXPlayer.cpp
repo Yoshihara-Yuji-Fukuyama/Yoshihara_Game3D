@@ -71,15 +71,16 @@ void CXPlayer::Update()
 	CXCharacter::Update();
 }
 
+//初期設定
 //球コライダの生成と、ボーンとの連動
 void CXPlayer::Init(CModelX* model)
 {
 	CXCharacter::Init(model);
 	//合成行列の設定
 	//頭
-	mColSphereHead.SetMatrix(&mpCombinedMatrix[11]);
+	mColSphereHead.SetMatrix(&mpCombinedMatrix[12]);
 	//体
-	mColSphereBody.SetMatrix(&mpCombinedMatrix[8]);
+	mColSphereBody.SetMatrix(&mpCombinedMatrix[9]);
 	//剣
-	mColSphereSword.SetMatrix(&mpCombinedMatrix[21]);
+	mColSphereSword.SetMatrix(&mpCombinedMatrix[22]);
 }

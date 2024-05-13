@@ -16,7 +16,7 @@ CTexture CApplication::mTexture;
 #define SOUND_OVER "res\\mdai.wav" //ゲームオーバー音声ファイル
 
 //モデルビュー行列の取得
-const CMatrix& CApplication::ModelViewInverse()
+const CMatrix& CApplication::GetModelViewInverse()
 {
 	return mModelViewInverse;
 }
@@ -43,11 +43,12 @@ CApplication::~CApplication()
 void CApplication::Start()
 {
 	//3Dモデルファイルの読み込み
-	mModelX.Load(MODEL_FILE);
+	mPlayerModel.Load(MODEL_PLAYER);
+	mKnightModel.Load(MODEL_KNIGHT);
 	//プレイヤーの初期設定
-	mXPlayer.Init(&mModelX);
+	mXPlayer.Init(&mPlayerModel);
 	//敵の初期設定
-	mXEnemy.Init(&mModelX);
+	mXEnemy.Init(&mKnightModel);
 	//敵の配置
 	mXEnemy.SetPosition(CVector(7.0f, 0.0f, 0.0f));
 	
@@ -103,7 +104,7 @@ void CApplication::Update()
 	glMultMatrixf(mMatrix.GetM());
 
 	//頂点にアニメーションを適用する
-	mModelX.AnimateVertex();
+	mPlayerModel.AnimateVertex();
 	//プレイヤー描画
 	mXPlayer.Render();
 	//コライダの描画

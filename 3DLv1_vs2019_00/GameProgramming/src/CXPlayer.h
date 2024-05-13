@@ -10,6 +10,7 @@ class CXPlayer : public CXCharacter
 public:
 	CXPlayer();
 	void Update();
+	//初期設定
 	//球コライダの生成とボーンとの連動
 	void Init(CModelX* model);
 private:

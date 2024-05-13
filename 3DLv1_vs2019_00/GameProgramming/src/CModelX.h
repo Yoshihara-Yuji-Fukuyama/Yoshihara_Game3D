@@ -4,7 +4,6 @@
 #include <vector>//vectorクラスのインクルード（動的配列）
 #include "CVector.h"
 #include "CMatrix.h"
-#include "CMaterial.h"
 class CModelX;      //CModelXクラスの宣言
 class CModelXFrame; //CModelXFrameクラスの宣言
 class CMesh;        //CMeshクラスの宣言
@@ -15,7 +14,8 @@ class CAnimationKey;//CAnimationKeyクラスの宣言
 class CMaterial;    //マテリアルの宣言
 
 
-#define MODEL_FILE "res\\ラグナ.x" //入力ファイル名
+#define MODEL_PLAYER "res\\ラグナ.x"            //プレイヤーモデル
+#define MODEL_KNIGHT "res\\knight\\knight_low.x"//敵モデル
 
 //領域解放をマクロ化
 #define SAFE_DELETE_ARRAY(a) {if(a) delete[] a; a = nullptr;}
@@ -46,10 +46,12 @@ public:
 	void Render();
 	//トークンがなくなったらtrue
 	bool EOT();
+
 	//フレーム名に該当するフレームのアドレスを返す
 	CModelXFrame* FindFrame(char* name);
 	//マテリアル名に該当するマテリアルのアドレスを返す
 	CMaterial* FindMaterial(char* name);
+
 	//フレームの変換行列を更新
 	void AnimateFrame();
 	//スキンウェイトのフレーム番号設定
@@ -58,6 +60,7 @@ public:
 	void AnimateVertex();
 	//頂点計算を指定した合成行列で行う
 	void AnimateVertex(CMatrix*);
+
 	//mFrame配列を返す
 	std::vector<CModelXFrame*>& GetFrames();
 	//mAnimationSet配列を返す
@@ -80,6 +83,12 @@ class CModelXFrame {
 	friend CAnimation;
 	friend CAnimationSet;
 public:
+	CModelXFrame();
+	/*
+	model:CModelXのポインタ
+	フレームを作成する
+	読み込み中にFrameが見つかれば、
+	フレームを作成し、子フレームに追加する*/
 	CModelXFrame(CModelX* model);
 	~CModelXFrame();
 
