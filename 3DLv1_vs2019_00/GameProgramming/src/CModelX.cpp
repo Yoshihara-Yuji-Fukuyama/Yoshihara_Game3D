@@ -360,6 +360,45 @@ void CModelX::AnimateVertex(CMatrix* mat)
 	}
 }
 
+//アニメーションを抜き出す
+void CModelX::SeparateAnimationSet(int idx, int start, int end, char* name)
+{
+	CAnimationSet* anim = mAnimationSet[idx];//分割するアニメーションセットを確定
+	CAnimationSet* as = new CAnimationSet(); //アニメーションセットの生成
+	as->mpName = new char[strlen(name) + 1]; //名前用のスペースを確保
+	strcpy(as->mpName, name);  //名前をコピー
+	as->mMaxTime = end - start;//再生時間を計算
+	//既存のアニメーション分繰り返し
+	for (size_t i = 0; i < anim->mAnimation.size(); i++)
+	{
+		CAnimation* animation = new CAnimation();//アニメーションの生成
+		animation->mpFrameName = 
+			new char[strlen(anim->mAnimation[i]->mpFrameName) + 1];//フレーム名用のスペースを確保
+		strcpy(animation->mpFrameName, anim->mAnimation[i]->mpFrameName);//フレーム名のコピー
+		animation->mFrameIndex = anim->mAnimation[i]->mFrameIndex;//フレーム番号を代入
+		animation->mKeyNum = end - start + 1;//時間数
+		animation->mpKey = new CAnimationKey[animation->mKeyNum];//アニメーションキーの生成
+		animation->mKeyNum = 0;//時間数をゼロにする
+		//jが終了時間以下かつ時間数未満の間繰り返す
+		//アニメーションキーコピー
+		for (int j = start; j <= end && j < anim->mAnimation[i]->mKeyNum; j++)
+		{
+			if (j < anim->mAnimation[i]->mKeyNum)
+			{
+				animation->mpKey[animation->mKeyNum] = anim->mAnimation[i]->mpKey[j];
+			}
+			else
+			{
+				animation->mpKey[animation->mKeyNum] =
+					anim->mAnimation[i]->mpKey[anim->mAnimation[i]->mKeyNum - 1];
+			}
+			animation->mpKey[animation->mKeyNum].mTime = animation->mKeyNum++;
+		}
+		as->mAnimation.push_back(animation);//アニメーションの追加
+	}
+	mAnimationSet.push_back(as);//アニメーションセットの追加
+}
+
 //mFrame配列を返す
 std::vector<CModelXFrame*>& CModelX::GetFrames()
 {
@@ -940,10 +979,15 @@ CSkinWeights::~CSkinWeights()
 	SAFE_DELETE_ARRAY(mpWeight);
 }
 
-
-/*
-CAnimationSet
-*/
+//CAnimationSetのデフォルトコンストラクタ
+CAnimationSet::CAnimationSet()
+	: mpName(nullptr)
+	, mTime(0)
+	, mWeight(0)
+	, mMaxTime(0)
+{
+}
+//CAnimationSetのコンストラクタ
 CAnimationSet::CAnimationSet(CModelX* model)
 	: mpName(nullptr)
 	, mTime(0)
@@ -975,7 +1019,6 @@ CAnimationSet::CAnimationSet(CModelX* model)
 	printf("AnimationSet:%s\n", mpName);
     #endif
 }
-
 //CAnimationSetのデストラクタ
 CAnimationSet::~CAnimationSet()
 {
@@ -986,30 +1029,27 @@ CAnimationSet::~CAnimationSet()
 		delete mAnimation[i];
 	}
 }
-
 //時間の設定
 void CAnimationSet::SetTime(float time)
 {
 	mTime = time;
 }
-
 //mTimeを返す
 float CAnimationSet::GetTime()
 {
 	return mTime;
 }
-
 //mMaxTimeを返す
 float CAnimationSet::GetMaxTime()
 {
 	return mMaxTime;
 }
-
+//重みの設定
 void CAnimationSet::SetWeight(float weight)
 {
 	mWeight = weight;
 }
-
+//アニメーション変換行列を計算する
 void CAnimationSet::AnimateMatrix(CModelX* model)
 {
 	//重みが0は飛ばす
@@ -1055,13 +1095,21 @@ void CAnimationSet::AnimateMatrix(CModelX* model)
 		}
 	}
 }
-
+//mAnimationを返す
 std::vector<CAnimation*>& CAnimationSet::GetAnimation()
 {
 	return mAnimation;
 }
 
-
+//CAnimationのデフォルトコンストラクタ
+CAnimation::CAnimation()
+	: mpFrameName(nullptr)
+	, mFrameIndex(0)
+	, mKeyNum(0)
+	, mpKey(nullptr)
+{
+}
+//CAnimationのコンストラクタ
 CAnimation::CAnimation(CModelX* model)
 	: mpFrameName(nullptr)
 	, mFrameIndex(0)
@@ -1214,7 +1262,6 @@ CAnimation::CAnimation(CModelX* model)
 	}
 #endif
 }
-
 //CAnimationのデストラクタ
 CAnimation::~CAnimation()
 {

@@ -40,15 +40,37 @@ CApplication::~CApplication()
 	delete spUi;//インスタンスUiの削除
 }
 
-void CApplication::Start()
+//初期設定
+void CApplication::Init()
 {
-	//3Dモデルファイルの読み込み
+	//3Dモデルファイル読み込み
 	mPlayerModel.Load(MODEL_PLAYER);
 	mKnightModel.Load(MODEL_KNIGHT);
+	//敵のアニメーションを抜き出す
+	mKnightModel.SeparateAnimationSet(0, 10, 80, "walk");//1:移動
+	mKnightModel.SeparateAnimationSet(0, 1530, 1830, "idle1");//2:待機
+	mKnightModel.SeparateAnimationSet(0, 10, 80, "walk");//3:ダミー
+	mKnightModel.SeparateAnimationSet(0, 10, 80, "walk");//4:ダミー
+	mKnightModel.SeparateAnimationSet(0, 10, 80, "walk");//5:ダミー
+	mKnightModel.SeparateAnimationSet(0, 10, 80, "walk");//6:ダミー
+	mKnightModel.SeparateAnimationSet(0, 440, 520, "attack1");//7:Attack1
+	mKnightModel.SeparateAnimationSet(0, 520, 615, "attack2");//8:Attack2
+	mKnightModel.SeparateAnimationSet(0, 10, 80, "walk");//9:ダミー
+	mKnightModel.SeparateAnimationSet(0, 10, 80, "walk");//10:ダミー
+	mKnightModel.SeparateAnimationSet(0, 1160, 1260, "death1");//11:ダウン
 	//プレイヤーの初期設定
 	mXPlayer.Init(&mPlayerModel);
 	//敵の初期設定
 	mXEnemy.Init(&mKnightModel);
+	//待機アニメーションに変更
+	mXEnemy.ChangeAnimation(2, true, 200);
+}
+
+void CApplication::Start()
+{
+	//CApplicationのInit()
+	Init();
+
 	//敵の配置
 	mXEnemy.SetPosition(CVector(7.0f, 0.0f, 0.0f));
 	

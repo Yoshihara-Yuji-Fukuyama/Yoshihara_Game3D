@@ -16,6 +16,8 @@ public:
 private:
 	CCollider mColSphereHead; //“ª
 	CCollider mColSphereBody; //‘Ì
-	CCollider mColSphereSword;//Œ•
+	CCollider mColSphereSword0;//Œ•
+	CCollider mColSphereSword1;//Œ•
+	CCollider mColSphereSword2;//Œ•
 };
 #endif

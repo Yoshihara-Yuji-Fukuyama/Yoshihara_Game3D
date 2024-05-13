@@ -1,10 +1,13 @@
 #include "CXEnemy.h"
 
 CXEnemy::CXEnemy()
-	: mColSphereHead(this, nullptr, CVector(0.0f, 5.0f, -3.0f), 0.5f)
-	, mColSphereBody(this, nullptr, CVector(), 0.5f)
-	, mColSphereSword(this, nullptr, CVector(-10.0f, 10.0f, 50.0f), 0.3f, CCollider::ETag::ESWORD)
+	: mColSphereHead(this, nullptr, CVector(0.0f, 1.0f, 0.0f), 1.5f)
+	, mColSphereBody(this, nullptr, CVector(0.5f, -1.0f, 0.0f), 1.0f)
+	, mColSphereSword0(this, nullptr, CVector(0.7f, 3.5f, -0.2f), 0.5f, CCollider::ETag::ESWORD)
+	, mColSphereSword1(this, nullptr, CVector(0.5f, 2.5f, -0.2f), 0.5f, CCollider::ETag::ESWORD)
+	, mColSphereSword2(this, nullptr, CVector(0.3f, 1.5f, -0.2f), 0.5f, CCollider::ETag::ESWORD)
 {
+	mCharaTag = ECharaTag::EENEMY;
 }
 
 //è’ìÀèàóù
@@ -31,9 +34,11 @@ void CXEnemy::Init(CModelX* model)
 	CXCharacter::Init(model);
 	//çáê¨çsóÒÇÃê›íË
 	//ì™
-	mColSphereHead.SetMatrix(&mpCombinedMatrix[11]);
+	mColSphereHead.SetMatrix(&mpCombinedMatrix[1]);
 	//ëÃ
-	mColSphereBody.SetMatrix(&mpCombinedMatrix[8]);
+	mColSphereBody.SetMatrix(&mpCombinedMatrix[1]);
 	//åï
-	mColSphereSword.SetMatrix(&mpCombinedMatrix[21]);
+	mColSphereSword0.SetMatrix(&mpCombinedMatrix[26]);
+	mColSphereSword1.SetMatrix(&mpCombinedMatrix[26]);
+	mColSphereSword2.SetMatrix(&mpCombinedMatrix[26]);
 }

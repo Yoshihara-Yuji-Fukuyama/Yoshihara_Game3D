@@ -39,6 +39,8 @@ public:
 	static CUi* GetUi();
 	//デストラクタ
 	~CApplication();
+	//初期設定
+	void Init();
 
 	//最初に一度だけ実行するプログラム
 	void Start();
