@@ -46,6 +46,8 @@ void CApplication::Init()
 	//3Dモデルファイル読み込み
 	mPlayerModel.Load(MODEL_PLAYER);
 	mKnightModel.Load(MODEL_KNIGHT);
+	//パラディンのインスタンス作成
+	mpPaladin = new CPaladin();
 	//敵のアニメーションを抜き出す
 	mKnightModel.SeparateAnimationSet(0, 10, 80, "walk");//1:移動
 	mKnightModel.SeparateAnimationSet(0, 1530, 1830, "idle1");//2:待機
@@ -64,17 +66,20 @@ void CApplication::Init()
 	mXEnemy.Init(&mKnightModel);
 	//待機アニメーションに変更
 	mXEnemy.ChangeAnimation(2, true, 200);
+	mpPaladin->ChangeAnimation(1, true, 200);
+
+	//フォントのロード
+	mFont.Load("FontG.png", 1, 4096 / 64);
 }
 
 void CApplication::Start()
 {
 	//CApplicationのInit()
 	Init();
-
 	//敵の配置
 	mXEnemy.SetPosition(CVector(7.0f, 0.0f, 0.0f));
-	
-	mFont.Load("FontG.png", 1, 4096 / 64);
+	//パラディンの配置
+	mpPaladin->SetPosition(CVector(-1.0f, 0.0f, 5.0f));
 }
 
 void CApplication::Update()
@@ -83,6 +88,8 @@ void CApplication::Update()
 	mXPlayer.Update();
 	//敵の更新
 	mXEnemy.Update();
+	//パラディンの更新
+	mpPaladin->Update();
 
 	//カメラのパラメータを作成する
 	CVector  e, c, u;//視点、注視点、上方向
@@ -129,12 +136,15 @@ void CApplication::Update()
 	mPlayerModel.AnimateVertex();
 	//プレイヤー描画
 	mXPlayer.Render();
+	//敵描画
+	mXEnemy.Render();
+	//パラディンの描画
+	mpPaladin->Render();
 	//コライダの描画
 	CCollisionManager::Instance()->Render();
 	//衝突処理
 	CCollisionManager::Instance()->Collision();
-	//敵描画
-	mXEnemy.Render();
+
 
 	//2D描画開始
 	CCamera::Start(0, 800, 0, 600);

@@ -6,7 +6,8 @@
 #include "CMaterial.h"//CMaterialを使えるようにするため
 
 CModelX::CModelX()
-	:mpPointer(nullptr)
+	: mpPointer(nullptr)
+	, mLoaded(false)
 {
 	//mTokenを初期化
 	memset(mToken, 0, sizeof(mToken));
@@ -29,6 +30,52 @@ CModelX::~CModelX()
 	{
 		delete mMaterial[i];
 	}
+}
+//文字列データから、単語を1つ取得する
+char* CModelX::GetToken()
+{
+	char* p = mpPointer;
+	char* q = mToken;
+	//タブ(\t)空白()改行(\r)(\n),;"の区切り文字以外になるまで読み飛ばす
+	while (*p != '\0' && IsDelimiter(*p))p++;
+	if (*p == '{' || *p == '}')
+	{
+		//{または}ならmTokenに代入し次の文字へ
+		*q++ = *p++;
+	}
+	else
+	{
+		//タブ(\t)空白()改行(\r)(\n),;"の区切り文字、
+		//または、}の文字になるまでmTokenに代入する
+		while (*p != '\0' && !IsDelimiter(*p) && *p != '}')
+			*q++ = *p++;
+	}
+
+	*q = '\0'; //mTokenの最後に\0を代入
+	mpPointer = p; //次の読み込むポイントを更新する
+
+	//もしmTokenが//の場合は、コメントなので改行まで読み飛ばす
+	/*
+	strcmp(文字列1,文字列2)
+	文字列1と文字列2が等しい場合、0を返します。
+	文字列1と文字列2が等しくない場合、0以外を返します
+	*/
+
+	if (!strcmp("//", mToken))
+	{
+		//改行まで読み飛ばす
+		while (*p != '\0' && !strchr("\r\n", *p))p++;
+		//読み込み位置の更新
+		mpPointer = p;
+		//単語を取得する(再帰呼び出し)
+		return GetToken();
+	}
+	return mToken;
+}
+//mTokenのポインタを返す
+char* CModelX::GetOnlyToken()
+{
+	return mToken;
 }
 
 
@@ -116,57 +163,15 @@ void CModelX::Load(char* file)
 	SAFE_DELETE_ARRAY(buf); //確保した領域を開放する
 	//スキンウェイトのフレーム番号設定
 	SetSkinWeightFrameIndex();
-}
 
-/*
-GetToken
-文字列データから、単語を1つ取得する
-*/
-char* CModelX::GetToken()
+	mLoaded = true;//読み込み済み
+}
+//読み込み済みか判定
+bool CModelX::IsLoaded()
 {
-	char* p = mpPointer;
-	char* q = mToken;
-	//タブ(\t)空白()改行(\r)(\n),;"の区切り文字以外になるまで読み飛ばす
-	while (*p != '\0' && IsDelimiter(*p))p++;
-	if (*p == '{' || *p == '}')
-	{
-		//{または}ならmTokenに代入し次の文字へ
-		*q++ = *p++;
-	}
-	else
-	{
-		//タブ(\t)空白()改行(\r)(\n),;"の区切り文字、
-		//または、}の文字になるまでmTokenに代入する
-		while (*p != '\0' && !IsDelimiter(*p) && *p != '}')
-			*q++ = *p++;
-	}
-
-	*q = '\0'; //mTokenの最後に\0を代入
-	mpPointer = p; //次の読み込むポイントを更新する
-	
-	//もしmTokenが//の場合は、コメントなので改行まで読み飛ばす
-	/*
-	strcmp(文字列1,文字列2)
-	文字列1と文字列2が等しい場合、0を返します。
-	文字列1と文字列2が等しくない場合、0以外を返します
-	*/
-
-	if (!strcmp("//", mToken))
-	{
-		//改行まで読み飛ばす
-		while (*p != '\0' && !strchr("\r\n", *p))p++;
-		//読み込み位置の更新
-		mpPointer = p;
-		//単語を取得する(再帰呼び出し)
-		return GetToken();
-	}
-	return mToken;
+	return mLoaded;
 }
-
-/*
-SkipNode
-ノードを読み飛ばす
-*/
+//ノードを読み飛ばす
 void CModelX::SkipNode()
 {
 	//文字が終わったら終了
@@ -187,17 +192,7 @@ void CModelX::SkipNode()
 		else if (strchr(mToken, '}')) count--;
 	}
 }
-
-//mTokenのポインタを返す
-char* CModelX::GetOnlyToken()
-{
-	return mToken;
-}
-
-/*
-Render
-すべてのフレームの描画処理を呼び出す
-*/
+//すべてのフレームの描画処理を呼び出す
 void CModelX::Render()
 {
 	for (size_t i = 0; i < mFrame.size(); i++)
@@ -205,7 +200,6 @@ void CModelX::Render()
 		mFrame[i]->Render();
 	}
 }
-
 //トークンがなくなったらtrue
 bool CModelX::EOT()
 {
@@ -365,7 +359,7 @@ void CModelX::SeparateAnimationSet(int idx, int start, int end, char* name)
 {
 	CAnimationSet* anim = mAnimationSet[idx];//分割するアニメーションセットを確定
 	CAnimationSet* as = new CAnimationSet(); //アニメーションセットの生成
-	as->mpName = new char[strlen(name) + 1]; //名前用のスペースを確保
+	as->mpName = new char[strlen(name) + 1]; //名前用の領域を確保
 	strcpy(as->mpName, name);  //名前をコピー
 	as->mMaxTime = end - start;//再生時間を計算
 	//既存のアニメーション分繰り返し
@@ -373,7 +367,7 @@ void CModelX::SeparateAnimationSet(int idx, int start, int end, char* name)
 	{
 		CAnimation* animation = new CAnimation();//アニメーションの生成
 		animation->mpFrameName = 
-			new char[strlen(anim->mAnimation[i]->mpFrameName) + 1];//フレーム名用のスペースを確保
+			new char[strlen(anim->mAnimation[i]->mpFrameName) + 1];//フレーム名用の領域を確保
 		strcpy(animation->mpFrameName, anim->mAnimation[i]->mpFrameName);//フレーム名のコピー
 		animation->mFrameIndex = anim->mAnimation[i]->mFrameIndex;//フレーム番号を代入
 		animation->mKeyNum = end - start + 1;//時間数
@@ -397,6 +391,50 @@ void CModelX::SeparateAnimationSet(int idx, int start, int end, char* name)
 		as->mAnimation.push_back(animation);//アニメーションの追加
 	}
 	mAnimationSet.push_back(as);//アニメーションセットの追加
+}
+//アニメーションセットの追加
+void CModelX::AddAnimationSet(const char* file)
+{
+	//ファイルサイズを取得
+	FILE* fp;//ファイルポインタ変数の作成
+	fp = fopen(file, "rb");//ファイルをオープンする
+	if (fp == NULL)//エラーチェック
+	{
+		printf("fopen error:%s\n", file);
+		return;
+	}
+	//ファイルの最後へ移動
+	fseek(fp, 0L, SEEK_END);
+	//ファイルサイズの取得
+	int size = ftell(fp);
+
+	//ファイルサイズ＋1バイト文の領域を確保
+	char* buf = mpPointer = new char[size + 1];
+	/*ファイルから3Dモデルのデータを読み込む*/
+	//ファイルの先頭へ移動
+	fseek(fp, 0L, SEEK_SET);
+	//確保した領域にファイルサイズ分データを読み込む
+	fread(buf, size, 1, fp);
+	//最後に\0を設定する(文字列の終端)
+	buf[size] = '\0';
+	fclose(fp);//ファイルをクローズする
+
+	//文字列の最後まで繰り返し
+	while (*mpPointer != '\0')
+	{
+		GetToken();//単語の取得
+		//template 読み飛ばし
+		if (strcmp(mToken, "template") == 0)
+		{
+			SkipNode();
+		}
+		//単語がAnimationSetの場合
+		else if (strcmp(mToken, "AnimationSet") == 0)
+		{
+			new CAnimationSet(this);//アニメーションセットの生成
+		}
+	}
+	SAFE_DELETE_ARRAY(buf);//確保した領域を解放
 }
 
 //mFrame配列を返す

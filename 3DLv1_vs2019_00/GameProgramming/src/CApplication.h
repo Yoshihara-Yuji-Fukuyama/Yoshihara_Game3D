@@ -17,6 +17,7 @@
 #include "CBullet.h"
 #include "CXPlayer.h"
 #include "CXEnemy.h"
+#include "CPaladin.h"
 
 #include "CTransform.h"
 #include "CMatrix.h"
@@ -65,6 +66,7 @@ private:
 
 	CPlayer* mpPlayer;
 	CEnemy* mpEnemy;
+	CPaladin* mpPaladin;
 
 	CInput mInput;
 	CFont mFont;

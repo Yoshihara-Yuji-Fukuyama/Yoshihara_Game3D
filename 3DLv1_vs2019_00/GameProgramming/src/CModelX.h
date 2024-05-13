@@ -42,6 +42,8 @@ public:
 	char* GetOnlyToken();
 	//ファイル読み込み
 	void Load(char* file);
+	//読み込み済みか判定
+	bool IsLoaded();
 	//描画
 	void Render();
 	//トークンがなくなったらtrue
@@ -68,6 +70,8 @@ public:
 	/// <param name="end">分割したいアニメーションの終了時間</param>
 	/// <param name="name">追加するアニメーションセットの名前</param>
 	void SeparateAnimationSet(int idx, int start, int end, char* name);
+	//アニメーションセットの追加
+	void AddAnimationSet(const char* file);
 
 	//mFrame配列を返す
 	std::vector<CModelXFrame*>& GetFrames();
@@ -83,6 +87,7 @@ private:
 	bool IsDelimiter(char c);//cが区切り文字ならtrueを返す
 	char* mpPointer;  //読み込み位置
 	char mToken[1024];//取り出した単語の領域
+	bool mLoaded;//読み込み済みフラグ
 };
 
 //Frameクラス
