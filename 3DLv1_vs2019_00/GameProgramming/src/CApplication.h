@@ -18,6 +18,7 @@
 #include "CXPlayer.h"
 #include "CXEnemy.h"
 #include "CPaladin.h"
+#include "CActionCamera.h"
 
 #include "CTransform.h"
 #include "CMatrix.h"
@@ -72,6 +73,7 @@ private:
 	CFont mFont;
 
 	CVector mEye; //カメラの視点
+	CActionCamera mActionCamera;//CActionCamera
 
 	CSound mSoundBgm;	//BGM
 	CSound mSoundOver;	//ゲームオーバー音

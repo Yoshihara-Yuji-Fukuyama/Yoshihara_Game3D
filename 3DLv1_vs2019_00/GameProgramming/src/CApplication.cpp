@@ -66,6 +66,7 @@ void CApplication::Init()
 	mXEnemy.Init(&mKnightModel);
 	//待機アニメーションに変更
 	mXEnemy.ChangeAnimation(2, true, 200);
+	//攻撃アニメーションに変更
 	mpPaladin->ChangeAnimation(1, true, 200);
 
 	//フォントのロード
@@ -74,6 +75,8 @@ void CApplication::Init()
 
 void CApplication::Start()
 {
+	//カメラの設定
+	mActionCamera.Set(5.0f, -15.0f, 180.0f);
 	//CApplicationのInit()
 	Init();
 	//敵の配置
@@ -91,16 +94,10 @@ void CApplication::Update()
 	//パラディンの更新
 	mpPaladin->Update();
 
-	//カメラのパラメータを作成する
-	CVector  e, c, u;//視点、注視点、上方向
-	//視点を求める
-	e = CVector(1.0f, 2.0f, 10.0f);
-	//注視点を求める
-	c = CVector();
-	//上方向を求める
-	u = CVector(0.0f, 1.0f, 0.0f);
-	//カメラの設定
-	gluLookAt(e.GetX(), e.GetY(), e.GetZ(), c.GetX(), c.GetY(), c.GetZ(), u.GetX(), u.GetY(), u.GetZ());
+	//カメラ設定
+	mActionCamera.SetPosition(mXPlayer.GetPosition() + CVector(0.0f, 2.0f, 0.0f));
+	mActionCamera.Update();
+	mActionCamera.Render();
 	//モデルビュー行列の取得
 	glGetFloatv(GL_MODELVIEW_MATRIX, mModelViewInverse.GetM());
 	//逆行列の取得
@@ -108,29 +105,6 @@ void CApplication::Update()
 	mModelViewInverse.M(0, 3, 0);
 	mModelViewInverse.M(1, 3, 0);
 	mModelViewInverse.M(2, 3, 0);
-
-	//X軸＋回転
-	if (mInput.Key('K'))
-	{
-		mMatrix = mMatrix * CMatrix().SetRotateX(1);
-	}
-	//X軸－回転
-	if (mInput.Key('I'))
-	{
-		mMatrix = mMatrix * CMatrix().SetRotateX(-1);
-	}
-	//Y軸＋回転
-	if (mInput.Key('L'))
-	{
-		mMatrix = mMatrix * CMatrix().SetRotateY(1);
-	}
-	//Y軸－回転
-	if (mInput.Key('J'))
-	{
-		mMatrix = mMatrix * CMatrix().SetRotateY(-1);
-	}
-	//行列設定
-	glMultMatrixf(mMatrix.GetM());
 
 	//頂点にアニメーションを適用する
 	mPlayerModel.AnimateVertex();

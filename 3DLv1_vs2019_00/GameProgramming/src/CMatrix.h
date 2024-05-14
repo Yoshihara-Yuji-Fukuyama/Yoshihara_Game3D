@@ -1,7 +1,10 @@
 #ifndef CMATRIX_H
 #define CMATRIX_H
 
+
+
 class CVector;
+class CMyShader;
 /*
 マトリクスクラス
 4行4列の行列データを扱います
@@ -9,6 +12,7 @@ class CVector;
 
 class CMatrix
 {
+	friend CMyShader;
 public:
 	CMatrix();
 

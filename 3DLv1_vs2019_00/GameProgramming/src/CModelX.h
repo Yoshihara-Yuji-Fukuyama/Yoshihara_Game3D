@@ -1,9 +1,12 @@
 #ifndef CMODELX_H //インクルードガード
 #define CMODELX_H
 
+#include "glut.h"
 #include <vector>//vectorクラスのインクルード（動的配列）
 #include "CVector.h"
 #include "CMatrix.h"
+#include "CMyShader.h"
+#include "CVertex.h"
 class CModelX;      //CModelXクラスの宣言
 class CModelXFrame; //CModelXFrameクラスの宣言
 class CMesh;        //CMeshクラスの宣言
@@ -11,7 +14,8 @@ class CSkinWeights; //CSkinWeightsクラスの宣言
 class CAnimationSet;//CAnimationSetクラスの宣言
 class CAnimation;   //CAnimationクラスの宣言
 class CAnimationKey;//CAnimationKeyクラスの宣言
-class CMaterial;    //マテリアルの宣言
+class CMaterial;    //CMaterialの宣言
+class CMyShader;    //CMyShaderクラスの宣言
 
 
 #define MODEL_PLAYER "res\\ラグナ.x"            //プレイヤーモデル
@@ -26,10 +30,12 @@ class CMaterial;    //マテリアルの宣言
 CModelX
 Xファイル形式の3Dモデルデータをプログラムで認識する
 */
-class CModelX {
+class CModelX 
+{
 	friend CModelXFrame;
 	friend CAnimationSet;
 	friend CAnimation;
+	friend CMyShader;
 public:
 	CModelX();
 	~CModelX();
@@ -46,6 +52,8 @@ public:
 	bool IsLoaded();
 	//描画
 	void Render();
+	//シェーダーを使った描画
+	void RenderShader(CMatrix* m);
 	//トークンがなくなったらtrue
 	bool EOT();
 
@@ -88,13 +96,17 @@ private:
 	char* mpPointer;  //読み込み位置
 	char mToken[1024];//取り出した単語の領域
 	bool mLoaded;//読み込み済みフラグ
+	CMatrix* mpSkinningMatrix;//シェーダー用スキンマトリックス
+	CMyShader mShader;//シェーダーのインスタンス
 };
 
 //Frameクラス
-class CModelXFrame {
+class CModelXFrame 
+{
 	friend CModelX;
 	friend CAnimation;
 	friend CAnimationSet;
+	friend CMyShader;
 public:
 	CModelXFrame();
 	/*
@@ -123,7 +135,9 @@ private:
 };
 
 //Meshクラス
-class CMesh {
+class CMesh
+{
+	friend CMyShader;
 public:
 	CMesh();
 	~CMesh();
@@ -138,6 +152,8 @@ public:
 	void AnimateVertex(CModelX* model);
 	//頂点計算を指定した合成行列で行う
 	void AnimateVertex(CMatrix*);
+	//頂点バッファの作成
+	void CreateVertexBuffer();
 private:
 	int mVertexNum;    //頂点数
 	CVector* mpVertex; //頂点データ
@@ -152,17 +168,20 @@ private:
 	std::vector<CSkinWeights*>mSkinWeights;//スキンウェイト配列
 	CVector* mpAnimateVertex;//アニメーション用頂点
 	CVector* mpAnimateNormal;//アニメーション用法線
-	//テクスチャ座標データ
-	float* mpTextureCoords;
+	float* mpTextureCoords;//テクスチャ座標データ
+	std::vector<int> mMaterialVertexCount;//マテリアルごとの面数
+	GLuint mMyVertexBufferId;//頂点バッファ識別子
 };
 
 /*
 CSkinWeights
 スキンウェイトクラス
 */
-class CSkinWeights {
+class CSkinWeights 
+{
 	friend CModelX;
 	friend CMesh;
+	friend CMyShader;
 public:
 	CSkinWeights(CModelX* model);
 	~CSkinWeights();
@@ -182,7 +201,8 @@ private:
 CAnimationSet
 アニメーションセット
 */
-class CAnimationSet {
+class CAnimationSet 
+{
 	friend CModelX;
 public:
 	CAnimationSet();
@@ -213,7 +233,8 @@ private:
 CAnimation
 アニメーションクラス
 */
-class CAnimation {
+class CAnimation
+{
 	friend CModelX;
 	friend CAnimationSet;
 public:
@@ -231,7 +252,8 @@ private:
 CAnimationKey
 アニメーションキー
 */
-class CAnimationKey {
+class CAnimationKey 
+{
 	friend CModelX;
 	friend CAnimation;
 	friend CAnimationSet;

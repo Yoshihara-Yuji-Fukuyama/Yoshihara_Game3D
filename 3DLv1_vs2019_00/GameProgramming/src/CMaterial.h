@@ -4,7 +4,8 @@
 
 #include "CTexture.h"
 #include "CModelX.h"
-class CModelX;//CModelXクラスの宣言
+class CModelX;  //CModelXクラスの宣言
+class CMyShader;//CMyShaderクラスの宣言
 
 /*
 マテリアルクラス
@@ -12,6 +13,7 @@ class CModelX;//CModelXクラスの宣言
 */
 class CMaterial
 {
+	friend CMyShader;
 public:
 	CMaterial();
 	CMaterial(CModelX* model);
