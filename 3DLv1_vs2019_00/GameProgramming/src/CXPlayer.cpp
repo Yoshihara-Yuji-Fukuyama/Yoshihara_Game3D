@@ -37,36 +37,74 @@ void CXPlayer::Update()
 	//上記以外のとき
 	else
 	{
-		//Wキーが押されていれば、歩くモーションに変更
-        //前方向に移動
+		//カメラの前方
+		CVector cameraZ = CActionCamera::GetInstance()->GetVectorZ();
+		//カメラの左方向
+		CVector cameraX = CActionCamera::GetInstance()->GetVectorX();
+		//キャラクタの前方
+		CVector charZ = mMatrixRotate.GetVectorZ();
+		//XZ平面にして正規化
+		cameraZ.SetY(0.0f); cameraZ = cameraZ.Normalize();
+		cameraX.SetY(0.0f); cameraX = cameraX.Normalize();
+		charZ.SetY(0.0f); charZ = charZ.Normalize();
+		//移動方向の設定
+		CVector move;
+		if (mInput.Key('A'))
+		{
+			move = move + cameraX;
+		}
+		if (mInput.Key('D'))
+		{
+			move = move - cameraX;
+		}
 		if (mInput.Key('W'))
 		{
-			ChangeAnimation(1, true, 60);
-			mPosition = mPosition + PLAYER_VELOCITY * mMatrixRotate;
+			move = move + cameraZ;
 		}
-		//Wキーが押されてないなら待機モーションに変更
+		if (mInput.Key('S'))
+		{
+			move = move - cameraZ;
+		}
+		//移動あり
+		if (move.Length() > 0.0f)
+		{
+			//遊び
+			const float MARGIN = 0.06f;
+			//正規化
+			move = move.Normalize();
+			//自分の向きと向かせたい向きで外積
+			float cross = charZ.Cross(move).GetY();
+			//自分の向きと向かせたい向きで内積
+			float dot = charZ.Dot(move);
+			//外積がプラスは左回転
+			if (cross > MARGIN)
+			{
+				mRotation.SetY(mRotation.GetY() + 5.0f);
+			}
+			//外積がマイナスは右回転
+			else if (cross < -MARGIN)
+			{
+				mRotation.SetY(mRotation.GetY() - 5.0f);
+			}
+			//前後の向きが同じとき内積は1.0f
+			else if (dot < 1.0f - MARGIN)
+			{
+				mRotation.SetY(mRotation.GetY() - 5.0f);
+			}
+			//移動方向へ移動
+			mPosition = mPosition + move * 0.1f;
+			ChangeAnimation(1, true, 60);
+		}
 		else
 		{
 			ChangeAnimation(0, true, 60);
 		}
-		//Aキーが押されたら左に回転
-		if (mInput.Key('A'))
-		{
-			mRotation = mRotation + PLAYER_ROTATION;
-		}
-		//Dキーが押されたら右に回転
-		else if (mInput.Key('D'))
-		{
-			mRotation = mRotation - PLAYER_ROTATION;
-		}
-
 		//左クリックが押されたら、攻撃モーションに変更
 		if (mInput.Key(VK_LBUTTON))
 		{
 			ChangeAnimation(3, false, 30);
 		}
 	}
-
 	//変換行列、アニメーションの更新
 	CXCharacter::Update();
 }

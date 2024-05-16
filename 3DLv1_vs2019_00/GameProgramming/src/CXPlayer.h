@@ -4,6 +4,7 @@
 #include "CXCharacter.h"
 #include "CInput.h"
 #include "CCollider.h"
+#include "CActionCamera.h"
 
 class CXPlayer : public CXCharacter
 {

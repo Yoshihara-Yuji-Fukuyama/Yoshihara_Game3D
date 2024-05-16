@@ -66,3 +66,13 @@ void CActionCamera::Render()
 	//モデルビュー行列の取得
 	glGetFloatv(GL_MODELVIEW_MATRIX, mModelView.GetM());
 }
+
+CVector CActionCamera::GetVectorX()
+{
+	return CVector(-mModelView.GetM(0, 0), -mModelView.GetM(1, 0), -mModelView.GetM(2, 0));
+}
+
+CVector CActionCamera::GetVectorZ()
+{
+	return CVector(-mModelView.GetM(0, 2), -mModelView.GetM(1, 2), -mModelView.GetM(2, 2));
+}

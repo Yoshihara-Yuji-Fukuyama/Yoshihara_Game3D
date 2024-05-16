@@ -25,6 +25,10 @@ public:
 	void Update();
 	//カメラ適用
 	void Render();
+	//カメラのX軸取得
+	CVector GetVectorX();
+	//カメラのZ軸取得
+	CVector GetVectorZ();
 private:
 	//インスタンス
 	static CActionCamera* spInstance;
@@ -38,8 +42,5 @@ private:
 	CMatrix mModelView;
 	//入力クラス
 	CInput mInput;
-	//マウス位置を保存
-	float SaveMousePosX;
-	float SaveMousePosY;
 };
 #endif
