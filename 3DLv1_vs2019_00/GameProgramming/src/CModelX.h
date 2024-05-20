@@ -18,7 +18,7 @@ class CMaterial;    //CMaterialの宣言
 class CMyShader;    //CMyShaderクラスの宣言
 
 
-#define MODEL_PLAYER "res\\ラグナ.x"            //プレイヤーモデル
+#define MODEL_PLAYER "res\\ラグナ.x"      //プレイヤーモデル
 #define MODEL_KNIGHT "res\\knight\\knight_low.x"//敵モデル
 
 //領域解放をマクロ化

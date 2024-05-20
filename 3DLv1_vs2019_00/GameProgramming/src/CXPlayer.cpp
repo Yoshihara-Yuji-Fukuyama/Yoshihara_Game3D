@@ -1,15 +1,25 @@
 #include "CXPlayer.h"
 
 #define PLAYER_ROTATION CVector(0.0f,2.0f,0.0f)//回転速度
-#define PLAYER_VELOCITY CVector(0.0f,0.0f,0.1f)//移動速度
+#define PLAYER_SPEED 0.1f//移動速度
+
+CXPlayer* CXPlayer::spInstance = nullptr;
 
 CXPlayer::CXPlayer()
-	: mColSphereHead(this, nullptr, CVector(0.0f, 5.0f, -3.0f), 0.5f)
-	, mColSphereBody(this, nullptr, CVector(), 0.5f)
-	, mColSphereSword(this, nullptr, CVector(-10.0f, 10.0f, 50.0f), 0.3f, CCollider::ETag::ESWORD)
+	: mColSphereHead(this, nullptr, CVector(0.0f, 5.0f, -3.0f), 0.5f)//頭,球コライダ
+	, mColSphereBody(this, nullptr, CVector(), 0.5f)//体,球コライダ
+	, mColBody(this, nullptr, CVector(0.0f, 25.0f, 0.0f), CVector(0.0f, 150.0f, 0.0f), 0.5f)//体,カプセルコライダ
+	, mColSphereSword(this, nullptr, CVector(-10.0f, 10.0f, 50.0f), 0.3f, CCollider::ETag::ESWORD)//剣,球コライダ
 {
 	//タグにプレイヤーを設定
 	mCharaTag = ECharaTag::EPLAYER;
+	spInstance = this;
+}
+
+//インスタンスの取得
+CXPlayer* CXPlayer::GetInstance()
+{
+	return spInstance;
 }
 
 void CXPlayer::Update()
@@ -37,62 +47,30 @@ void CXPlayer::Update()
 	//上記以外のとき
 	else
 	{
-		//カメラの前方
-		CVector cameraZ = CActionCamera::GetInstance()->GetVectorZ();
-		//カメラの左方向
-		CVector cameraX = CActionCamera::GetInstance()->GetVectorX();
-		//キャラクタの前方
-		CVector charZ = mMatrixRotate.GetVectorZ();
-		//XZ平面にして正規化
-		cameraZ.SetY(0.0f); cameraZ = cameraZ.Normalize();
-		cameraX.SetY(0.0f); cameraX = cameraX.Normalize();
-		charZ.SetY(0.0f); charZ = charZ.Normalize();
 		//移動方向の設定
 		CVector move;
 		if (mInput.Key('A'))
 		{
-			move = move + cameraX;
+			move.SetX(move.GetX() + 1.0f);
 		}
 		if (mInput.Key('D'))
 		{
-			move = move - cameraX;
+			move.SetX(move.GetX() - 1.0f);
 		}
 		if (mInput.Key('W'))
 		{
-			move = move + cameraZ;
+			move.SetZ(move.GetZ() + 1.0f);
 		}
 		if (mInput.Key('S'))
 		{
-			move = move - cameraZ;
+			move.SetZ(move.GetZ() - 1.0f);
 		}
 		//移動あり
 		if (move.Length() > 0.0f)
 		{
-			//遊び
-			const float MARGIN = 0.06f;
-			//正規化
 			move = move.Normalize();
-			//自分の向きと向かせたい向きで外積
-			float cross = charZ.Cross(move).GetY();
-			//自分の向きと向かせたい向きで内積
-			float dot = charZ.Dot(move);
-			//外積がプラスは左回転
-			if (cross > MARGIN)
-			{
-				mRotation.SetY(mRotation.GetY() + 5.0f);
-			}
-			//外積がマイナスは右回転
-			else if (cross < -MARGIN)
-			{
-				mRotation.SetY(mRotation.GetY() - 5.0f);
-			}
-			//前後の向きが同じとき内積は1.0f
-			else if (dot < 1.0f - MARGIN)
-			{
-				mRotation.SetY(mRotation.GetY() - 5.0f);
-			}
 			//移動方向へ移動
-			mPosition = mPosition + move * 0.1f;
+			mPosition = mPosition + move * PLAYER_SPEED;
 			ChangeAnimation(1, true, 60);
 		}
 		else
@@ -107,6 +85,32 @@ void CXPlayer::Update()
 	}
 	//変換行列、アニメーションの更新
 	CXCharacter::Update();
+	//カプセルコライダの更新
+	mColBody.Update();
+}
+
+//衝突判定
+void CXPlayer::Collision(CCollider* m, CCollider* o)
+{
+	switch (m->GetType())
+	{
+		//自分のコライダがカプセルの場合
+	case CCollider::EType::ECAPSULE:
+		//相手のコライダもカプセルなら
+		if (o->GetType() == CCollider::EType::ECAPSULE)
+		{
+			CVector adjust;//調整用
+			//カプセル同士が衝突しているなら
+			if (CCollider::CollisionCapsuleCapseule(m, o, &adjust))
+			{
+				//衝突しない位置に戻す
+				mPosition = mPosition + adjust;
+				//行列更新
+				CTransform::Update();
+			}
+		}
+		break;
+	}
 }
 
 //初期設定
@@ -119,6 +123,7 @@ void CXPlayer::Init(CModelX* model)
 	mColSphereHead.SetMatrix(&mpCombinedMatrix[12]);
 	//体
 	mColSphereBody.SetMatrix(&mpCombinedMatrix[9]);
+	mColBody.SetMatrix(&mpCombinedMatrix[1]);
 	//剣
 	mColSphereSword.SetMatrix(&mpCombinedMatrix[22]);
 }

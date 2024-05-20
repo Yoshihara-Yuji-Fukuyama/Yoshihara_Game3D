@@ -44,9 +44,7 @@ public:
 	//初期設定
 	void Init();
 
-	//最初に一度だけ実行するプログラム
 	void Start();
-	//繰り返し実行するプログラム
 	void Update();
 
 private:

@@ -310,7 +310,7 @@ void CModelX::AnimateFrame()
 		animSet->AnimateMatrix(this);
 	}
 
-#ifdef _DEBUG
+#ifdef DEBUG
 	//全フレーム名とmTransformMatrixの設定を表示
 	for (size_t i = 0; i < mFrame.size(); i++)
 	{
@@ -580,7 +580,7 @@ CModelXFrame::CModelXFrame(CModelX* model)
 		}
 	}
 	//デバッグバージョンのみ有効
-    #ifdef _DEBUG
+    #ifdef DEBUG
 	    printf("%s\n", mpName);
 		mTransformMatrix.Print();
     #endif
@@ -635,7 +635,7 @@ void CModelXFrame::SetAnimateCombined(CMatrix* parent)
 		mChild[i]->SetAnimateCombined(&mCombinedMatrix);
 	}
 
-#ifdef _DEBUG
+#ifdef DEBUG
 	printf("Frame:%s\n", mpName);
 	for (int i = 0; i < 4; i++)
 	{
@@ -837,7 +837,7 @@ void CMesh::Init(CModelX* model)
 
 
 	//デバッグバージョンのみ有効
-    #ifdef _DEBUG
+    #ifdef DEBUG
 	//頂点数
 	printf("VertexNum:%d\n", mVertexNum);
 	for (int i = 0; i < mVertexNum; i++)
@@ -1097,7 +1097,7 @@ CSkinWeights::CSkinWeights(CModelX* model)
 	model->GetToken(); // }
 
 	//デバッグバージョンのみ有効
-    #ifdef _DEBUG
+    #ifdef DEBUG
 	printf("SkinWeights %s\n", mpFrameName);
 	for (int i = 0; i < mIndexNum; i++)
 	{
@@ -1156,7 +1156,7 @@ CAnimationSet::CAnimationSet(CModelX* model)
 	mMaxTime = mAnimation[0]->mpKey[mAnimation[0]->mKeyNum - 1].mTime;
 
 	//デバッグバージョンのみ有効
-    #ifdef _DEBUG
+    #ifdef DEBUG
 	printf("AnimationSet:%s\n", mpName);
     #endif
 }
@@ -1394,7 +1394,7 @@ CAnimation::CAnimation(CModelX* model)
 	}
 
 	//デバッグバージョンのみ有効
-#ifdef _DEBUG
+#ifdef DEBUG
 	printf("Animation:%s\n", mpFrameName);
 	for (int i = 0; i < 16; i += 4)
 	{

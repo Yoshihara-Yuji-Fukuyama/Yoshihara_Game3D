@@ -186,6 +186,31 @@ bool CCollider::CollisionTriangleLine(CCollider* t, CCollider* l, CVector* a)
 	return true;
 }
 
+//カプセルコライダとカプセルコライダの衝突判定
+bool CCollider::CollisionCapsuleCapseule(CCollider* m, CCollider* o, CVector* adjust)
+{
+	CVector mp1, mp2;
+	float radius = m->mRadius + o->mRadius;
+
+	*adjust = CVector();
+	if (adjust->CalcSegmentSegmentDist(m->GetV(0), m->GetV(1), o->GetV(0), o->GetV(1), &mp1, &mp2) < radius)
+	{
+		*adjust = mp1 - mp2;
+		float len = radius - adjust->Length();
+		*adjust = adjust->Normalize() * len;
+		return true;
+	}
+	return false;
+}
+
+
+//配列mV[i]の要素を返す
+const CVector& CCollider::GetV(int i)
+{
+	return mV[i];
+}
+
+
 //親ポインタの取得
 CCharacter3* CCollider::GetParent()
 {

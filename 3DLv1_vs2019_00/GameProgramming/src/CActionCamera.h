@@ -1,6 +1,7 @@
 #ifndef CACTIONCAMERA_H
 #define CACTIONCAMERA_H
 
+#include<GLFW/glfw3.h>
 #include "CVector.h"
 #include "CTransform.h"
 #include "CMatrix.h"
@@ -25,22 +26,35 @@ public:
 	void Update();
 	//カメラ適用
 	void Render();
+	//マウスの移動のコールバック関数
+	//マウスが移動すると前の座標との差分を設定する
+	void MouseCallback(double xpos,double ypos);
 	//カメラのX軸取得
 	CVector GetVectorX();
 	//カメラのZ軸取得
 	CVector GetVectorZ();
+	/// <summary>
+	/// ワールド座標をスクリーン座標へ変換する
+	/// </summary>
+	/// <param name="screen">スクリーン座標</param>
+	/// <param name="world">ワールド座標</param>
+	/// <returns></returns>
+	bool WorldToScreen(CVector* screen, const CVector& world);
 private:
-	//インスタンス
-	static CActionCamera* spInstance;
-	//視点
-	CVector mEye;
-	//注視点
-	CVector mCenter;
-	//上方向
-	CVector mUp;
-	//モデルビュー行列
-	CMatrix mModelView;
-	//入力クラス
-	CInput mInput;
+	static CActionCamera* spInstance;//インスタンス
+	CVector mEye;	//視点の位置
+	CVector mCenter;//注視点
+	CVector mUp;	//上方向
+	CMatrix mModelView;//モデルビュー行列
+	CInput mInput;//入力クラス
+	int mScreenWidth; //幅
+	int mScreenHeight;//高さ
+	CMatrix mProjection;//プロジェクション行列
+	bool mFirstMouse;//マウスが動くのが初めてかどうか
+	float mLastX;//前のマウスX座標
+	float mLastY;//前のマウスY座標
+	float mTurnVertical;//縦の回転量
+	float mTurnHorizontal;//横の回転量
+	float mSensitivity;//マウス感度
 };
 #endif

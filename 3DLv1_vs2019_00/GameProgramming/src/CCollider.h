@@ -18,6 +18,7 @@ public:
 		ESPHERE,  //球コライダ
 		ETRIANGLE,//三角コライダ
 		ELINE,    //線分コライダ
+		ECAPSULE,  //カプセルコライダ
 	};
 	//mTypeの値を返す
 	CCollider::EType GetType();
@@ -72,7 +73,17 @@ public:
 	/// <param name="adjust">調整値(衝突しない位置まで戻す値)</param>
 	/// <returns>衝突の可否</returns>
 	static bool CollisionTriangleLine(CCollider* triangle, CCollider* line, CVector* adjust);
+	/// <summary>
+	/// カプセルコライダとカプセルコライダの衝突判定
+	/// </summary>
+	/// <param name="m">カプセルコライダ</param>
+	/// <param name="o">カプセルコライダ</param>
+	/// <param name="adjust">調整値</param>
+	/// <returns>衝突の可否</returns>
+	static bool CollisionCapsuleCapseule(CCollider* m, CCollider* o, CVector* adjust);
 
+	//配列mV[i]の要素を返す
+	const CVector& GetV(int i);
 	//親ポインタの取得
 	CCharacter3* GetParent();
 	//親行列の設定

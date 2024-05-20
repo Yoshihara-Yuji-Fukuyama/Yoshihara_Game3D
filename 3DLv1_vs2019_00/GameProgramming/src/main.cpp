@@ -5,8 +5,14 @@
 #include "main.h"
 #include "CApplication.h"
 #include "CInput.h"
+#include "CActionCamera.h"
 
 CApplication gApplication;
+
+void MouseCallback(GLFWwindow* window, double xpos, double ypos)
+{
+	CActionCamera::GetInstance()->MouseCallback(xpos, ypos);
+}
 
 /* display関数
 1秒間に60回実行される
@@ -123,6 +129,9 @@ int main(void)
 
 	//初期処理
 	gApplication.Start();
+
+	//マウス移動のコールバック関数を設定
+	glfwSetCursorPosCallback(window, MouseCallback);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
