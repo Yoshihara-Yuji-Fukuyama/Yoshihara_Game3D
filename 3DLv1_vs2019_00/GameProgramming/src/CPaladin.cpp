@@ -4,6 +4,7 @@
 //追加のアニメーションセット
 #define ANIMATION_ATTACKSP1 "res\\paladin\\SwordAndShieldAttack.x"
 #define ANIMATION_RUN "res\\testRun.x"
+#define TEST "res\\testNoAnimation.x"
 
 CModelX CPaladin::sModel;
 
@@ -11,10 +12,11 @@ CPaladin::CPaladin()
 {
 	if (sModel.IsLoaded() == false)
 	{
-		sModel.Load(PALADIN_MODEL_PATH);
+		sModel.Load(TEST);
+		//sModel.Load(PALADIN_MODEL_PATH);
 		//アニメーションの追加
-		sModel.AddAnimationSet(ANIMATION_ATTACKSP1);
-		sModel.AddAnimationSet(ANIMATION_RUN);
+		//sModel.AddAnimationSet(ANIMATION_ATTACKSP1);
+		//sModel.AddAnimationSet(ANIMATION_RUN);
 	}
 	Init(&sModel);
 }

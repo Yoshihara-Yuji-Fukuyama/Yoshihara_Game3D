@@ -159,6 +159,8 @@ private:
 	CVector* mpVertex; //頂点データ
 	int mFaceNum;      //面数
 	int* mpVertexIndex;//面を構成する頂点インデックス
+	std::vector<int> mTempVertexIndex;//仮で入れておく場所
+	int mAllVertexIndex;//全ての頂点の数
 	int mNormalNum;    //法線数
 	CVector* mpNormal; //法線ベクトル
 	int mMaterialNum;     //マテリアル数
