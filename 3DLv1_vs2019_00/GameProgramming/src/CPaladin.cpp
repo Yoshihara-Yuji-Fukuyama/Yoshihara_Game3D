@@ -1,10 +1,8 @@
 #include "CPaladin.h"
 
-#define PALADIN_MODEL_PATH "res\\paladin\\paladin.x"
+#define PLAYER_SPEED 0.1f//移動速度
 //追加のアニメーションセット
-#define ANIMATION_ATTACKSP1 "res\\paladin\\SwordAndShieldAttack.x"
-#define ANIMATION_RUN "res\\testRun.x"
-#define TEST "res\\testNoAnimation.x"
+#define TEST "res\\Ch44_nonPBR.x"
 
 CModelX CPaladin::sModel;
 
@@ -13,10 +11,7 @@ CPaladin::CPaladin()
 	if (sModel.IsLoaded() == false)
 	{
 		sModel.Load(TEST);
-		//sModel.Load(PALADIN_MODEL_PATH);
-		//アニメーションの追加
-		//sModel.AddAnimationSet(ANIMATION_ATTACKSP1);
-		//sModel.AddAnimationSet(ANIMATION_RUN);
 	}
 	Init(&sModel);
 }
+

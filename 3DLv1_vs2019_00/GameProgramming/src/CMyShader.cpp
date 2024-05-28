@@ -19,9 +19,8 @@ void CMyShader::Render(CModelX* model, CMatrix* pCombinedMatrix) {
 	//シェーダーを無効にする
 	Disable();
 }
-/*
-メッシュの描画
-*/
+
+//メッシュの描画
 void CMyShader::Render(CModelX* model, CMesh* mesh, CMatrix* pCombinedMatrix) {
 	//スキンマトリックス生成
 	for (size_t i = 0; i < mesh->mSkinWeights.size(); i++) {
@@ -30,9 +29,7 @@ void CMyShader::Render(CModelX* model, CMesh* mesh, CMatrix* pCombinedMatrix) {
 			= mesh->mSkinWeights[i]->mOffset * pCombinedMatrix[mesh->mSkinWeights[i]->mFrameIndex];
 	}
 
-	/*
-	ライト設定
-	*/
+	//ライト設定
 	CVector vec(100.0f, 700.0f, -300.0f), ambient(0.9f, 0.9f, 0.9f), diffuse(1.0f, 1.0f, 1.0f);
 	vec = vec.Normalize();
 	int lightId = glGetUniformLocation(GetProgram(), "lightVec");  //ライトの向きを設定
@@ -48,7 +45,7 @@ void CMyShader::Render(CModelX* model, CMesh* mesh, CMatrix* pCombinedMatrix) {
 	//	int worldId = glGetUniformLocation(getProgram(), "WorldMatrix");
 	//	glUniformMatrix4fv(worldId, 1, GL_FALSE, model->mFrame[0]->mCombinedMatrix.f);
 
-	/* テクスチャユニット1を指定する */
+	//テクスチャユニット1を指定する
 	glUniform1i(glGetUniformLocation(GetProgram(), "DepthTexture"), 1);
 
 	//頂点バッファをバインドする
@@ -103,9 +100,8 @@ void CMyShader::Render(CModelX* model, CMesh* mesh, CMatrix* pCombinedMatrix) {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-/*
-マテリアルの値をシェーダーに設定する
-*/
+
+//マテリアルの値をシェーダーに設定する
 void CMyShader::SetShader(CMaterial* material) {
 	//	float mColorRGBA[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	int AmbientId = glGetUniformLocation(GetProgram(), "Ambient");  //カラー設定

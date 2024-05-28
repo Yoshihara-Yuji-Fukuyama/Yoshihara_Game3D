@@ -18,7 +18,9 @@ class CMaterial;    //CMaterialの宣言
 class CMyShader;    //CMyShaderクラスの宣言
 
 
-#define MODEL_PLAYER "res\\ラグナ.x"      //プレイヤーモデル
+#define MODEL_PLAYER "res\\Ch44_nonPBR.x"  //プレイヤーモデル
+#define BACKWARD "res\\SprintBackward.x"   //後ろ歩き
+#define AIM_IDLE "res\\RifleAimingIdle.x"  //構え待機
 #define MODEL_KNIGHT "res\\knight\\knight_low.x"//敵モデル
 
 //領域解放をマクロ化
@@ -159,8 +161,7 @@ private:
 	CVector* mpVertex; //頂点データ
 	int mFaceNum;      //面数
 	int* mpVertexIndex;//面を構成する頂点インデックス
-	std::vector<int> mTempVertexIndex;//仮で入れておく場所
-	int mAllVertexIndex;//全ての頂点の数
+	std::vector<int> mTempVertexIndex;//仮で頂点インデックスを入れておく場所
 	int mNormalNum;    //法線数
 	CVector* mpNormal; //法線ベクトル
 	int mMaterialNum;     //マテリアル数

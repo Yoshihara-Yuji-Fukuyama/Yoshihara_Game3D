@@ -18,7 +18,6 @@ public:
 	//移動、攻撃入力
 	//変換行列、アニメーション、カプセルコライダの更新
 	void Update();
-
 	//衝突判定
 	void Collision(CCollider* m, CCollider* o);
 	//初期設定
@@ -26,10 +25,14 @@ public:
 	void Init(CModelX* model);
 private:
 	static CXPlayer* spInstance;//インスタンス
+	/*
 	CCollider mColSphereHead; //頭
 	CCollider mColSphereBody; //体
 	CColliderCapsule mColBody;//キャラとキャラが重ならないための体コライダ
 	CCollider mColSphereSword;//剣
+	*/
 	CInput mInput;//CInputのインスタンス作成
+	float mTurnHorizontal;//横の回転量
+	POINT mScreenCenter;//画面の中央
 };
 #endif

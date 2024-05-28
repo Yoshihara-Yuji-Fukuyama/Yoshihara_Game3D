@@ -661,7 +661,6 @@ CMesh::CMesh()
 	, mFaceNum(0)
 	, mpVertexIndex(nullptr)
 	, mTempVertexIndex(0)
-	, mAllVertexIndex(0)
 	, mNormalNum(0)
 	, mpNormal(nullptr)
 	, mMaterialNum(0)
@@ -731,29 +730,27 @@ void CMesh::Init(CModelX* model)
 		mpVertexIndex[i + 2] = atoi(model->GetToken());
 	}
 	*/
-	//
-	// 一旦通り越したら戻らないといけない
-	// 
-	// 
+ 
 	//面数分繰り返す
-	int mFaceVertexIndex = 0;//一面当たりの頂点数
+	int faceVertexIndex = 0;//一面当たりの頂点数
+	int allVertexIndex = 0;//全ての頂点数
 	for (int i = 0; i < mFaceNum; i++)
 	{
 		//一面当たりの頂点数取得
-		mFaceVertexIndex = atoi(model->GetToken());
-		//頂点数分繰り返して一旦読み飛ばす
-		for (int j = 0; j < mFaceVertexIndex; j++)
+		faceVertexIndex = atoi(model->GetToken());
+		//頂点数分繰り返して保存する
+		for (int j = 0; j < faceVertexIndex; j++)
 		{
 			//仮入れ場所に保存しておく
 			mTempVertexIndex.push_back(atoi(model->GetToken()));
 		}
 		//全ての頂点数保存用
-		mAllVertexIndex += mFaceVertexIndex;
+		allVertexIndex += faceVertexIndex;
 	}
 	//頂点数分の領域を確保
-	mpVertexIndex = new int[mAllVertexIndex];
+	mpVertexIndex = new int[allVertexIndex];
 	//全ての頂点数分繰り返し、全ての頂点を配列に追加する
-	for (int i = 0; i < mAllVertexIndex; i++)
+	for (int i = 0; i < allVertexIndex; i++)
 	{
 		mpVertexIndex[i] = mTempVertexIndex[i];
 	}
@@ -780,15 +777,20 @@ void CMesh::Init(CModelX* model)
 				pNormal[i].SetY(atof(model->GetToken()));
 				pNormal[i].SetZ(atof(model->GetToken()));
 			}
+
+			//面数読み込み
+			mFaceNum = atoi(model->GetToken());
 			//法線数＝面数×3
-			mNormalNum = atoi(model->GetToken()) * 3;//FaceNum
+			//mNormalNum = atoi(model->GetToken()) * 3;//FaceNum
+			//法線数＝全ての頂点の数
+			mNormalNum = allVertexIndex;
 			int ni;
 			//頂点ごとに法線データを設定する
 			mpNormal = new CVector[mNormalNum];
 			mpAnimateNormal = new CVector[mNormalNum];
-			for (int i = 0; i < mNormalNum; i += 3)
+			/*for (int i = 0; i < mNormalNum; i += 3)
 			{
-				model->GetToken(); // 3 頂点数
+				faceVertexIndex = atoi(model->GetToken()); // 3 頂点数
 				ni = atoi(model->GetToken());
 				mpNormal[i] = pNormal[ni];
 
@@ -797,6 +799,22 @@ void CMesh::Init(CModelX* model)
 
 				ni = atoi(model->GetToken());
 				mpNormal[i + 2] = pNormal[ni];
+			}*/
+
+			//法線が何個目か数える
+			int countVertexIndex = 0;
+			//面数分繰り返す
+			for (int i = 0; i < mFaceNum; i++)
+			{
+				//一面当たりの頂点数取得
+				faceVertexIndex = atoi(model->GetToken());
+				//頂点数分繰り返して保存する
+				for (int j = 0; j < faceVertexIndex; j++)
+				{
+					ni = atoi(model->GetToken());
+					mpNormal[countVertexIndex] = pNormal[ni];
+					countVertexIndex++;
+				}
 			}
 			delete[] pNormal;
 			model->GetToken(); // }

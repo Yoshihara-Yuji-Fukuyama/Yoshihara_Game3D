@@ -1,20 +1,25 @@
 #include "CActionCamera.h"
 #include "glut.h"
-#include <GLFW/glfw3.h>
 #include <iostream>
 #include "CXPlayer.h"
 
 CActionCamera* CActionCamera::spInstance = nullptr;
 
 CActionCamera::CActionCamera()
-	: mFirstMouse(true)
-	, mLastX(400.0f)//初期マウス位置は中央
-	, mLastY(300.0f)
-	, mTurnVertical(0.0f)//初期回転量は0
+	: mTurnVertical(0.0f)//初期回転量は0
 	, mTurnHorizontal(0.0f)
 	, mSensitivity(0.1f)//初期感度
 {
 	spInstance = this;
+
+	//画面の中央を取得
+	int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+	int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+	mScreenCenter = { screenWidth / 2 , screenHeight / 2 };
+	//カーソルを非表示
+	ShowCursor(FALSE);
+	//画面の中央にカーソルを設定
+	SetCursorPos(mScreenCenter.x, mScreenCenter.y);
 }
 
 //インスタンスの取得
@@ -40,44 +45,31 @@ void CActionCamera::Set(float distance, float xaxis, float yaxis)
 	glGetFloatv(GL_PROJECTION_MATRIX, mProjection.GetM());
 }
 
-//マウスの移動のコールバック関数
-//マウスが移動すると前の座標との差分を設定する
-void CActionCamera::MouseCallback(double xpos, double ypos)
-{
-	//マウス操作が初めてなら
-	if (mFirstMouse)
-	{
-		//前の座標に今の座標を入れる
-		mLastX = xpos;
-		mLastY = ypos;
-		mFirstMouse = false;
-	}
-	//X座標の差
-	float xoffset = xpos - mLastX;
-	//Y座標の差
-	float yoffset = ypos - mLastY;
-	//前の座標を更新する
-	mLastX = xpos;
-	mLastY = ypos;
-	//座標の差と感度を掛けた数値を回転量に設定
-	mTurnVertical = yoffset * mSensitivity;//縦の回転量
-	mTurnHorizontal = xoffset * mSensitivity;//横の回転量
-}
-
 //カメラ更新
 void CActionCamera::Update()
 {
-	//回転量の分だけ回転させる
+	//現在のカーソル位置を取得
+	POINT cursorPos;
+	GetCursorPos(&cursorPos);
+
+	//カーソルの移動量を計算
+	int deltaX = cursorPos.x - mScreenCenter.x;
+	int deltaY = cursorPos.y - mScreenCenter.y;
+	//回転量を計算
+	mTurnVertical = deltaY * mSensitivity;
+	mTurnHorizontal = deltaX * mSensitivity;
+
+	//回転量の分だけ回転する
 	mRotation = mRotation - CVector(mTurnVertical, mTurnHorizontal, 0.0f);
-	//CXPlayer::GetInstance()->mRotation;
+	//行列を更新
 	CTransform::Update();
 	//注視点の設定
 	mCenter = mPosition;
 	//視点の位置の設定
 	mEye = mPosition + mMatrixRotate.GetVectorZ() * mScale.GetZ();
-	//回転量を0にする
-	mTurnVertical = 0.0f;
-	mTurnHorizontal = 0.0f;
+	//カーソルを中央に戻す
+	SetCursorPos(mScreenCenter.x, mScreenCenter.y);
+	
 }
 //カメラ適用
 void CActionCamera::Render()
@@ -121,4 +113,10 @@ bool CActionCamera::WorldToScreen(CVector* screen, const CVector& world)
 	screen->SetZ(screen_pos.GetZ());
 
 	return true;
+}
+
+//マウス感度を返す
+float CActionCamera::GetSensitivity()
+{
+	return mSensitivity;
 }

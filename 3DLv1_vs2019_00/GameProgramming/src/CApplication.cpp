@@ -46,6 +46,9 @@ void CApplication::Init()
 	//3Dモデルファイル読み込み
 	mPlayerModel.Load(MODEL_PLAYER);
 	mKnightModel.Load(MODEL_KNIGHT);
+	//追加アニメーション読み込み
+	mPlayerModel.AddAnimationSet(BACKWARD);//後ろ歩き 1
+	mPlayerModel.AddAnimationSet(AIM_IDLE);//構え待機 2
 	//パラディンのインスタンス作成
 	mpPaladin = new CPaladin();
 	//敵のアニメーションを抜き出す
@@ -60,15 +63,17 @@ void CApplication::Init()
 	mKnightModel.SeparateAnimationSet(0, 10, 80, "walk");//9:ダミー
 	mKnightModel.SeparateAnimationSet(0, 10, 80, "walk");//10:ダミー
 	mKnightModel.SeparateAnimationSet(0, 1160, 1260, "death1");//11:ダウン
+	
 	//プレイヤーの初期設定
 	mXPlayer.Init(&mPlayerModel);
+	
 	//敵の初期設定
 	mXEnemy.Init(&mKnightModel);
 	//待機アニメーションに変更
 	mXEnemy.ChangeAnimation(2, true, 200);
 	//攻撃アニメーションに変更
-	mpPaladin->ChangeAnimation(1, true, 54);
-
+	mpPaladin->ChangeAnimation(1, true, 50);
+	
 	//フォントのロード
 	mFont.Load("FontG.png", 1, 4096 / 64);
 }
@@ -79,10 +84,13 @@ void CApplication::Start()
 	mActionCamera.Set(5.0f, -15.0f, 180.0f);
 	//CApplicationのInit()
 	Init();
+	
 	//敵の配置
 	mXEnemy.SetPosition(CVector(7.0f, 0.0f, 0.0f));
 	//パラディンの配置
 	mpPaladin->SetPosition(CVector(-1.0f, 0.0f, 5.0f));
+	mpPaladin->SetScale(CVector(0.025f, 0.025f, 0.025f));
+	
 }
 
 void CApplication::Update()
@@ -93,9 +101,9 @@ void CApplication::Update()
 	mXEnemy.Update();
 	//パラディンの更新
 	mpPaladin->Update();
-
+	
 	//カメラ設定
-	mActionCamera.SetPosition(mXPlayer.GetPosition() + CVector(0.0f, 2.0f, 0.0f));
+	mActionCamera.SetPosition(mXPlayer.GetPosition() + CVector(-1.0f, 3.0f, 0.0f));
 	mActionCamera.Update();
 	mActionCamera.Render();
 	//モデルビュー行列の取得
@@ -106,14 +114,13 @@ void CApplication::Update()
 	mModelViewInverse.M(1, 3, 0);
 	mModelViewInverse.M(2, 3, 0);
 
-	//頂点にアニメーションを適用する
-	mPlayerModel.AnimateVertex();
 	//プレイヤー描画
 	mXPlayer.Render();
 	//敵描画
 	mXEnemy.Render();
 	//パラディンの描画
 	mpPaladin->Render();
+	
 	//コライダの描画
 	CCollisionManager::Instance()->Render();
 	//衝突処理
@@ -124,7 +131,7 @@ void CApplication::Update()
 	CCamera::Start(0, 800, 0, 600);
 
 	mFont.Draw(20, 20, 10, 12, "3D PROGRAMING");
-
+	
 	CVector screen;
 	//Enemyの座標をスクリーン座標へ変換する
 	if (CActionCamera::GetInstance()->WorldToScreen(&screen, mXEnemy.GetPosition()))
@@ -132,7 +139,7 @@ void CApplication::Update()
 		//変換先の座標に文字列を出力する
 		mFont.Draw(screen.GetX(), screen.GetY(), 7, 14, "ENEMY");
 	}
-
+	
 	//2Dの描画終了
 	CCamera::End();
 }

@@ -2,6 +2,9 @@
 #define CPALADIN_H
 
 #include "CXCharacter.h"
+#include "CCollider.h"
+#include "CColliderCapsule.h"
+#include "CInput.h"
 
 class CPaladin : public CXCharacter
 {
