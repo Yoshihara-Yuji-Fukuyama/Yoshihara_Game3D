@@ -7,6 +7,7 @@
 #include "CTransform.h"
 #include "CMatrix.h"
 #include "CInput.h"
+#include "CXPlayer.h"
 
 //ƒJƒƒ‰ƒNƒ‰ƒX
 class CActionCamera : public CTransform

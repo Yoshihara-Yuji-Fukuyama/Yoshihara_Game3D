@@ -6,12 +6,13 @@
 CXPlayer* CXPlayer::spInstance = nullptr;
 
 CXPlayer::CXPlayer()
+	: IsLeftTurn(false)
+	, IsRightTurn(false)
 	/*/ : mColSphereHead(this, nullptr, CVector(0.0f, 5.0f, -3.0f), 0.5f)//頭,球コライダ
 	, mColSphereBody(this, nullptr, CVector(), 0.5f)//体,球コライダ
 	, mColBody(this, nullptr, CVector(0.0f, 25.0f, 0.0f), CVector(0.0f, 150.0f, 0.0f), 0.5f)//体,カプセルコライダ
 	, mColSphereSword(this, nullptr, CVector(-10.0f, 10.0f, 50.0f), 0.3f, CCollider::ETag::ESWORD)//剣,球コライダ
 	*/
-	
 {
 	//タグにプレイヤーを設定
 	mCharaTag = ECharaTag::EPLAYER;
@@ -29,23 +30,13 @@ CXPlayer* CXPlayer::GetInstance()
 void CXPlayer::Update()
 {
 	//攻撃モーションのとき
-	if (GetAnimationIndex() == 3)
+	if (GetAnimationIndex() == 5)
 	{
 		//アニメーションが終了したら
-		//攻撃終了アニメーションに変更
+		//待機アニメーションにする
 		if (IsAnimationFinished() == true)
 		{		
-			ChangeAnimation(4, false, 30);
-		}
-	}
-	//攻撃終了モーションのとき
-	else if (GetAnimationIndex() == 4)
-	{
-		//アニメーションが終了したら
-		//待機アニメーションに変更
-		if (IsAnimationFinished() == true)
-		{	
-			ChangeAnimation(0, true, 60);
+			ChangeAnimation(1, true, 90);
 		}
 	}
 	//上記以外のとき
@@ -63,35 +54,44 @@ void CXPlayer::Update()
 		charZ.SetY(0.0f); charZ = charZ.Normalize();
 		//移動方向の設定
 		CVector move;
-		if (mInput.Key('A'))
-		{
-			move = move + cameraX;
-		}
-		if (mInput.Key('D'))
-		{
-			move = move - cameraX;
-		}
+		//どの方向に移動しているか
+		bool moveF = false;
+		bool moveB = false;
+		bool moveL = false;
+		bool moveR = false;
 		if (mInput.Key('W'))
 		{
 			move = move + cameraZ;
+			moveF = true;
 		}
 		if (mInput.Key('S'))
 		{
 			move = move - cameraZ;
+			moveB = true;
+		}
+		if (mInput.Key('A'))
+		{
+			move = move + cameraX;
+			moveL = true;
+		}
+		if (mInput.Key('D'))
+		{
+			move = move - cameraX;
+			moveR = true;
 		}
 		//移動あり
 		if (move.Length() > 0.0f)
 		{
 			//遊び
-			const float MARGIN = 0.06f;
+			//const float MARGIN = 0.06f;
 			//正規化
 			move = move.Normalize();
 			//自分の向きと向かせたい向きで外積
-			float cross = charZ.Cross(move).GetY();
+			//float cross = charZ.Cross(move).GetY();
 			//自分の向きと向かせたい向きで内積
-			float dot = charZ.Dot(move);
+			//float dot = charZ.Dot(move);
 			//外積がプラスは右回転
-			if (cross > MARGIN)
+			/*if (cross > MARGIN)
 			{
 				mRotation.SetY(mRotation.GetY() - 5.0f);
 			}
@@ -105,18 +105,64 @@ void CXPlayer::Update()
 			{
 				mRotation.SetY(mRotation.GetY() + 5.0f);
 			}
+			*/
 			//移動方向へ移動
 			mPosition = mPosition + move * PLAYER_SPEED;
-			ChangeAnimation(0, true, 90);
+			//ChangeAnimation(0, true, 90);
+			if (moveF == true)
+			{
+				ChangeAnimation(0, true, 90);
+			}
+			else if (moveB == true)
+			{
+				ChangeAnimation(1, true, 90);
+			}
+			else if (moveL == true)
+			{
+				ChangeAnimation(2, true, 90);
+			}
+			else if (moveR == true)
+			{
+				ChangeAnimation(3, true, 90);
+			}
 		}
+		//移動していなければ待機アニメーションに切り替え
+		//正面を向く
 		else
 		{
-			ChangeAnimation(2, true, 90);
+			//両方がtrueだと正面近くを向いているので回転しない
+			if (IsLeftTurn == false || IsRightTurn == false)
+			{
+				//遊び
+				const float MARGIN = 0.06f;
+				//自分の向きと向かせたい向きで外積
+				float cross = charZ.Cross(cameraZ).GetY();
+				//自分の向きと向かせたい向きで内積
+				float dot = charZ.Dot(cameraZ);
+				//外積がプラスは右回転
+				if (cross > MARGIN)
+				{
+					mRotation.SetY(mRotation.GetY() - 5.0f);
+					IsRightTurn = true;
+				}
+				//外積がマイナスは左回転
+				else if (cross < -MARGIN)
+				{
+					mRotation.SetY(mRotation.GetY() + 5.0f);
+					IsLeftTurn = true;
+				}
+				//前後の向きが同じとき内積は1.0f
+				else if (dot < 1.0f - MARGIN)
+				{
+					mRotation.SetY(mRotation.GetY() + 5.0f);
+				}
+			}
+			ChangeAnimation(4, true, 90);
 		}
-		//左クリックが押されたら、攻撃モーションに変更
+		//左クリックが押されたら、弾丸を飛ばす
 		if (mInput.Key(VK_LBUTTON))
 		{
-			ChangeAnimation(3, false, 30);
+			ChangeAnimation(5, true, 30);
 		}
 	}
 	//変換行列、アニメーションの更新
@@ -124,6 +170,13 @@ void CXPlayer::Update()
 
 	//カプセルコライダの更新
 	//mColBody.Update();
+}
+
+//マウス移動でY軸回転
+void CXPlayer::Turn(float turnHorizontal)
+{
+	//回転量の分だけ回転する
+	mRotation = mRotation - CVector(0.0f, turnHorizontal, 0.0f);
 }
 
 //衝突判定

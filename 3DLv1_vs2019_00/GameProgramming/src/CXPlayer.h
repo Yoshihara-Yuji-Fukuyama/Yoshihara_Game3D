@@ -18,6 +18,11 @@ public:
 	//移動、攻撃入力
 	//変換行列、アニメーション、カプセルコライダの更新
 	void Update();
+	//マウス移動でY軸回転
+	//turnHorizontal:横の回転量
+	void Turn(float turnHorizontal);
+	//斜め移動時その方向へ回転する
+	void MoveTurn();
 	//衝突判定
 	void Collision(CCollider* m, CCollider* o);
 	//初期設定
@@ -32,7 +37,8 @@ private:
 	CCollider mColSphereSword;//剣
 	*/
 	CInput mInput;//CInputのインスタンス作成
-	float mTurnHorizontal;//横の回転量
-	POINT mScreenCenter;//画面の中央
+	//右回転、左回転をしたかどうか
+	bool IsLeftTurn;
+	bool IsRightTurn;
 };
 #endif

@@ -20,7 +20,10 @@ class CMyShader;    //CMyShaderクラスの宣言
 
 #define MODEL_PLAYER "res\\Ch44_nonPBR.x"  //プレイヤーモデル
 #define BACKWARD "res\\SprintBackward.x"   //後ろ歩き
+#define L_WALK "res\\WalkLeft.x"         //左歩き
+#define R_WALK "res\\WalkRight.x"        //右歩き
 #define AIM_IDLE "res\\RifleAimingIdle.x"  //構え待機
+#define Fire "res\\FiringRifle.x"          //射撃
 #define MODEL_KNIGHT "res\\knight\\knight_low.x"//敵モデル
 
 //領域解放をマクロ化

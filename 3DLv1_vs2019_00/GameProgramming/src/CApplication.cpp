@@ -44,11 +44,14 @@ CApplication::~CApplication()
 void CApplication::Init()
 {
 	//3Dモデルファイル読み込み
-	mPlayerModel.Load(MODEL_PLAYER);
+	mPlayerModel.Load(MODEL_PLAYER);//0:前歩き
 	mKnightModel.Load(MODEL_KNIGHT);
 	//追加アニメーション読み込み
-	mPlayerModel.AddAnimationSet(BACKWARD);//後ろ歩き 1
-	mPlayerModel.AddAnimationSet(AIM_IDLE);//構え待機 2
+	mPlayerModel.AddAnimationSet(BACKWARD);//1:後ろ歩き
+	mPlayerModel.AddAnimationSet(L_WALK);  //2:左歩き
+	mPlayerModel.AddAnimationSet(R_WALK);  //3:右歩き
+	mPlayerModel.AddAnimationSet(AIM_IDLE);//4:構え待機
+	mPlayerModel.AddAnimationSet(Fire);    //5:射撃
 	//パラディンのインスタンス作成
 	mpPaladin = new CPaladin();
 	//敵のアニメーションを抜き出す
