@@ -55,16 +55,16 @@ void CXPlayer::Update()
 		//移動方向の設定
 		CVector move;
 		//どの方向に移動しているか
-		bool moveF = false;
-		bool moveB = false;
-		bool moveL = false;
-		bool moveR = false;
+		bool moveF = false;//前
+		bool moveB = false;//後ろ
+		bool moveL = false;//左
+		bool moveR = false;//右
 		if (mInput.Key('W'))
 		{
 			move = move + cameraZ;
 			moveF = true;
 		}
-		if (mInput.Key('S'))
+		else if (mInput.Key('S'))
 		{
 			move = move - cameraZ;
 			moveB = true;
@@ -74,7 +74,7 @@ void CXPlayer::Update()
 			move = move + cameraX;
 			moveL = true;
 		}
-		if (mInput.Key('D'))
+		else if (mInput.Key('D'))
 		{
 			move = move - cameraX;
 			moveR = true;
@@ -82,57 +82,86 @@ void CXPlayer::Update()
 		//移動あり
 		if (move.Length() > 0.0f)
 		{
-			//遊び
-			//const float MARGIN = 0.06f;
 			//正規化
 			move = move.Normalize();
-			//自分の向きと向かせたい向きで外積
-			//float cross = charZ.Cross(move).GetY();
-			//自分の向きと向かせたい向きで内積
-			//float dot = charZ.Dot(move);
-			//外積がプラスは右回転
-			/*if (cross > MARGIN)
-			{
-				mRotation.SetY(mRotation.GetY() - 5.0f);
-			}
-			//外積がマイナスは左回転
-			else if (cross < -MARGIN)
-			{
-				mRotation.SetY(mRotation.GetY() + 5.0f);
-			}
-			//前後の向きが同じとき内積は1.0f
-			else if (dot < 1.0f - MARGIN)
-			{
-				mRotation.SetY(mRotation.GetY() + 5.0f);
-			}
-			*/
 			//移動方向へ移動
 			mPosition = mPosition + move * PLAYER_SPEED;
-			//ChangeAnimation(0, true, 90);
+			//正面移動
 			if (moveF == true)
 			{
 				ChangeAnimation(0, true, 90);
+				//
+				// 移動方向を向かせる
+				// 
+				//遊び
+				const float MARGIN = 0.06f;
+				//自分の向きと向かせたい向きで外積
+				float cross = charZ.Cross(move).GetY();
+				//自分の向きと向かせたい向きで内積
+				float dot = charZ.Dot(move);
+				//外積がプラスは右回転
+				if (cross > MARGIN)
+				{
+					mRotation.SetY(mRotation.GetY() - 5.0f);
+				}
+				//外積がマイナスは左回転
+				else if (cross < -MARGIN)
+				{
+					mRotation.SetY(mRotation.GetY() + 5.0f);
+				}
+				//前後の向きが同じとき内積は1.0f
+				//向かせたい方向を向いていたら何もしない
+				else if (dot < 1.0f - MARGIN)
+				{
+
+				}
 			}
+			//後ろ移動
 			else if (moveB == true)
 			{
 				ChangeAnimation(1, true, 90);
+				//
+				// 移動方向の逆を向かせる
+				// 
+				//遊び
+				const float MARGIN = 0.06f;
+				//自分の向きと向かせたい向きで外積
+				float cross = charZ.Cross(move * -1).GetY();
+				//自分の向きと向かせたい向きで内積
+				float dot = charZ.Dot(move * -1);
+				//外積がプラスは右回転
+				if (cross > MARGIN)
+				{
+					mRotation.SetY(mRotation.GetY() - 5.0f);
+				}
+				//外積がマイナスは左回転
+				else if (cross < -MARGIN)
+				{
+					mRotation.SetY(mRotation.GetY() + 5.0f);
+				}
+				//前後の向きが同じとき内積は1.0f
+				//向かせたい方向を向いていたら何もしない
+				else if (dot < 1.0f - MARGIN)
+				{
+
+				}
 			}
-			else if (moveL == true)
+			//横移動
+			else if (moveL == true || moveR == true)
 			{
-				ChangeAnimation(2, true, 90);
-			}
-			else if (moveR == true)
-			{
-				ChangeAnimation(3, true, 90);
-			}
-		}
-		//移動していなければ待機アニメーションに切り替え
-		//正面を向く
-		else
-		{
-			//両方がtrueだと正面近くを向いているので回転しない
-			if (IsLeftTurn == false || IsRightTurn == false)
-			{
+				if (moveL == true)
+				{
+					//左歩きアニメーションに変更
+					ChangeAnimation(2, true, 90);
+				}
+				else if (moveR == true)
+				{
+					//右歩きアニメーションに変更
+					ChangeAnimation(3, true, 90);
+				}
+				//
+				// 横移動中は正面を向かせる
+				// 
 				//遊び
 				const float MARGIN = 0.06f;
 				//自分の向きと向かせたい向きで外積
@@ -143,20 +172,48 @@ void CXPlayer::Update()
 				if (cross > MARGIN)
 				{
 					mRotation.SetY(mRotation.GetY() - 5.0f);
-					IsRightTurn = true;
 				}
 				//外積がマイナスは左回転
 				else if (cross < -MARGIN)
 				{
 					mRotation.SetY(mRotation.GetY() + 5.0f);
-					IsLeftTurn = true;
 				}
 				//前後の向きが同じとき内積は1.0f
+				//向かせたい方向を向いていたら何もしない
 				else if (dot < 1.0f - MARGIN)
 				{
-					mRotation.SetY(mRotation.GetY() + 5.0f);
+
 				}
+
 			}
+		}
+		//移動していなければ待機アニメーションに切り替え
+		//正面を向く
+		else
+		{
+			//遊び
+			const float MARGIN = 0.06f;
+			//自分の向きと向かせたい向きで外積
+			float cross = charZ.Cross(cameraZ).GetY();
+			//自分の向きと向かせたい向きで内積
+			float dot = charZ.Dot(cameraZ);
+			//外積がプラスは右回転
+			if (cross > MARGIN)
+			{
+				mRotation.SetY(mRotation.GetY() - 5.0f);
+			}
+			//外積がマイナスは左回転
+			else if (cross < -MARGIN)
+			{
+				mRotation.SetY(mRotation.GetY() + 5.0f);
+			}
+			//前後の向きが同じとき内積は1.0f
+			//向かせたい方向を向いていたら何もしない
+			else if (dot < 1.0f - MARGIN)
+			{
+
+			}
+			//待機アニメーションに変更
 			ChangeAnimation(4, true, 90);
 		}
 		//左クリックが押されたら、弾丸を飛ばす
