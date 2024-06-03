@@ -29,9 +29,7 @@ public:
 private:
 	CVector mPoint;//目標地点
 	int mHp;//ヒットポイント
-	//モデルデータ
-	static CModel sModel;
-	//コライダ
-	CCollider mCollider;
+	static CModel sModel;//モデルデータ
+	CCollider mCollider;//コライダ
 };
 #endif

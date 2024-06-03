@@ -128,3 +128,30 @@ int CXCharacter::GetAnimationIndex()
 {
 	return mAnimationIndex;
 }
+
+//キャラの方向を向かせたい方向に変える
+void CXCharacter::ChangeDirection(CVector charZ, CVector direction)
+{
+	//遊び
+	const float MARGIN = 0.06f;
+	//自分の向きと向かせたい向きで外積
+	float cross = charZ.Cross(direction).GetY();
+	//自分の向きと向かせたい向きで内積
+	float dot = charZ.Dot(direction);
+	//外積がプラスは右回転
+	if (cross > MARGIN)
+	{
+		mRotation.SetY(mRotation.GetY() - 5.0f);
+	}
+	//外積がマイナスは左回転
+	else if (cross < -MARGIN)
+	{
+		mRotation.SetY(mRotation.GetY() + 5.0f);
+	}
+	//前後の向きが同じとき内積は1.0f
+	//向かせたい方向を向いていたら何もしない
+	else if (dot < 1.0f - MARGIN)
+	{
+
+	}
+}

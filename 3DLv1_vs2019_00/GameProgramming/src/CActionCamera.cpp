@@ -2,6 +2,7 @@
 #include "glut.h"
 #include <iostream>
 #include "CXPlayer.h"
+#define TURN_V 1.0f	//回転速度
 
 CActionCamera* CActionCamera::spInstance = nullptr;
 
@@ -47,7 +48,7 @@ void CActionCamera::Set(float distance, float xaxis, float yaxis)
 
 //カメラ更新
 void CActionCamera::Update()
-{
+{	
 	//現在のカーソル位置を取得
 	POINT cursorPos;
 	GetCursorPos(&cursorPos);
@@ -70,7 +71,6 @@ void CActionCamera::Update()
 	mEye = mPosition + mMatrixRotate.GetVectorZ() * mScale.GetZ();
 	//カーソルを中央に戻す
 	SetCursorPos(mScreenCenter.x, mScreenCenter.y);
-	
 }
 //カメラ適用
 void CActionCamera::Render()

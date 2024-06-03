@@ -30,6 +30,7 @@
 #include "CUi.h"
 #include "CSound.h"
 
+#include "CWepon.h"
 class CApplication
 {
 public:
@@ -63,6 +64,8 @@ private:
 	CXPlayer mXPlayer;
 	CXEnemy mXEnemy;
 
+	CEnemy3* mpEnemy3;
+
 	CPlayer* mpPlayer;
 	CEnemy* mpEnemy;
 	CPaladin* mpPaladin;
@@ -85,4 +88,6 @@ private:
 		EOVER,	//ゲームオーバー
 	};
 	EState mState;
+
+	CWepon* mWepon;
 };

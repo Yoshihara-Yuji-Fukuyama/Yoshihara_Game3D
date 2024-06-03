@@ -36,6 +36,12 @@ public:
 	bool IsAnimationFinished();
 	//アニメーション番号の取得
 	int GetAnimationIndex();
+	/// <summary>
+	/// キャラの方向を向かせたい方向に変える
+	/// </summary>
+	/// <param name="charZ">キャラの方向</param>
+	/// <param name="direction">向かせたい方向</param>
+	void ChangeDirection(CVector charZ,CVector direction);
 protected:
 	CModelX* mpModel;//モデルデータ
 	int mAnimationIndex;      //アニメーション番号

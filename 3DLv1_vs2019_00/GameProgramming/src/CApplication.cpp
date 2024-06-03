@@ -47,11 +47,14 @@ void CApplication::Init()
 	mPlayerModel.Load(MODEL_PLAYER);//0:前歩き
 	mKnightModel.Load(MODEL_KNIGHT);
 	//追加アニメーション読み込み
-	mPlayerModel.AddAnimationSet(BACKWARD);//1:後ろ歩き
-	mPlayerModel.AddAnimationSet(L_WALK);  //2:左歩き
-	mPlayerModel.AddAnimationSet(R_WALK);  //3:右歩き
-	mPlayerModel.AddAnimationSet(AIM_IDLE);//4:構え待機
-	mPlayerModel.AddAnimationSet(Fire);    //5:射撃
+	mPlayerModel.AddAnimationSet(BACKWARD); //1:後ろ歩き
+	mPlayerModel.AddAnimationSet(L_WALK);   //2:左歩き
+	mPlayerModel.AddAnimationSet(R_WALK);   //3:右歩き
+	mPlayerModel.AddAnimationSet(AIM_IDLE); //4:構え待機
+	mPlayerModel.AddAnimationSet(Fire);     //5:射撃
+	mPlayerModel.AddAnimationSet(JUMP_UP);  //6:ジャンプ
+	mPlayerModel.SeparateAnimationSet(6, 5, 16, "JumpUp");//7:ジャンプ上昇
+	mPlayerModel.AddAnimationSet(JUMP_DOWN);//8:ジャンプ降下
 	//パラディンのインスタンス作成
 	mpPaladin = new CPaladin();
 	//敵のアニメーションを抜き出す
@@ -93,17 +96,18 @@ void CApplication::Start()
 	//パラディンの配置
 	mpPaladin->SetPosition(CVector(-1.0f, 0.0f, 5.0f));
 	mpPaladin->SetScale(CVector(0.025f, 0.025f, 0.025f));
-	
 }
 
 void CApplication::Update()
 {	
 	//プレイヤーの更新
 	mXPlayer.Update();
+	mXPlayer.GetWepon().Update();//プレイヤーの武器の更新
 	//敵の更新
 	mXEnemy.Update();
 	//パラディンの更新
 	mpPaladin->Update();
+
 	
 	//カメラ設定
 	mActionCamera.SetPosition(mXPlayer.GetPosition() + CVector(-1.0f, 3.0f, 0.0f));
@@ -119,6 +123,7 @@ void CApplication::Update()
 
 	//プレイヤー描画
 	mXPlayer.Render();
+	mXPlayer.GetWepon().Render();//プレイヤーの武器描画
 	//敵描画
 	mXEnemy.Render();
 	//パラディンの描画
@@ -131,7 +136,7 @@ void CApplication::Update()
 
 
 	//2D描画開始
-	CCamera::Start(0, 800, 0, 600);
+	CCamera::Start(0, 1920, 0, 1080);
 
 	mFont.Draw(20, 20, 10, 12, "3D PROGRAMING");
 	

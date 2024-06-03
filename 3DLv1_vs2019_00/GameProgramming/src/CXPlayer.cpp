@@ -2,17 +2,21 @@
 
 #define PLAYER_ROTATION CVector(0.0f,2.0f,0.0f)//回転速度
 #define PLAYER_SPEED 0.1f//移動速度
+#define GRAVITY_AND_JUMPDEF 0.1f//重力とジャンプの基準値
 
 CXPlayer* CXPlayer::spInstance = nullptr;
 
 CXPlayer::CXPlayer()
 	: IsLeftTurn(false)
 	, IsRightTurn(false)
-	/*/ : mColSphereHead(this, nullptr, CVector(0.0f, 5.0f, -3.0f), 0.5f)//頭,球コライダ
+	, IsGround(false)
+	, IsJump(false)
+	, mJumpPower(1.0f)
+	, mWepon(this, &mMatrix, CVector(0.0f, 1.0f, -5.0f))
+	, mColSphereHead(this, nullptr, CVector(0.0f, 5.0f, -3.0f), 0.5f)//頭,球コライダ
 	, mColSphereBody(this, nullptr, CVector(), 0.5f)//体,球コライダ
-	, mColBody(this, nullptr, CVector(0.0f, 25.0f, 0.0f), CVector(0.0f, 150.0f, 0.0f), 0.5f)//体,カプセルコライダ
+	//, mColBody(this, nullptr, CVector(0.0f, 25.0f, 0.0f), CVector(0.0f, 150.0f, 0.0f), 0.5f)//体,カプセルコライダ
 	, mColSphereSword(this, nullptr, CVector(-10.0f, 10.0f, 50.0f), 0.3f, CCollider::ETag::ESWORD)//剣,球コライダ
-	*/
 {
 	//タグにプレイヤーを設定
 	mCharaTag = ECharaTag::EPLAYER;
@@ -29,202 +33,156 @@ CXPlayer* CXPlayer::GetInstance()
 
 void CXPlayer::Update()
 {
-	//攻撃モーションのとき
-	if (GetAnimationIndex() == 5)
+
+	//上昇中じゃないかつY座標が0以上なら重力適用
+	if (GetAnimationIndex() != 7 && mPosition.GetY() > 0)
+	{
+		mPosition.SetY(mPosition.GetY() - GRAVITY_AND_JUMPDEF);
+	}
+	//ジャンプ上昇アニメーションの時
+	if (GetAnimationIndex() == 7)
+	{
+		mPosition.SetY(mPosition.GetY() + GRAVITY_AND_JUMPDEF);
+		//アニメーションが終了したら
+		//降下アニメーションにする
+		if (IsAnimationFinished() == true)
+		{
+			ChangeAnimation(8, false, 90 * mJumpPower);
+		}
+	}
+	//ジャンプ降下アニメーションの時
+	else if (GetAnimationIndex() == 8)
 	{
 		//アニメーションが終了したら
 		//待機アニメーションにする
 		if (IsAnimationFinished() == true)
-		{		
+		{
 			ChangeAnimation(1, true, 90);
+			IsJump = false;
 		}
 	}
-	//上記以外のとき
-	else
+	//カメラの前方
+	CVector cameraZ = CActionCamera::GetInstance()->GetVectorZ();
+	//カメラの左方向
+	CVector cameraX = CActionCamera::GetInstance()->GetVectorX();
+	//キャラクタの前方
+	CVector charZ = mMatrixRotate.GetVectorZ();
+	//XZ平面にして正規化
+	cameraZ.SetY(0.0f); cameraZ = cameraZ.Normalize();
+	cameraX.SetY(0.0f); cameraX = cameraX.Normalize();
+	charZ.SetY(0.0f); charZ = charZ.Normalize();
+	//移動方向の設定
+	CVector move;
+	//どの方向に移動しているか
+	bool moveF = false;//前
+	bool moveB = false;//後ろ
+	bool moveL = false;//左
+	bool moveR = false;//右
+	//前進
+	if (mInput.Key('W'))
 	{
-		//カメラの前方
-		CVector cameraZ = CActionCamera::GetInstance()->GetVectorZ();
-		//カメラの左方向
-		CVector cameraX = CActionCamera::GetInstance()->GetVectorX();
-		//キャラクタの前方
-		CVector charZ = mMatrixRotate.GetVectorZ();
-		//XZ平面にして正規化
-		cameraZ.SetY(0.0f); cameraZ = cameraZ.Normalize();
-		cameraX.SetY(0.0f); cameraX = cameraX.Normalize();
-		charZ.SetY(0.0f); charZ = charZ.Normalize();
-		//移動方向の設定
-		CVector move;
-		//どの方向に移動しているか
-		bool moveF = false;//前
-		bool moveB = false;//後ろ
-		bool moveL = false;//左
-		bool moveR = false;//右
-		if (mInput.Key('W'))
-		{
-			move = move + cameraZ;
-			moveF = true;
-		}
-		else if (mInput.Key('S'))
-		{
-			move = move - cameraZ;
-			moveB = true;
-		}
-		if (mInput.Key('A'))
-		{
-			move = move + cameraX;
-			moveL = true;
-		}
-		else if (mInput.Key('D'))
-		{
-			move = move - cameraX;
-			moveR = true;
-		}
-		//移動あり
-		if (move.Length() > 0.0f)
-		{
-			//正規化
-			move = move.Normalize();
-			//移動方向へ移動
-			mPosition = mPosition + move * PLAYER_SPEED;
-			//正面移動
-			if (moveF == true)
-			{
-				ChangeAnimation(0, true, 90);
-				//
-				// 移動方向を向かせる
-				// 
-				//遊び
-				const float MARGIN = 0.06f;
-				//自分の向きと向かせたい向きで外積
-				float cross = charZ.Cross(move).GetY();
-				//自分の向きと向かせたい向きで内積
-				float dot = charZ.Dot(move);
-				//外積がプラスは右回転
-				if (cross > MARGIN)
-				{
-					mRotation.SetY(mRotation.GetY() - 5.0f);
-				}
-				//外積がマイナスは左回転
-				else if (cross < -MARGIN)
-				{
-					mRotation.SetY(mRotation.GetY() + 5.0f);
-				}
-				//前後の向きが同じとき内積は1.0f
-				//向かせたい方向を向いていたら何もしない
-				else if (dot < 1.0f - MARGIN)
-				{
+		move = move + cameraZ;
+		moveF = true;
+	}
+	//後退
+	else if (mInput.Key('S'))
+	{
+		move = move - cameraZ;
+		moveB = true;
+	}
+	//左移動
+	if (mInput.Key('A'))
+	{
+		move = move + cameraX;
+		moveL = true;
+	}
+	//右移動
+	else if (mInput.Key('D'))
+	{
+		move = move - cameraX;
+		moveR = true;
+	}
+	//ジャンプ
+	if (mInput.Key(VK_SPACE) && IsJump == false)
+	{
+		ChangeAnimation(7, false, 45 * mJumpPower);
+		IsJump = true;
+	}
+	//左クリックが押されたら、弾丸を飛ばす
+	if (mInput.Key(VK_LBUTTON))
+	{
 
-				}
-			}
+	}
+	//Rキーが押されたら、弾を補充＋リロードアニメーション再生
+	if (mInput.Key('R'))
+	{
+
+	}
+	//移動あり
+	if (move.Length() > 0.0f)
+	{
+		//正規化
+		move = move.Normalize();
+		//移動方向へ移動
+		mPosition = mPosition + move * PLAYER_SPEED;
+		//ジャンプ中でないなら
+		//正面移動
+		//アニメーション変更と方向変更
+		if (moveF == true && IsJump == false)
+		{
+
+			//前移動
+			ChangeAnimation(0, true, 90);
+			//移動方向を向かせる
+			ChangeDirection(charZ, move);
+		}
+		//ジャンプ中でないなら
+		//後ろ移動
+		//アニメーション変更と方向変更
+		else if (moveB == true && IsJump == false)
+		{
 			//後ろ移動
-			else if (moveB == true)
-			{
-				ChangeAnimation(1, true, 90);
-				//
-				// 移動方向の逆を向かせる
-				// 
-				//遊び
-				const float MARGIN = 0.06f;
-				//自分の向きと向かせたい向きで外積
-				float cross = charZ.Cross(move * -1).GetY();
-				//自分の向きと向かせたい向きで内積
-				float dot = charZ.Dot(move * -1);
-				//外積がプラスは右回転
-				if (cross > MARGIN)
-				{
-					mRotation.SetY(mRotation.GetY() - 5.0f);
-				}
-				//外積がマイナスは左回転
-				else if (cross < -MARGIN)
-				{
-					mRotation.SetY(mRotation.GetY() + 5.0f);
-				}
-				//前後の向きが同じとき内積は1.0f
-				//向かせたい方向を向いていたら何もしない
-				else if (dot < 1.0f - MARGIN)
-				{
-
-				}
-			}
-			//横移動
-			else if (moveL == true || moveR == true)
-			{
-				if (moveL == true)
-				{
-					//左歩きアニメーションに変更
-					ChangeAnimation(2, true, 90);
-				}
-				else if (moveR == true)
-				{
-					//右歩きアニメーションに変更
-					ChangeAnimation(3, true, 90);
-				}
-				//
-				// 横移動中は正面を向かせる
-				// 
-				//遊び
-				const float MARGIN = 0.06f;
-				//自分の向きと向かせたい向きで外積
-				float cross = charZ.Cross(cameraZ).GetY();
-				//自分の向きと向かせたい向きで内積
-				float dot = charZ.Dot(cameraZ);
-				//外積がプラスは右回転
-				if (cross > MARGIN)
-				{
-					mRotation.SetY(mRotation.GetY() - 5.0f);
-				}
-				//外積がマイナスは左回転
-				else if (cross < -MARGIN)
-				{
-					mRotation.SetY(mRotation.GetY() + 5.0f);
-				}
-				//前後の向きが同じとき内積は1.0f
-				//向かせたい方向を向いていたら何もしない
-				else if (dot < 1.0f - MARGIN)
-				{
-
-				}
-
-			}
+			ChangeAnimation(1, true, 90);
+			//移動方向の逆を向かせる
+			ChangeDirection(charZ, move * -1);
 		}
-		//移動していなければ待機アニメーションに切り替え
-		//正面を向く
-		else
+		//ジャンプ中でないなら
+		//横移動
+		//アニメーション変更と方向変更
+		else if ((moveL == true || moveR == true) && IsJump == false)
 		{
-			//遊び
-			const float MARGIN = 0.06f;
-			//自分の向きと向かせたい向きで外積
-			float cross = charZ.Cross(cameraZ).GetY();
-			//自分の向きと向かせたい向きで内積
-			float dot = charZ.Dot(cameraZ);
-			//外積がプラスは右回転
-			if (cross > MARGIN)
+			//左移動なら
+			if (moveL == true)
 			{
-				mRotation.SetY(mRotation.GetY() - 5.0f);
+				//左歩きアニメーションに変更
+				ChangeAnimation(2, true, 90);
 			}
-			//外積がマイナスは左回転
-			else if (cross < -MARGIN)
+			//右移動なら
+			else if (moveR == true && IsJump == false)
 			{
-				mRotation.SetY(mRotation.GetY() + 5.0f);
+				//右歩きアニメーションに変更
+				ChangeAnimation(3, true, 90);
 			}
-			//前後の向きが同じとき内積は1.0f
-			//向かせたい方向を向いていたら何もしない
-			else if (dot < 1.0f - MARGIN)
-			{
-
-			}
-			//待機アニメーションに変更
-			ChangeAnimation(4, true, 90);
+			//横移動中は正面を向かせる
+			ChangeDirection(charZ, cameraZ);
 		}
-		//左クリックが押されたら、弾丸を飛ばす
-		if (mInput.Key(VK_LBUTTON))
-		{
-			ChangeAnimation(5, true, 30);
-		}
+	}
+	//移動もジャンプもしていない場合、待機アニメーションに切り替え
+	//正面を向く
+	else if (IsJump == false)
+	{
+		//待機アニメーションに変更
+		ChangeAnimation(4, true, 90);
+		//正面を向かせる
+		ChangeDirection(charZ, cameraZ);
+	}
+	//ジャンプ中は正面を向かせる
+	if (IsJump == true)
+	{
+		ChangeDirection(charZ, cameraZ);
 	}
 	//変換行列、アニメーションの更新
 	CXCharacter::Update();
-
 	//カプセルコライダの更新
 	//mColBody.Update();
 }
@@ -265,13 +223,17 @@ void CXPlayer::Collision(CCollider* m, CCollider* o)
 void CXPlayer::Init(CModelX* model)
 {
 	CXCharacter::Init(model);
-	/*
 	//合成行列の設定
 	//頭
 	mColSphereHead.SetMatrix(&mpCombinedMatrix[12]);
 	//体
 	mColSphereBody.SetMatrix(&mpCombinedMatrix[9]);
-	mColBody.SetMatrix(&mpCombinedMatrix[1]);
+	//mColBody.SetMatrix(&mpCombinedMatrix[1]);
 	//剣
-	mColSphereSword.SetMatrix(&mpCombinedMatrix[22]);*/
+	mColSphereSword.SetMatrix(&mpCombinedMatrix[22]);
+}
+
+CWepon CXPlayer::GetWepon()
+{
+	return mWepon;
 }

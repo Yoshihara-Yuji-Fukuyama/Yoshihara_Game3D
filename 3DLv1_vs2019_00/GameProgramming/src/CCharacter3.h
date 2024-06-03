@@ -16,8 +16,9 @@ public:
 	//キャラタグ種類
 	enum class ECharaTag
 	{
-		EPLAYER,
-		EENEMY,
+		EPLAYER,//0
+		EENEMY, //1
+		EWEPON, //2
 	};
 	//自分のキャラタグを返す
 	ECharaTag GetCharaTag();
