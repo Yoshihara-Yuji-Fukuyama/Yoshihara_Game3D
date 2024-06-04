@@ -19,6 +19,10 @@ public:
 	//移動、攻撃入力
 	//変換行列、アニメーション、カプセルコライダの更新
 	void Update();
+	//武器の更新
+	void WeponUpdate();
+	//武器の描画
+	void WeponRender();
 	//マウス移動でY軸回転
 	//turnHorizontal:横の回転量
 	void Turn(float turnHorizontal);
@@ -27,8 +31,6 @@ public:
 	//初期設定
 	//球コライダの生成とボーンとの連動
 	void Init(CModelX* model);
-	//CApplicationでmWeponを使用するためにmWeponを返す
-	CWepon GetWepon();
 private:
 	static CXPlayer* spInstance;//インスタンス
 	CCollider mColSphereHead; //頭

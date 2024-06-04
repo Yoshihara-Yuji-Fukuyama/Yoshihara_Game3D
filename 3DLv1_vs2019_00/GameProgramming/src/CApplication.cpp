@@ -102,7 +102,7 @@ void CApplication::Update()
 {	
 	//プレイヤーの更新
 	mXPlayer.Update();
-	mXPlayer.GetWepon().Update();//プレイヤーの武器の更新
+	mXPlayer.WeponUpdate();
 	//敵の更新
 	mXEnemy.Update();
 	//パラディンの更新
@@ -123,7 +123,7 @@ void CApplication::Update()
 
 	//プレイヤー描画
 	mXPlayer.Render();
-	mXPlayer.GetWepon().Render();//プレイヤーの武器描画
+	mXPlayer.WeponRender();//プレイヤーの武器描画
 	//敵描画
 	mXEnemy.Render();
 	//パラディンの描画

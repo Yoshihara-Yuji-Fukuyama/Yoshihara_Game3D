@@ -12,7 +12,7 @@ CXPlayer::CXPlayer()
 	, IsGround(false)
 	, IsJump(false)
 	, mJumpPower(1.0f)
-	, mWepon(this, &mMatrix, CVector(0.0f, 1.0f, -5.0f))
+	, mWepon(this, &mMatrix, CVector(0.0f, 0.0f, 0.0f), &mRotation)
 	, mColSphereHead(this, nullptr, CVector(0.0f, 5.0f, -3.0f), 0.5f)//頭,球コライダ
 	, mColSphereBody(this, nullptr, CVector(), 0.5f)//体,球コライダ
 	//, mColBody(this, nullptr, CVector(0.0f, 25.0f, 0.0f), CVector(0.0f, 150.0f, 0.0f), 0.5f)//体,カプセルコライダ
@@ -20,8 +20,11 @@ CXPlayer::CXPlayer()
 {
 	//タグにプレイヤーを設定
 	mCharaTag = ECharaTag::EPLAYER;
+	//インスタンスに設定
 	spInstance = this;
+	//サイズ設定
 	SetScale(CVector(0.025f, 0.025f, 0.025f));
+	//前を向ける
 	SetRotation(CVector(0.0f, 180.0f, 0.0f));
 }
 
@@ -187,6 +190,18 @@ void CXPlayer::Update()
 	//mColBody.Update();
 }
 
+//武器の更新
+void CXPlayer::WeponUpdate()
+{
+	mWepon.Update();
+}
+
+//武器の描画
+void CXPlayer::WeponRender()
+{
+	mWepon.Render();
+}
+
 //マウス移動でY軸回転
 void CXPlayer::Turn(float turnHorizontal)
 {
@@ -225,15 +240,13 @@ void CXPlayer::Init(CModelX* model)
 	CXCharacter::Init(model);
 	//合成行列の設定
 	//頭
-	mColSphereHead.SetMatrix(&mpCombinedMatrix[12]);
+	mColSphereHead.SetMatrix(&mpCombinedMatrix[7]);
 	//体
-	mColSphereBody.SetMatrix(&mpCombinedMatrix[9]);
+	mColSphereBody.SetMatrix(&mpCombinedMatrix[5]);
 	//mColBody.SetMatrix(&mpCombinedMatrix[1]);
 	//剣
 	mColSphereSword.SetMatrix(&mpCombinedMatrix[22]);
+	//TODO:左手に引き金がくる数値を探す
+	mWepon.SetMatrix(&mpCombinedMatrix[38]);
 }
 
-CWepon CXPlayer::GetWepon()
-{
-	return mWepon;
-}
