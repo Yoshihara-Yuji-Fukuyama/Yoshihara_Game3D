@@ -41,6 +41,8 @@ public:
 	bool WorldToScreen(CVector* screen, const CVector& world);
 	//マウス感度を返す
 	float GetSensitivity();
+	//回転を取得する
+	CVector GetRotation();
 private:
 	static CActionCamera* spInstance;//インスタンス
 	CVector mEye;	//視点の位置

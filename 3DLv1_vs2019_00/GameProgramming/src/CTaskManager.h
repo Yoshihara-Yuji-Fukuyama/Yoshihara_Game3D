@@ -13,7 +13,7 @@ public:
 	//衝突処理
 	void Collision();
 	//インスタンスの取得
-	static CTaskManager* Instance();
+	static CTaskManager* GetInstance();
 	//タスクの削除
 	void Delete();
 	//リストから削除

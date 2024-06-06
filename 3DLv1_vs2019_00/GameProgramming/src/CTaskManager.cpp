@@ -91,7 +91,7 @@ void CTaskManager::Render()
 CTaskManager* CTaskManager::mpInstance = nullptr;
 
 //インスタンスの取得
-CTaskManager* CTaskManager::Instance()
+CTaskManager* CTaskManager::GetInstance()
 {
 	//インスタンスがなければ
 	if (mpInstance == nullptr)

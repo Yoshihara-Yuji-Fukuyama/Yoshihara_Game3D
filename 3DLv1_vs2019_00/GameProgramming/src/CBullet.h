@@ -26,14 +26,9 @@ public:
 	void Set(float w, float d);
 	//更新
 	void Update();
-	//描画
-	void Render();
 private:
-	//三角形
-	CTriangle mT;
-	//生存時間
-	int mLife;
-	//コライダ
-	CCollider mCollider;
+	int mLife;//生存時間
+	CCollider mCollider;//コライダ
+	static CModel sModel;//モデルデータ
 };
 #endif

@@ -4,7 +4,7 @@
 CCollisionManager* CCollisionManager::mpInstance = nullptr;
 
 //インスタンスの取得
-CCollisionManager* CCollisionManager::Instance()
+CCollisionManager* CCollisionManager::GetInstance()
 {
 	if (mpInstance == nullptr)
 	{

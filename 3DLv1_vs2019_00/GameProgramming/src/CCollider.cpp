@@ -21,13 +21,13 @@ CCollider::CCollider()
 	, mRadius(0)
 {
 	//コリジョンマネージャに追加
-	CCollisionManager::Instance()->Add(this);
+	CCollisionManager::GetInstance()->Add(this);
 }
 
 CCollider::~CCollider()
 {
 	//コリジョンリストから削除
-	CCollisionManager::Instance()->Remove(this);
+	CCollisionManager::GetInstance()->Remove(this);
 }
 
 CCollider::CCollider(CCharacter3* parent, CMatrix* matrix,
@@ -45,7 +45,7 @@ CCollider::CCollider(CCharacter3* parent, CMatrix* matrix,
 	//半径設定
 	mRadius = radius;
 	//コリジョンマネージャに追加
-	//CCollisionManager::Instance()->Add(this);
+	//CCollisionManager::GetInstance()->Add(this);
 }
 
 void CCollider::Render()
@@ -75,8 +75,8 @@ void CCollider::ChangePriority()
 void CCollider::ChangePriority(int priority)
 {
 	mPriority = priority;
-	CCollisionManager::Instance()->Remove(this);//一旦削除
-	CCollisionManager::Instance()->Add(this);//追加
+	CCollisionManager::GetInstance()->Remove(this);//一旦削除
+	CCollisionManager::GetInstance()->Add(this);//追加
 }
 
 //コライダ1と2の衝突判定

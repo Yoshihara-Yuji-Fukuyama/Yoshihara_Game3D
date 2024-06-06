@@ -14,7 +14,7 @@ class CPlayer :public CCharacter3
 {
 public:
 	//インスタンスのポインタの取得
-	static CPlayer* Instance();
+	static CPlayer* GetInstance();
 	void Collision();
 	//衝突処理
 	void Collision(CCollider* m, CCollider* o);

@@ -7,11 +7,24 @@
 CModelX CPaladin::sModel;
 
 CPaladin::CPaladin()
+	: mWepon(this, &mMatrix, CVector(-5.0f, 0.0f, -10.0f), &mRotation)
 {
 	if (sModel.IsLoaded() == false)
 	{
 		sModel.Load(TEST);
 	}
 	Init(&sModel);
+	//TODO:¶è‚Éˆø‚«‹à‚ª‚­‚é”’l‚ğ’T‚·
+	mWepon.SetMatrix(&mpCombinedMatrix[38]);
+}
+
+void CPaladin::WeponUpdate()
+{
+	mWepon.Update();
+}
+
+void CPaladin::WeponRender()
+{
+	mWepon.Render();
 }
 

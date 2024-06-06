@@ -100,6 +100,7 @@ void CApplication::Start()
 
 void CApplication::Update()
 {	
+	/*
 	//プレイヤーの更新
 	mXPlayer.Update();
 	mXPlayer.WeponUpdate();
@@ -107,7 +108,9 @@ void CApplication::Update()
 	mXEnemy.Update();
 	//パラディンの更新
 	mpPaladin->Update();
-
+	mpPaladin->WeponUpdate();
+	*/
+	CTaskManager::GetInstance()->Update();
 	
 	//カメラ設定
 	mActionCamera.SetPosition(mXPlayer.GetPosition() + CVector(-1.0f, 3.0f, 0.0f));
@@ -121,6 +124,7 @@ void CApplication::Update()
 	mModelViewInverse.M(1, 3, 0);
 	mModelViewInverse.M(2, 3, 0);
 
+	/*
 	//プレイヤー描画
 	mXPlayer.Render();
 	mXPlayer.WeponRender();//プレイヤーの武器描画
@@ -128,11 +132,15 @@ void CApplication::Update()
 	mXEnemy.Render();
 	//パラディンの描画
 	mpPaladin->Render();
-	
+	mpPaladin->WeponRender();
+	*/
+	CTaskManager::GetInstance()->Render();
+	CTaskManager::GetInstance()->Delete();
+
 	//コライダの描画
-	CCollisionManager::Instance()->Render();
+	CCollisionManager::GetInstance()->Render();
 	//衝突処理
-	CCollisionManager::Instance()->Collision();
+	CCollisionManager::GetInstance()->Collision();
 
 
 	//2D描画開始

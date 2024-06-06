@@ -12,7 +12,7 @@ CXPlayer::CXPlayer()
 	, IsGround(false)
 	, IsJump(false)
 	, mJumpPower(1.0f)
-	, mWepon(this, &mMatrix, CVector(0.0f, 0.0f, 0.0f), &mRotation)
+	, mWepon(this, &mMatrix, CVector(-10.0f, 5.0f, -5.0f), &mRotation)
 	, mColSphereHead(this, nullptr, CVector(0.0f, 5.0f, -3.0f), 0.5f)//頭,球コライダ
 	, mColSphereBody(this, nullptr, CVector(), 0.5f)//体,球コライダ
 	//, mColBody(this, nullptr, CVector(0.0f, 25.0f, 0.0f), CVector(0.0f, 150.0f, 0.0f), 0.5f)//体,カプセルコライダ
@@ -93,6 +93,8 @@ void CXPlayer::Update()
 		move = move - cameraZ;
 		moveB = true;
 	}
+	//ウェポンに後ろ移動をしているのか知らせる
+	mWepon.SetMoveB(moveB);
 	//左移動
 	if (mInput.Key('A'))
 	{
@@ -114,7 +116,7 @@ void CXPlayer::Update()
 	//左クリックが押されたら、弾丸を飛ばす
 	if (mInput.Key(VK_LBUTTON))
 	{
-
+		mWepon.ShotBullet();
 	}
 	//Rキーが押されたら、弾を補充＋リロードアニメーション再生
 	if (mInput.Key('R'))
@@ -249,4 +251,5 @@ void CXPlayer::Init(CModelX* model)
 	//TODO:左手に引き金がくる数値を探す
 	mWepon.SetMatrix(&mpCombinedMatrix[38]);
 }
+
 

@@ -15,7 +15,7 @@ void CCharacter3::Render()
 CCharacter3::~CCharacter3()
 {
 	//タスクリストから削除
-	CTaskManager::Instance()->Remove(this);
+	CTaskManager::GetInstance()->Remove(this);
 }
 
 CCharacter3::ECharaTag CCharacter3::GetCharaTag()
@@ -27,12 +27,12 @@ CCharacter3::CCharacter3()
 	:mpModel(nullptr)
 {
 	//タスクリストに追加
-	CTaskManager::Instance()->Add(this);
+	CTaskManager::GetInstance()->Add(this);
 }
 
 CCharacter3::CCharacter3(int priority)
 	:mpModel(nullptr)
 {
 	mPriority = priority;
-	CTaskManager::Instance()->Add(this);
+	CTaskManager::GetInstance()->Add(this);
 }

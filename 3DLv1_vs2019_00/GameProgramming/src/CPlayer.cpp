@@ -9,7 +9,7 @@
 
 CPlayer* CPlayer::spInstance = nullptr;
 
-CPlayer* CPlayer::Instance()
+CPlayer* CPlayer::GetInstance()
 {
 	return spInstance;
 }
@@ -117,7 +117,7 @@ void CPlayer::Collision()
 	mLine2.ChangePriority();
 	mLine3.ChangePriority();
 	//Õ“Ëˆ—‚ðŽÀs
-	CCollisionManager::Instance()->Collision(&mLine, COLLISIONRANGE);
-	CCollisionManager::Instance()->Collision(&mLine2, COLLISIONRANGE);
-	CCollisionManager::Instance()->Collision(&mLine3, COLLISIONRANGE);
+	CCollisionManager::GetInstance()->Collision(&mLine, COLLISIONRANGE);
+	CCollisionManager::GetInstance()->Collision(&mLine2, COLLISIONRANGE);
+	CCollisionManager::GetInstance()->Collision(&mLine3, COLLISIONRANGE);
 }

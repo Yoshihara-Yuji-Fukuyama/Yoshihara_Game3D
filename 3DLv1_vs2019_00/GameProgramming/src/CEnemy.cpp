@@ -65,7 +65,7 @@ void CEnemy::Collision()
 	mCollider2.ChangePriority();
 	mCollider3.ChangePriority();
 	//Õ“Ëˆ—‚ðŽÀs
-	CCollisionManager::Instance()->Collision(&mCollider1, COLLISIONRANGE);
-	CCollisionManager::Instance()->Collision(&mCollider2, COLLISIONRANGE);
-	CCollisionManager::Instance()->Collision(&mCollider3, COLLISIONRANGE);
+	CCollisionManager::GetInstance()->Collision(&mCollider1, COLLISIONRANGE);
+	CCollisionManager::GetInstance()->Collision(&mCollider2, COLLISIONRANGE);
+	CCollisionManager::GetInstance()->Collision(&mCollider3, COLLISIONRANGE);
 }

@@ -57,7 +57,7 @@ void CEnemy3::Update()
 		return;
 	}
 	//プレイヤーのポインタが0以外の時
-	CPlayer* player = CPlayer::Instance();
+	CPlayer* player = CPlayer::GetInstance();
 	if (player != nullptr)
 	{
 		//プレイヤーまでのベクトルを求める
@@ -179,5 +179,5 @@ void CEnemy3::Collision()
 	//コライダの優先度変更
 	mCollider.ChangePriority();
 	//衝突処理を実行
-	CCollisionManager::Instance()->Collision(&mCollider, COLLISIONRANGE);
+	CCollisionManager::GetInstance()->Collision(&mCollider, COLLISIONRANGE);
 }

@@ -121,3 +121,9 @@ float CActionCamera::GetSensitivity()
 {
 	return mSensitivity;
 }
+
+//‰ñ“]‚ðŽæ“¾‚·‚é
+CVector CActionCamera::GetRotation()
+{
+	return mRotation;
+}
