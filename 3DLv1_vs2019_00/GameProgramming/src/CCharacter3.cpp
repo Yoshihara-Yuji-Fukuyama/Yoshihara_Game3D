@@ -1,9 +1,15 @@
 #include "CCharacter3.h"
 #include "CApplication.h"
 
+//モデルの設定
 void CCharacter3::Model(CModel* m)
 {
 	mpModel = m;
+}
+//親のポインタを取得
+CCharacter3* CCharacter3::GetParent()
+{
+	return mpParent;
 }
 
 //描画処理

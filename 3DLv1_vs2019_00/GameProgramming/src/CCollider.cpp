@@ -15,8 +15,7 @@ CCollider::ETag CCollider::GetTag()
 }
 
 CCollider::CCollider()
-	: mpParent(nullptr)
-	, mpMatrix(&mMatrix)
+	: mpMatrix(&mMatrix)
 	, mType(EType::ESPHERE)
 	, mRadius(0)
 {

@@ -3,14 +3,14 @@
 
 #define VELOCITY CVector(0.0f,0.0f,1.0f)
 
-#define AR_OBJ "res\\Guns\\AssaultRifle2_1.obj"
-#define AR_MTL "res\\Guns\\AssaultRifle2_1.mtl"
+#define AR_OBJ "res\\Guns\\ammo_machinegun.obj"
+#define AR_MTL "res\\Guns\\ammo_machinegun.mtl"
 
 CModel CBullet::sModel;//モデルデータ作成
 
-CBullet::CBullet()
+CBullet::CBullet(CCharacter3* parent)
 	:mLife(50)
-	, mCollider(this, &mMatrix, CVector(0.0f, 0.0f, 0.0f), 0.1f)
+	, mCollider(this, &mMatrix, CVector(0.0f, 0.0f, 0.0f), 0.1f, CCollider::ETag::EBullet)
 {
 	//モデルがないときは読み込む
 	if (sModel.Triangles().size() == 0)
@@ -19,14 +19,15 @@ CBullet::CBullet()
 	}
 	//モデルのポインタ設定
 	mpModel = &sModel;
+	//親の設定
+	mpParent = parent;
 }
 
-//幅と奥行きの設定
-//Set（幅、奥行き）
-void CBullet::Set(float w, float d)
+//大きさの設定
+void CBullet::SetScale(float scale)
 {
 	//スケール設定
-	mScale = CVector(1.0f, 1.0f, 1.0f);
+	mScale = CVector(scale, scale, scale);
 }
 
 //更新

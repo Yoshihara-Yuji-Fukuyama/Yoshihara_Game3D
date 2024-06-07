@@ -14,18 +14,18 @@
 class CBullet : public CCharacter3
 {
 public:
+	//親を設定
+	CBullet(CCharacter3* parent);
+	//大きさの設定
+	void SetScale(float scale);
+	//更新
+	void Update();
+
 	//衝突処理
 	void Collision();
 	//衝突処理
 	//Collision(コライダ1,コライダ2)
 	void Collision(CCollider* m, CCollider* o);
-
-	CBullet();
-	//幅と奥行きの設定
-	//Set(幅、奥行)
-	void Set(float w, float d);
-	//更新
-	void Update();
 private:
 	int mLife;//生存時間
 	CCollider mCollider;//コライダ

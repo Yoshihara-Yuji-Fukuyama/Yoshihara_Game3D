@@ -32,10 +32,13 @@ public:
 	//モデルの設定
 	//Model(CModel*m);
 	void Model(CModel* m);
+	//親ポインタの取得
+	CCharacter3* GetParent();
 	//描画処理
 	void Render();
 protected:
 	CModel* mpModel;//モデルのポインタ
+	CCharacter3* mpParent;//親
 	ECharaTag mCharaTag;   //自分のキャラタグ
 };
 #endif

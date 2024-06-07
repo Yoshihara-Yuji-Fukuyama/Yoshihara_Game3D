@@ -79,8 +79,8 @@ void CEnemy3::Update()
 				if (0.0f < dz && dz <= 30.0f)
 				{
 					//’e‚ð”­ŽË‚µ‚Ü‚·
-					CBullet* bullet = new CBullet();
-					bullet->Set(0.1f, 1.5f);
+					CBullet* bullet = new CBullet(this);
+					bullet->SetScale(1.0f);
 					bullet->SetPosition(CVector(0.0f, 0.0f, 10.0f) * mMatrix);
 					bullet->SetRotation(mRotation);
 					bullet->Update();

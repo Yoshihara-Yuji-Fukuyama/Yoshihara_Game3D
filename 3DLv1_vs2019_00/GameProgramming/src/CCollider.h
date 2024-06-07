@@ -27,6 +27,7 @@ public:
 	{
 		EBODY, //‘Ì
 		ESWORD,//Œ•
+		EBullet,//’eŠÛ
 	};
 	//mTag‚Ì’l‚ð•Ô‚·
 	ETag GetTag();

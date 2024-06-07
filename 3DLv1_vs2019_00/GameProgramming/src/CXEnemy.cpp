@@ -53,11 +53,11 @@ void CXEnemy::Collision(CCollider* m, CCollider* o)
 		if (m->GetTag() == CCollider::ETag::EBODY)
 		{
 			//相手のコライダも球
-			//タグは剣
-			//親がプレイヤーなら
+			//タグは弾丸
+			//親(弾丸)の親(武器)の親(キャラクタ)がプレイヤーなら
 			if (o->GetType() == CCollider::EType::ESPHERE &&
-				o->GetTag() == CCollider::ETag::ESWORD &&
-				o->GetParent()->GetCharaTag() == CCharacter3::ECharaTag::EPLAYER)
+				o->GetTag() == CCollider::ETag::EBullet &&
+				o->GetParent()->GetParent()->GetParent()->GetCharaTag() == CCharacter3::ECharaTag::EPLAYER)
 			{
 				//衝突しているなら
 				if (m->Collision(m, o) == true)

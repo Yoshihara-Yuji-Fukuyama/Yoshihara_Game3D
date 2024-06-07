@@ -37,7 +37,6 @@ public:
 private:
 	static CModel sModel;//モデルデータ
 	EWeponType mWeponType;//武器の種類
-	CCharacter3* mpParent;//親
 	CMatrix* mpMatrix;    //親行列
 	CVector* mpRotation;  //親回転
 	CVector mAdjustPosition;//位置調整

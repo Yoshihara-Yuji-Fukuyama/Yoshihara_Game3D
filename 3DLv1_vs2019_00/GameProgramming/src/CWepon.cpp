@@ -11,7 +11,6 @@ CModel CWepon::sModel;//モデルデータ作成
 //デフォルトコンストラクタ
 CWepon::CWepon()
 	: mWeponType(EWeponType::EAR)
-	, mpParent(nullptr)
 	, mpMatrix(&mMatrix)
 	, mpRotation(nullptr)
 	, IsMoveB(false)
@@ -23,6 +22,8 @@ CWepon::CWepon()
 	}
 	//モデルのポインタ設定
 	mpModel = &sModel;
+	//タグにウェポンを設定
+	mCharaTag = ECharaTag::EWEPON;
 }
 
 //コンストラクタ
@@ -76,13 +77,28 @@ void CWepon::SetMatrix(CMatrix* m)
 void CWepon::ShotBullet()
 {
 	//弾を発射します
-	CBullet* bullet = new CBullet();
-	bullet->Set(0.1f, 1.5f);
-	bullet->SetPosition(CVector(4.0f, 0.0f, 0.0f) * mMatrix);
-	bullet->SetRotation(
-		CVector(CActionCamera::GetInstance()->GetRotation().GetX() + 200.0f ,
-		CActionCamera::GetInstance()->GetRotation().GetY(),
-		CActionCamera::GetInstance()->GetRotation().GetZ()));
+	CBullet* bullet = new CBullet(this);
+	bullet->SetScale(25.0f);
+	bullet->SetPosition(CVector(4.0f, 0.5f, 0.0f) * mMatrix);
+	//後ろ移動をしていないなら
+	if (IsMoveB == false)
+	{
+		//発射される方向の上下を変更できる
+		bullet->SetRotation(
+			CVector(CActionCamera::GetInstance()->GetRotation().GetX() + 200.0f,
+				mRotation.GetY() - 90.0f,
+				mRotation.GetZ()));
+	}
+	//後ろ移動しているなら
+	else
+	{
+		//発射される方向の上下を変更できない
+		bullet->SetRotation(
+			CVector(mRotation.GetX() + 165.0f,
+				mRotation.GetY() - 90.0f,
+				mRotation.GetZ()));
+	}
+
 	bullet->Update();
 }
 //後ろ移動をしているかどうかを設定する

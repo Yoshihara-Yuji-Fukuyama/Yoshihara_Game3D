@@ -16,7 +16,6 @@ CXPlayer::CXPlayer()
 	, mColSphereHead(this, nullptr, CVector(0.0f, 5.0f, -3.0f), 0.5f)//頭,球コライダ
 	, mColSphereBody(this, nullptr, CVector(), 0.5f)//体,球コライダ
 	//, mColBody(this, nullptr, CVector(0.0f, 25.0f, 0.0f), CVector(0.0f, 150.0f, 0.0f), 0.5f)//体,カプセルコライダ
-	, mColSphereSword(this, nullptr, CVector(-10.0f, 10.0f, 50.0f), 0.3f, CCollider::ETag::ESWORD)//剣,球コライダ
 {
 	//タグにプレイヤーを設定
 	mCharaTag = ECharaTag::EPLAYER;
@@ -114,9 +113,11 @@ void CXPlayer::Update()
 		IsJump = true;
 	}
 	//左クリックが押されたら、弾丸を飛ばす
-	if (mInput.Key(VK_LBUTTON))
+	if (mInput.Key(VK_LBUTTON && moveB == false))
 	{
 		mWepon.ShotBullet();
+		//TODO:撃つときは正面を向かせる
+		ChangeDirection(charZ, cameraZ);
 	}
 	//Rキーが押されたら、弾を補充＋リロードアニメーション再生
 	if (mInput.Key('R'))
@@ -246,9 +247,7 @@ void CXPlayer::Init(CModelX* model)
 	//体
 	mColSphereBody.SetMatrix(&mpCombinedMatrix[5]);
 	//mColBody.SetMatrix(&mpCombinedMatrix[1]);
-	//剣
-	mColSphereSword.SetMatrix(&mpCombinedMatrix[22]);
-	//TODO:左手に引き金がくる数値を探す
+	//左手に引き金がくる数値
 	mWepon.SetMatrix(&mpCombinedMatrix[38]);
 }
 
