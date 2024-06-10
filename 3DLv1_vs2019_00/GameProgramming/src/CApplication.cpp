@@ -55,6 +55,7 @@ void CApplication::Init()
 	mPlayerModel.AddAnimationSet(JUMP_UP);  //6:ジャンプ
 	mPlayerModel.SeparateAnimationSet(6, 5, 16, "JumpUp");//7:ジャンプ上昇
 	mPlayerModel.AddAnimationSet(JUMP_DOWN);//8:ジャンプ降下
+	mPlayerModel.AddAnimationSet(RUN);//9:走り
 	//パラディンのインスタンス作成
 	mpPaladin = new CPaladin();
 	//敵のアニメーションを抜き出す
@@ -112,8 +113,7 @@ void CApplication::Update()
 	*/
 	CTaskManager::GetInstance()->Update();
 	
-	//カメラ設定
-	mActionCamera.SetPosition(mXPlayer.GetPosition() + CVector(-1.0f, 3.0f, 0.0f));
+	mActionCamera.SetPosition(CVector(50.0f, 100.0f, 0.0f) * mXPlayer.GetMatrix());
 	mActionCamera.Update();
 	mActionCamera.Render();
 	//モデルビュー行列の取得

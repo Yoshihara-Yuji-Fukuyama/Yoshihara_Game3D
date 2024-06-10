@@ -1,13 +1,13 @@
 #include "CXPlayer.h"
 
 #define PLAYER_ROTATION CVector(0.0f,2.0f,0.0f)//回転速度
-#define PLAYER_SPEED 0.1f//移動速度
 #define GRAVITY_AND_JUMPDEF 0.1f//重力とジャンプの基準値
 
 CXPlayer* CXPlayer::spInstance = nullptr;
 
 CXPlayer::CXPlayer()
-	: IsLeftTurn(false)
+	: mPlayerSpeed(0.1f)
+	, IsLeftTurn(false)
 	, IsRightTurn(false)
 	, IsGround(false)
 	, IsJump(false)
@@ -15,7 +15,7 @@ CXPlayer::CXPlayer()
 	, mWepon(this, &mMatrix, CVector(-10.0f, 5.0f, -5.0f), &mRotation)
 	, mColSphereHead(this, nullptr, CVector(0.0f, 5.0f, -3.0f), 0.5f)//頭,球コライダ
 	, mColSphereBody(this, nullptr, CVector(), 0.5f)//体,球コライダ
-	//, mColBody(this, nullptr, CVector(0.0f, 25.0f, 0.0f), CVector(0.0f, 150.0f, 0.0f), 0.5f)//体,カプセルコライダ
+	, mColBody(this, nullptr, CVector(0.0f, 25.0f, 0.0f), CVector(0.0f, 150.0f, 0.0f), 0.5f)//体,カプセルコライダ
 {
 	//タグにプレイヤーを設定
 	mCharaTag = ECharaTag::EPLAYER;
@@ -80,6 +80,7 @@ void CXPlayer::Update()
 	bool moveB = false;//後ろ
 	bool moveL = false;//左
 	bool moveR = false;//右
+	bool isAim = false;//構えているか
 	//前進
 	if (mInput.Key('W'))
 	{
@@ -92,8 +93,7 @@ void CXPlayer::Update()
 		move = move - cameraZ;
 		moveB = true;
 	}
-	//ウェポンに後ろ移動をしているのか知らせる
-	mWepon.SetMoveB(moveB);
+
 	//左移動
 	if (mInput.Key('A'))
 	{
@@ -106,41 +106,81 @@ void CXPlayer::Update()
 		move = move - cameraX;
 		moveR = true;
 	}
+
 	//ジャンプ
 	if (mInput.Key(VK_SPACE) && IsJump == false)
 	{
 		ChangeAnimation(7, false, 45 * mJumpPower);
 		IsJump = true;
 	}
+
 	//左クリックが押されたら、弾丸を飛ばす
-	if (mInput.Key(VK_LBUTTON && moveB == false))
+	if (mInput.Key(VK_LBUTTON) && IsRun == false)
 	{
+		//弾の生成
 		mWepon.ShotBullet();
-		//TODO:撃つときは正面を向かせる
+	}
+	//右クリックが押されたら、構える
+	if (mInput.Key(VK_RBUTTON) && IsRun == false)
+	{
 		ChangeDirection(charZ, cameraZ);
+		isAim = true;
 	}
 	//Rキーが押されたら、弾を補充＋リロードアニメーション再生
 	if (mInput.Key('R'))
 	{
 
 	}
+
+	//前移動中にShiftキーが押されたら、移動速度上昇し走る
+	if (mInput.Key(VK_SHIFT) && moveF == true)
+	{
+		if (IsRun == false)
+		{
+			mPlayerSpeed = mPlayerSpeed * 2.0f;
+		}	
+		IsRun = true;
+		mWepon.SetRun(IsRun);
+	}
+	//押されていないなら、元の速度に戻る
+	else
+	{
+		if (IsRun == true)
+		{
+			mPlayerSpeed = mPlayerSpeed / 2.0f;
+		}
+		IsRun = false;
+		mWepon.SetRun(IsRun);
+	}
+
 	//移動あり
 	if (move.Length() > 0.0f)
 	{
 		//正規化
 		move = move.Normalize();
 		//移動方向へ移動
-		mPosition = mPosition + move * PLAYER_SPEED;
+		mPosition = mPosition + move * mPlayerSpeed;
 		//ジャンプ中でないなら
 		//正面移動
 		//アニメーション変更と方向変更
 		if (moveF == true && IsJump == false)
 		{
-
-			//前移動
-			ChangeAnimation(0, true, 90);
-			//移動方向を向かせる
-			ChangeDirection(charZ, move);
+			if (IsRun == false)
+			{
+				//前移動
+				ChangeAnimation(0, true, 90 * (1 - (mPlayerSpeed * 0.1f)));
+			}
+			else
+			{
+				//走り移動
+				ChangeAnimation(9, true, 90 * (0.7f - (mPlayerSpeed * 0.1f)));
+			}
+			//構えていないなら
+			if (isAim == false)
+			{
+				//移動方向を向かせる
+				ChangeDirection(charZ, move);
+			}
 		}
 		//ジャンプ中でないなら
 		//後ろ移動
@@ -149,8 +189,12 @@ void CXPlayer::Update()
 		{
 			//後ろ移動
 			ChangeAnimation(1, true, 90);
-			//移動方向の逆を向かせる
-			ChangeDirection(charZ, move * -1);
+			//構えていないなら
+			if (isAim == false)
+			{
+				//移動方向の逆を向かせる
+				ChangeDirection(charZ, move * -1);
+			}
 		}
 		//ジャンプ中でないなら
 		//横移動
@@ -169,8 +213,12 @@ void CXPlayer::Update()
 				//右歩きアニメーションに変更
 				ChangeAnimation(3, true, 90);
 			}
-			//横移動中は正面を向かせる
-			ChangeDirection(charZ, cameraZ);
+			//構えていないなら
+			if (isAim == false)
+			{
+				//横移動中は正面を向かせる
+				ChangeDirection(charZ, cameraZ);
+			}
 		}
 	}
 	//移動もジャンプもしていない場合、待機アニメーションに切り替え
@@ -179,18 +227,27 @@ void CXPlayer::Update()
 	{
 		//待機アニメーションに変更
 		ChangeAnimation(4, true, 90);
-		//正面を向かせる
-		ChangeDirection(charZ, cameraZ);
+		//撃っていないなら
+		if (isAim == false)
+		{
+			//正面を向かせる
+			ChangeDirection(charZ, cameraZ);
+		}
 	}
 	//ジャンプ中は正面を向かせる
 	if (IsJump == true)
 	{
-		ChangeDirection(charZ, cameraZ);
+		//撃っていないなら
+		if (isAim == false)
+		{
+			//正面を向かせる
+			ChangeDirection(charZ, cameraZ);
+		}	
 	}
 	//変換行列、アニメーションの更新
 	CXCharacter::Update();
 	//カプセルコライダの更新
-	//mColBody.Update();
+	mColBody.Update();
 }
 
 //武器の更新
@@ -246,7 +303,7 @@ void CXPlayer::Init(CModelX* model)
 	mColSphereHead.SetMatrix(&mpCombinedMatrix[7]);
 	//体
 	mColSphereBody.SetMatrix(&mpCombinedMatrix[5]);
-	//mColBody.SetMatrix(&mpCombinedMatrix[1]);
+	mColBody.SetMatrix(&mpCombinedMatrix[1]);
 	//左手に引き金がくる数値
 	mWepon.SetMatrix(&mpCombinedMatrix[38]);
 }

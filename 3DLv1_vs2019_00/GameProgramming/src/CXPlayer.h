@@ -35,15 +35,17 @@ private:
 	static CXPlayer* spInstance;//インスタンス
 	CCollider mColSphereHead; //頭
 	CCollider mColSphereBody; //体
-	//CColliderCapsule mColBody;//キャラとキャラが重ならないための体コライダ
+	CColliderCapsule mColBody;//キャラとキャラが重ならないための体コライダ
 	CCollider mColSphereSword;//剣
 	CInput mInput;//CInputのインスタンス作成
-	//右回転、左回転をしたかどうか
-	bool IsLeftTurn;
-	bool IsRightTurn;
+	bool IsRun;//走っているかどうか
+	float mPlayerSpeed;//プレイヤーの移動速度
+	bool IsLeftTurn;//左回転、
+	bool IsRightTurn;//右回転をしたかどうか
 	bool IsGround;//地面についているか
 	bool IsJump;//ジャンプしているかどうか
 	float mJumpPower;//ジャンプ力
+
 	CWepon mWepon;
 };
 #endif

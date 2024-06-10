@@ -32,14 +32,16 @@ public:
 	void SetMatrix(CMatrix* m);
 	//弾を発射する関数
 	void ShotBullet();
-	//IsMoveBを設定する
-	void SetMoveB(bool isMoveB);
+
+	//IsRunを設定
+	void SetRun(bool isRun);
 private:
 	static CModel sModel;//モデルデータ
 	EWeponType mWeponType;//武器の種類
 	CMatrix* mpMatrix;    //親行列
 	CVector* mpRotation;  //親回転
 	CVector mAdjustPosition;//位置調整
-	bool IsMoveB;//後ろ移動をしているかどうかを保存する
+	bool IsRun;//走っているかどうかを保存する
+	//TODO:弾の数関連を追加
 };
 #endif
