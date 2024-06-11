@@ -35,6 +35,7 @@ private:
 	static CXPlayer* spInstance;//インスタンス
 	CCollider mColSphereHead; //頭
 	CCollider mColSphereBody; //体
+	CCollider mColSphereLeg;  //足
 	CColliderCapsule mColBody;//キャラとキャラが重ならないための体コライダ
 	CCollider mColSphereSword;//剣
 	CInput mInput;//CInputのインスタンス作成
@@ -45,7 +46,8 @@ private:
 	bool IsGround;//地面についているか
 	bool IsJump;//ジャンプしているかどうか
 	float mJumpPower;//ジャンプ力
+	bool IsReloading;//リロードしているか
 
-	CWepon mWepon;
+	CWepon mWepon;//武器のインスタンス
 };
 #endif

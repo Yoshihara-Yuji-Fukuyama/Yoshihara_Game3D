@@ -12,9 +12,11 @@ CXPlayer::CXPlayer()
 	, IsGround(false)
 	, IsJump(false)
 	, mJumpPower(1.0f)
+	, IsReloading(false)
 	, mWepon(this, &mMatrix, CVector(-10.0f, 5.0f, -5.0f), &mRotation)
 	, mColSphereHead(this, nullptr, CVector(0.0f, 5.0f, -3.0f), 0.5f)//頭,球コライダ
 	, mColSphereBody(this, nullptr, CVector(), 0.5f)//体,球コライダ
+	, mColSphereLeg(this, nullptr, CVector(0.0f, 20.0f, 0.0f), 0.5f)//足,球コライダ
 	, mColBody(this, nullptr, CVector(0.0f, 25.0f, 0.0f), CVector(0.0f, 150.0f, 0.0f), 0.5f)//体,カプセルコライダ
 {
 	//タグにプレイヤーを設定
@@ -37,7 +39,7 @@ void CXPlayer::Update()
 {
 
 	//上昇中じゃないかつY座標が0以上なら重力適用
-	if (GetAnimationIndex() != 7 && mPosition.GetY() > 0)
+	if (GetAnimationIndex() != 7)
 	{
 		mPosition.SetY(mPosition.GetY() - GRAVITY_AND_JUMPDEF);
 	}
@@ -63,6 +65,17 @@ void CXPlayer::Update()
 			IsJump = false;
 		}
 	}
+	//リロードアニメーションの時
+	if (GetAnimationIndex() == 10)
+	{
+		//アニメーションが終了したら
+		//待機アニメーションにする
+		if (IsAnimationFinished() == true)
+		{
+			ChangeAnimation(1, true, 90);
+			IsReloading = false;
+		}
+	}
 	//カメラの前方
 	CVector cameraZ = CActionCamera::GetInstance()->GetVectorZ();
 	//カメラの左方向
@@ -75,65 +88,65 @@ void CXPlayer::Update()
 	charZ.SetY(0.0f); charZ = charZ.Normalize();
 	//移動方向の設定
 	CVector move;
-	//どの方向に移動しているか
-	bool moveF = false;//前
-	bool moveB = false;//後ろ
-	bool moveL = false;//左
-	bool moveR = false;//右
+	bool isMove = false;//動いているか
+	bool isMoveB = false;//後ろ移動をしているか
 	bool isAim = false;//構えているか
 	//前進
 	if (mInput.Key('W'))
 	{
 		move = move + cameraZ;
-		moveF = true;
+		isMove = true;
 	}
 	//後退
 	else if (mInput.Key('S'))
 	{
 		move = move - cameraZ;
-		moveB = true;
+		isMove = true;
+		isMoveB = true;
 	}
 
 	//左移動
 	if (mInput.Key('A'))
 	{
 		move = move + cameraX;
-		moveL = true;
+		isMove = true;
 	}
 	//右移動
 	else if (mInput.Key('D'))
 	{
 		move = move - cameraX;
-		moveR = true;
+		isMove = true;
 	}
 
 	//ジャンプ
-	if (mInput.Key(VK_SPACE) && IsJump == false)
+	if (mInput.Key(VK_SPACE) && IsJump == false && IsReloading == false)
 	{
 		ChangeAnimation(7, false, 45 * mJumpPower);
 		IsJump = true;
 	}
 
 	//左クリックが押されたら、弾丸を飛ばす
-	if (mInput.Key(VK_LBUTTON) && IsRun == false)
+	if (mInput.Key(VK_LBUTTON) && IsRun == false && IsReloading == false)
 	{
 		//弾の生成
 		mWepon.ShotBullet();
 	}
 	//右クリックが押されたら、構える
-	if (mInput.Key(VK_RBUTTON) && IsRun == false)
+	if (mInput.Key(VK_RBUTTON) && IsRun == false && IsReloading == false)
 	{
 		ChangeDirection(charZ, cameraZ);
 		isAim = true;
 	}
 	//Rキーが押されたら、弾を補充＋リロードアニメーション再生
-	if (mInput.Key('R'))
+	if (mInput.Key('R') && IsRun == false)
 	{
-
+		//リロード
+		mWepon.Reload();
+		ChangeAnimation(10, false, 90);
 	}
 
-	//前移動中にShiftキーが押されたら、移動速度上昇し走る
-	if (mInput.Key(VK_SHIFT) && moveF == true)
+	//移動中にShiftキーが押されたら、移動速度上昇し走る
+	if (mInput.Key(VK_SHIFT) && isMove == true && IsJump == false)
 	{
 		if (IsRun == false)
 		{
@@ -163,62 +176,22 @@ void CXPlayer::Update()
 		//ジャンプ中でないなら
 		//正面移動
 		//アニメーション変更と方向変更
-		if (moveF == true && IsJump == false)
+
+		if (IsRun == false && IsJump == false)
 		{
-			if (IsRun == false)
-			{
-				//前移動
-				ChangeAnimation(0, true, 90 * (1 - (mPlayerSpeed * 0.1f)));
-			}
-			else
-			{
-				//走り移動
-				ChangeAnimation(9, true, 90 * (0.7f - (mPlayerSpeed * 0.1f)));
-			}
-			//構えていないなら
-			if (isAim == false)
-			{
-				//移動方向を向かせる
-				ChangeDirection(charZ, move);
-			}
+			//前移動
+			ChangeAnimation(0, true, 90 * (1 - (mPlayerSpeed * 0.1f)));
 		}
-		//ジャンプ中でないなら
-		//後ろ移動
-		//アニメーション変更と方向変更
-		else if (moveB == true && IsJump == false)
+		else if (IsJump == false)
 		{
-			//後ろ移動
-			ChangeAnimation(1, true, 90);
-			//構えていないなら
-			if (isAim == false)
-			{
-				//移動方向の逆を向かせる
-				ChangeDirection(charZ, move * -1);
-			}
+			//走り移動
+			ChangeAnimation(9, true, 90 * (0.7f - (mPlayerSpeed * 0.1f)));
 		}
-		//ジャンプ中でないなら
-		//横移動
-		//アニメーション変更と方向変更
-		else if ((moveL == true || moveR == true) && IsJump == false)
+		//構えていないなら
+		if (isAim == false && IsJump == false)
 		{
-			//左移動なら
-			if (moveL == true)
-			{
-				//左歩きアニメーションに変更
-				ChangeAnimation(2, true, 90);
-			}
-			//右移動なら
-			else if (moveR == true && IsJump == false)
-			{
-				//右歩きアニメーションに変更
-				ChangeAnimation(3, true, 90);
-			}
-			//構えていないなら
-			if (isAim == false)
-			{
-				//横移動中は正面を向かせる
-				ChangeDirection(charZ, cameraZ);
-			}
+			//移動方向を向かせる
+			ChangeDirection(charZ, move);
 		}
 	}
 	//移動もジャンプもしていない場合、待機アニメーションに切り替え
@@ -290,6 +263,57 @@ void CXPlayer::Collision(CCollider* m, CCollider* o)
 			}
 		}
 		break;
+		//自分のコライダが球の場合
+		//敵の攻撃と衝突したらダメージ
+		//地面とぶつかると衝突しない位置まで戻す
+	case CCollider::EType::ESPHERE:
+		//自分のコライダのタグが体
+		if (m->GetTag() == CCollider::ETag::EBODY)
+		{
+			//相手のコライダも球
+			//タグは弾丸
+			//親(弾丸)の親(武器)の親(キャラクタ)が敵なら
+			if (o->GetType() == CCollider::EType::ESPHERE &&
+				o->GetTag() == CCollider::ETag::EBULLET &&
+				o->GetParent()->GetParent()->GetParent()->GetCharaTag() == CCharacter3::ECharaTag::EENEMY)
+			{
+				//衝突しているなら
+				if (m->Collision(m, o) == true)
+				{
+					//30フレームかけてダウンし、繰り返さない
+					ChangeAnimation(11, false, 30);
+				}
+			}
+		}
+		//自分のコライダのタグが足
+		else if (m->GetTag() == CCollider::ETag::ELEG)
+		{
+			//相手のコライダも球
+			//タグは弾丸
+			//親(弾丸)の親(武器)の親(キャラクタ)が敵なら
+			if (o->GetType() == CCollider::EType::ESPHERE &&
+				o->GetTag() == CCollider::ETag::EBULLET &&
+				o->GetParent()->GetParent()->GetParent()->GetCharaTag() == CCharacter3::ECharaTag::EENEMY)
+			{
+				//衝突しているなら
+				if (m->Collision(m, o) == true)
+				{
+					//30フレームかけてダウンし、繰り返さない
+					ChangeAnimation(11, false, 30);
+				}
+			}
+			else if (o->GetType() == CCollider::EType::ETRIANGLE)
+			{
+				CVector adjust;//調整値
+				//三角コライダと球コライダの衝突判定
+				if (CCollider::CollisionTriangleSphere(o, m, &adjust))
+				{
+					//衝突しない位置まで戻す
+					mPosition = mPosition + adjust;
+				}
+			}
+		}
+		break;
 	}
 }
 
@@ -303,6 +327,9 @@ void CXPlayer::Init(CModelX* model)
 	mColSphereHead.SetMatrix(&mpCombinedMatrix[7]);
 	//体
 	mColSphereBody.SetMatrix(&mpCombinedMatrix[5]);
+	//足
+	mColSphereLeg.SetMatrix(&mpCombinedMatrix[1]);
+	//キャラ同士が重ならないための体コライダ 
 	mColBody.SetMatrix(&mpCombinedMatrix[1]);
 	//左手に引き金がくる数値
 	mWepon.SetMatrix(&mpCombinedMatrix[38]);

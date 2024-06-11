@@ -54,11 +54,12 @@ private:
 	static CTexture mTexture;        //Textureクラスのインスタンス
 	CModel mModel;
 	CModel mModelC5;
-	CModel mBackGround;
+	CModel mBackGround;//背景のモデル
 	CModelX mPlayerModel; //プレイヤーのモデル
 	CModelX mKnightModel; //Knightのモデル
 
-	CColliderMesh mColliderMesh;
+	CColliderTriangle mColliderTriangle;
+	CColliderMesh mColliderMesh;//モデルからコライダを生成
 	CMatrix mMatrix;
 
 	CXPlayer mXPlayer;

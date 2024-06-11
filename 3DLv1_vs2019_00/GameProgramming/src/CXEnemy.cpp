@@ -56,7 +56,7 @@ void CXEnemy::Collision(CCollider* m, CCollider* o)
 			//タグは弾丸
 			//親(弾丸)の親(武器)の親(キャラクタ)がプレイヤーなら
 			if (o->GetType() == CCollider::EType::ESPHERE &&
-				o->GetTag() == CCollider::ETag::EBullet &&
+				o->GetTag() == CCollider::ETag::EBULLET &&
 				o->GetParent()->GetParent()->GetParent()->GetCharaTag() == CCharacter3::ECharaTag::EPLAYER)
 			{
 				//衝突しているなら
@@ -65,7 +65,6 @@ void CXEnemy::Collision(CCollider* m, CCollider* o)
 					//30フレームかけてダウンし、繰り返さない
 					ChangeAnimation(11, false, 30);
 				}
-
 			}
 		}
 		break;
@@ -81,6 +80,7 @@ void CXEnemy::Init(CModelX* model)
 	mColSphereHead.SetMatrix(&mpCombinedMatrix[1]);
 	//体
 	mColSphereBody.SetMatrix(&mpCombinedMatrix[1]);
+	//キャラ同士が重ならないための体コライダ
 	mColBody.SetMatrix(&mpCombinedMatrix[1]);
 	//剣
 	mColSphereSword0.SetMatrix(&mpCombinedMatrix[26]);

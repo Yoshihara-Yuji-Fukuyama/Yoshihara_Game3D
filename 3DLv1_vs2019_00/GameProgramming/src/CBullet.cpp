@@ -10,7 +10,7 @@ CModel CBullet::sModel;//モデルデータ作成
 
 CBullet::CBullet(CCharacter3* parent)
 	:mLife(50)
-	, mCollider(this, &mMatrix, CVector(0.0f, 0.0f, 0.0f), 0.1f, CCollider::ETag::EBullet)
+	, mCollider(this, &mMatrix, CVector(0.0f, 0.0f, 0.0f), 0.1f, CCollider::ETag::EBULLET)
 {
 	//モデルがないときは読み込む
 	if (sModel.Triangles().size() == 0)

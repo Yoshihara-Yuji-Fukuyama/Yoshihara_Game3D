@@ -26,8 +26,9 @@ public:
 	enum class ETag
 	{
 		EBODY, //‘Ì
+		ELEG,  //‘«
 		ESWORD,//Œ•
-		EBullet,//’eŠÛ
+		EBULLET,//’eŠÛ
 	};
 	//mTag‚Ì’l‚ð•Ô‚·
 	ETag GetTag();

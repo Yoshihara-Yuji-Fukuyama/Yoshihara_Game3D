@@ -6,6 +6,8 @@
 #define AR_OBJ "res\\Guns\\AssaultRifle2_1.obj"
 #define AR_MTL "res\\Guns\\AssaultRifle2_1.mtl"
 
+#define AR_AMMO 30
+
 CModel CWepon::sModel;//モデルデータ作成
 
 //デフォルトコンストラクタ
@@ -13,6 +15,7 @@ CWepon::CWepon()
 	: mWeponType(EWeponType::EAR)
 	, mpMatrix(&mMatrix)
 	, mpRotation(nullptr)
+	, mAmmo(30)
 {
 	//モデルがないときは読み込む
 	if (sModel.Triangles().size() == 0)
@@ -52,8 +55,13 @@ void CWepon::Update()
 {
 	mPosition = mAdjustPosition * *mpMatrix;
 	mRotation = *mpRotation;
-	//後ろ移動をしていないなら
-	if (IsRun == true)
+	//ジャンプをしているなら
+	if (IsJump == true)
+	{
+		mRotation.SetY(mRotation.GetY() + 90.0f);
+	}
+	//走っているなら
+	else if (IsRun == true)
 	{
 		//銃口は右
 		mRotation.SetY(mRotation.GetY() + 30.0f);
@@ -73,25 +81,60 @@ void CWepon::SetMatrix(CMatrix* m)
 	mpMatrix = m;
 }
 
+//弾を発射する
 void CWepon::ShotBullet()
 {
-	//弾を発射します
-	CBullet* bullet = new CBullet(this);
-	bullet->SetScale(25.0f);
-	bullet->SetPosition(CVector(4.0f, 0.5f, 0.0f) * mMatrix);
+	//弾が1発以上ある場合
+	if (mAmmo > 0)
+	{
+		//弾を発射します
+		CBullet* bullet = new CBullet(this);
+		bullet->SetScale(25.0f);
+		bullet->SetPosition(CVector(4.0f, 0.5f, 0.0f) * mMatrix);
 
-	//発射される方向
-	bullet->SetRotation(
-		CVector(CActionCamera::GetInstance()->GetRotation().GetX() + 200.0f,
-			mRotation.GetY() - 90.0f,
-			mRotation.GetZ()));
+		//発射される方向
+		bullet->SetRotation(
+			CVector(CActionCamera::GetInstance()->GetRotation().GetX() + 200.0f,
+				mRotation.GetY() - 90.0f,
+				mRotation.GetZ()));
 
-	bullet->Update();
+		bullet->Update();
+		//弾数を減らす
+		mAmmo--;
+	}
+
+#ifdef _DEBUG//残弾を確認
+	printf("%d\n", mAmmo);
+#endif
+}
+
+//リロードをする
+void CWepon::Reload()
+{
+	//現在の弾数が0より大きいなら
+	if (mAmmo > 0)
+	{
+		//弾数を最大+1にする
+		mAmmo = AR_AMMO + 1;
+	}
+	else
+	{
+		//残弾を最大にする
+		mAmmo = AR_AMMO;
+	}
+#ifdef _DEBUG//残弾を確認
+	printf("%d\n", mAmmo);
+#endif
 }
 
 //走っているかどうかを設定
 void CWepon::SetRun(bool isRun)
 {
 	IsRun = isRun;
+}
+//ジャンプをしているかどうか
+void CWepon::SetJump(bool isJump)
+{
+	IsJump = isJump;
 }
 
