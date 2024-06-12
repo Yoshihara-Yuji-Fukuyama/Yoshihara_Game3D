@@ -140,9 +140,20 @@ void CXPlayer::Update()
 	//Rキーが押されたら、弾を補充＋リロードアニメーション再生
 	if (mInput.Key('R') && IsRun == false)
 	{
+		//TODO:リロードアニメーションの修正
+		//動いているなら動きながらのリロードアニメーション
+		if (isMove == true)
+		{
+			ChangeAnimation(11, false, 90);
+		}
+		//動いていないなら停止したリロードアニメーション
+		else
+		{
+			ChangeAnimation(10, false, 90);
+		}
 		//リロード
 		mWepon.Reload();
-		ChangeAnimation(10, false, 90);
+		IsReloading = true;
 	}
 
 	//移動中にShiftキーが押されたら、移動速度上昇し走る
@@ -166,8 +177,8 @@ void CXPlayer::Update()
 		mWepon.SetRun(IsRun);
 	}
 
-	//移動あり
-	if (move.Length() > 0.0f)
+	//移動あり、リロード中は動けない
+	if (move.Length() > 0.0f && IsReloading == false)
 	{
 		//正規化
 		move = move.Normalize();
@@ -188,35 +199,20 @@ void CXPlayer::Update()
 			ChangeAnimation(9, true, 90 * (0.7f - (mPlayerSpeed * 0.1f)));
 		}
 		//構えていないなら
-		if (isAim == false && IsJump == false)
+		if (isAim == false)
 		{
 			//移動方向を向かせる
 			ChangeDirection(charZ, move);
 		}
 	}
-	//移動もジャンプもしていない場合、待機アニメーションに切り替え
+	//移動もジャンプもリロードもしていない場合、待機アニメーションに切り替え
 	//正面を向く
-	else if (IsJump == false)
+	else if (IsJump == false && IsReloading == false)
 	{
 		//待機アニメーションに変更
 		ChangeAnimation(4, true, 90);
-		//撃っていないなら
-		if (isAim == false)
-		{
-			//正面を向かせる
-			ChangeDirection(charZ, cameraZ);
-		}
 	}
-	//ジャンプ中は正面を向かせる
-	if (IsJump == true)
-	{
-		//撃っていないなら
-		if (isAim == false)
-		{
-			//正面を向かせる
-			ChangeDirection(charZ, cameraZ);
-		}	
-	}
+	
 	//変換行列、アニメーションの更新
 	CXCharacter::Update();
 	//カプセルコライダの更新
@@ -302,15 +298,16 @@ void CXPlayer::Collision(CCollider* m, CCollider* o)
 					ChangeAnimation(11, false, 30);
 				}
 			}
-			else if (o->GetType() == CCollider::EType::ETRIANGLE)
+		}
+		//相手が三角コライダのとき
+		if (o->GetType() == CCollider::EType::ETRIANGLE)
+		{
+			CVector adjust;//調整値
+			//三角コライダと球コライダの衝突判定
+			if (CCollider::CollisionTriangleSphere(o, m, &adjust))
 			{
-				CVector adjust;//調整値
-				//三角コライダと球コライダの衝突判定
-				if (CCollider::CollisionTriangleSphere(o, m, &adjust))
-				{
-					//衝突しない位置まで戻す
-					mPosition = mPosition + adjust;
-				}
+				//衝突しない位置まで戻す
+				mPosition = mPosition + adjust;
 			}
 		}
 		break;

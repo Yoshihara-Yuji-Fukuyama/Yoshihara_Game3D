@@ -27,7 +27,9 @@ class CMyShader;    //CMyShaderクラスの宣言
 #define JUMP_UP "res\\JumpUp.x"            //ジャンプ上昇
 #define JUMP_DOWN "res\\JumpDown.x"        //ジャンプ降下
 #define RUN "res\\RifleRun.x"              //走り
-#define RELOADING "res\\Reloading.x"       //リロード
+#define IDLE_RELOAD "res\\IdleReload.x"    //止まってリロード
+#define WALK_RELOAD "res\\WalkReload.x"	   //歩きながらリロード
+
 #define MODEL_KNIGHT "res\\knight\\knight_low.x"//敵モデル
 
 //領域解放をマクロ化

@@ -56,7 +56,8 @@ void CApplication::Init()
 	mPlayerModel.SeparateAnimationSet(6, 5, 16, "JumpUp");//7:ジャンプ上昇
 	mPlayerModel.AddAnimationSet(JUMP_DOWN);//8:ジャンプ降下
 	mPlayerModel.AddAnimationSet(RUN);//9:走り
-	mPlayerModel.AddAnimationSet(RELOADING);//10:リロード
+	mPlayerModel.AddAnimationSet(IDLE_RELOAD);//10:止まってリロード
+	mPlayerModel.AddAnimationSet(WALK_RELOAD);//11:歩きながらリロード
 	//パラディンのインスタンス作成
 	mpPaladin = new CPaladin();
 	//敵のアニメーションを抜き出す
@@ -97,11 +98,11 @@ void CApplication::Start()
 	
 	//背景モデルから三角コライダを生成
 	//親インスタンスと親行列はなし
-	//mColliderMesh.Set(nullptr, nullptr, &mBackGround);
-	mColliderTriangle.Set(nullptr, nullptr
+	mColliderMesh.Set(nullptr, nullptr, &mBackGround);
+	/*mColliderTriangle.Set(nullptr, nullptr
 		, CVector(-50.0f, 0.0f, -50.0f)
 		, CVector(-50.0f, 0.0f, 50.0f)
-		, CVector(50.0f, 0.0f, -50.0f));
+		, CVector(50.0f, 0.0f, -50.0f));*/
 	//TODO:地面の当たり判定を出す
 	//敵の配置
 	mXEnemy.SetPosition(CVector(7.0f, 0.0f, 0.0f));
@@ -124,7 +125,7 @@ void CApplication::Update()
 	*/
 	CTaskManager::GetInstance()->Update();
 	
-	mActionCamera.SetPosition(CVector(100.0f, 100.0f, 0.0f) * mXPlayer.GetMatrix());
+	mActionCamera.SetPosition(CVector(mXPlayer.GetPosition().GetX(), mXPlayer.GetPosition().GetY() + 5.0f, mXPlayer.GetPosition().GetZ()));
 	mActionCamera.Update();
 	mActionCamera.Render();
 	//モデルビュー行列の取得
