@@ -37,6 +37,16 @@ CXPlayer* CXPlayer::GetInstance()
 
 void CXPlayer::Update()
 {
+	//カメラの前方
+	CVector cameraZ = CActionCamera::GetInstance()->GetVectorZ();
+	//カメラの左方向
+	CVector cameraX = CActionCamera::GetInstance()->GetVectorX();
+	//キャラクタの前方
+	CVector charZ = mMatrixRotate.GetVectorZ();
+	//XZ平面にして正規化
+	cameraZ.SetY(0.0f); cameraZ = cameraZ.Normalize();
+	cameraX.SetY(0.0f); cameraX = cameraX.Normalize();
+	charZ.SetY(0.0f); charZ = charZ.Normalize();
 
 	//上昇中じゃないかつY座標が0以上なら重力適用
 	if (GetAnimationIndex() != 7)
@@ -66,26 +76,24 @@ void CXPlayer::Update()
 		}
 	}
 	//リロードアニメーションの時
-	if (GetAnimationIndex() == 10)
+	if (GetAnimationIndex() == 10 || GetAnimationIndex() == 11)
 	{
+		//動きながらのリロードなら
+		if (GetAnimationIndex() == 11)
+		{
+			mPosition = mPosition - charZ * mPlayerSpeed;
+		}
 		//アニメーションが終了したら
 		//待機アニメーションにする
 		if (IsAnimationFinished() == true)
 		{
 			ChangeAnimation(1, true, 90);
 			IsReloading = false;
+			IsWalkReload = false;
+			IsWaitReload = false;
 		}
 	}
-	//カメラの前方
-	CVector cameraZ = CActionCamera::GetInstance()->GetVectorZ();
-	//カメラの左方向
-	CVector cameraX = CActionCamera::GetInstance()->GetVectorX();
-	//キャラクタの前方
-	CVector charZ = mMatrixRotate.GetVectorZ();
-	//XZ平面にして正規化
-	cameraZ.SetY(0.0f); cameraZ = cameraZ.Normalize();
-	cameraX.SetY(0.0f); cameraX = cameraX.Normalize();
-	charZ.SetY(0.0f); charZ = charZ.Normalize();
+
 	//移動方向の設定
 	CVector move;
 	bool isMove = false;//動いているか
@@ -138,24 +146,24 @@ void CXPlayer::Update()
 		isAim = true;
 	}
 	//Rキーが押されたら、弾を補充＋リロードアニメーション再生
-	if (mInput.Key('R') && IsRun == false)
+	if (mInput.Key('R') && IsRun == false && IsReloading == false)
 	{
-		//TODO:リロードアニメーションの修正
 		//動いているなら動きながらのリロードアニメーション
 		if (isMove == true)
 		{
-			ChangeAnimation(11, false, 90);
+			ChangeAnimation(11, false, 210);
+			IsWalkReload = true;
 		}
 		//動いていないなら停止したリロードアニメーション
 		else
 		{
 			ChangeAnimation(10, false, 90);
+			IsWaitReload = true;
 		}
 		//リロード
 		mWepon.Reload();
 		IsReloading = true;
 	}
-
 	//移動中にShiftキーが押されたら、移動速度上昇し走る
 	if (mInput.Key(VK_SHIFT) && isMove == true && IsJump == false)
 	{
@@ -177,23 +185,23 @@ void CXPlayer::Update()
 		mWepon.SetRun(IsRun);
 	}
 
-	//移動あり、リロード中は動けない
-	if (move.Length() > 0.0f && IsReloading == false)
+	//移動あり、止まってリロード中は動けない
+	if (move.Length() > 0.0f && IsWaitReload == false)
 	{
 		//正規化
 		move = move.Normalize();
-		//移動方向へ移動
-		mPosition = mPosition + move * mPlayerSpeed;
-		//ジャンプ中でないなら
-		//正面移動
-		//アニメーション変更と方向変更
-
-		if (IsRun == false && IsJump == false)
+		if (IsWalkReload == false)
+		{
+			//移動方向へ移動
+			mPosition = mPosition + move * mPlayerSpeed;
+		}
+		//他の動きをしていなければアニメーションを移動に変える
+		if (IsRun == false && IsJump == false && IsReloading == false)
 		{
 			//前移動
 			ChangeAnimation(0, true, 90 * (1 - (mPlayerSpeed * 0.1f)));
 		}
-		else if (IsJump == false)
+		else if (IsJump == false && IsReloading == false)
 		{
 			//走り移動
 			ChangeAnimation(9, true, 90 * (0.7f - (mPlayerSpeed * 0.1f)));
@@ -229,13 +237,6 @@ void CXPlayer::WeponUpdate()
 void CXPlayer::WeponRender()
 {
 	mWepon.Render();
-}
-
-//マウス移動でY軸回転
-void CXPlayer::Turn(float turnHorizontal)
-{
-	//回転量の分だけ回転する
-	mRotation = mRotation - CVector(0.0f, turnHorizontal, 0.0f);
 }
 
 //衝突判定

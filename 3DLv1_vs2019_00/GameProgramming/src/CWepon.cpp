@@ -84,6 +84,7 @@ void CWepon::SetMatrix(CMatrix* m)
 //’e‚ð”­ŽË‚·‚é
 void CWepon::ShotBullet()
 {
+	//TODO:’e‚ªo‚éŠp“x
 	//’e‚ª1”­ˆÈã‚ ‚éê‡
 	if (mAmmo > 0)
 	{

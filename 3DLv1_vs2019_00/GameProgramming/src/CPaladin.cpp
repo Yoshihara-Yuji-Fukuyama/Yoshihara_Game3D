@@ -14,7 +14,7 @@ CPaladin::CPaladin()
 		sModel.Load(TEST);
 	}
 	Init(&sModel);
-	//TODO:¶è‚Éˆø‚«‹à‚ª‚­‚é”’l‚ğ’T‚·
+	//¶è‚Éˆø‚«‹à‚ª‚­‚é”’l
 	mWepon.SetMatrix(&mpCombinedMatrix[38]);
 }
 

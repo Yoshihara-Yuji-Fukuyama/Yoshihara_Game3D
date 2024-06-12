@@ -62,7 +62,6 @@ void CActionCamera::Update()
 
 	//回転量の分だけ回転する
 	mRotation = mRotation - CVector(mTurnVertical, mTurnHorizontal, 0.0f);
-	CXPlayer::GetInstance()->Turn(mTurnHorizontal);
 	//行列を更新
 	CTransform::Update();
 	//注視点の設定

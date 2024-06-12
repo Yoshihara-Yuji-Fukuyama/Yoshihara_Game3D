@@ -23,9 +23,6 @@ public:
 	void WeponUpdate();
 	//武器の描画
 	void WeponRender();
-	//マウス移動でY軸回転
-	//turnHorizontal:横の回転量
-	void Turn(float turnHorizontal);
 	//衝突判定
 	void Collision(CCollider* m, CCollider* o);
 	//初期設定
@@ -47,6 +44,8 @@ private:
 	bool IsJump;//ジャンプしているかどうか
 	float mJumpPower;//ジャンプ力
 	bool IsReloading;//リロードしているか
+	bool IsWalkReload;//歩いてリロードしているか
+	bool IsWaitReload;//止まってリロードしているか
 
 	CWepon mWepon;//武器のインスタンス
 };

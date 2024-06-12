@@ -99,11 +99,6 @@ void CApplication::Start()
 	//背景モデルから三角コライダを生成
 	//親インスタンスと親行列はなし
 	mColliderMesh.Set(nullptr, nullptr, &mBackGround);
-	/*mColliderTriangle.Set(nullptr, nullptr
-		, CVector(-50.0f, 0.0f, -50.0f)
-		, CVector(-50.0f, 0.0f, 50.0f)
-		, CVector(50.0f, 0.0f, -50.0f));*/
-	//TODO:地面の当たり判定を出す
 	//敵の配置
 	mXEnemy.SetPosition(CVector(7.0f, 0.0f, 0.0f));
 	//パラディンの配置
