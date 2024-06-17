@@ -30,23 +30,21 @@ public:
 	void Init(CModelX* model);
 private:
 	static CXPlayer* spInstance;//インスタンス
+	CInput mInput;//CInputのインスタンス作成
+	CWepon mWepon;//武器のインスタンス
+	
 	CCollider mColSphereHead; //頭
-	CCollider mColSphereBody; //体
 	CCollider mColSphereLeg;  //足
 	CColliderCapsule mColBody;//キャラとキャラが重ならないための体コライダ
-	CCollider mColSphereSword;//剣
-	CInput mInput;//CInputのインスタンス作成
-	bool IsRun;//走っているかどうか
+	
 	float mPlayerSpeed;//プレイヤーの移動速度
-	bool IsLeftTurn;//左回転、
-	bool IsRightTurn;//右回転をしたかどうか
+	float mJumpPower;//ジャンプ力
+
+	bool IsRun;//走っているかどうか
 	bool IsGround;//地面についているか
 	bool IsJump;//ジャンプしているかどうか
-	float mJumpPower;//ジャンプ力
 	bool IsReloading;//リロードしているか
 	bool IsWalkReload;//歩いてリロードしているか
 	bool IsWaitReload;//止まってリロードしているか
-
-	CWepon mWepon;//武器のインスタンス
 };
 #endif

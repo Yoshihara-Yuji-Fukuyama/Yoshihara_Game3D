@@ -7,17 +7,14 @@ CXPlayer* CXPlayer::spInstance = nullptr;
 
 CXPlayer::CXPlayer()
 	: mPlayerSpeed(0.1f)
-	, IsLeftTurn(false)
-	, IsRightTurn(false)
 	, IsGround(false)
 	, IsJump(false)
 	, mJumpPower(1.0f)
 	, IsReloading(false)
 	, mWepon(this, &mMatrix, CVector(-10.0f, 5.0f, -5.0f), &mRotation)
-	, mColSphereHead(this, nullptr, CVector(0.0f, 5.0f, -3.0f), 0.5f)//頭,球コライダ
-	, mColSphereBody(this, nullptr, CVector(), 0.5f)//体,球コライダ
-	, mColSphereLeg(this, nullptr, CVector(0.0f, 20.0f, 0.0f), 0.5f)//足,球コライダ
-	, mColBody(this, nullptr, CVector(0.0f, 25.0f, 0.0f), CVector(0.0f, 150.0f, 0.0f), 0.5f)//体,カプセルコライダ
+	, mColSphereHead(this, nullptr, CVector(0.0f, 5.0f, -3.0f), 0.5f,CCollider::ETag::EHEAD)//頭,球コライダ
+	, mColSphereLeg(this, nullptr, CVector(0.0f, 25.0f, 0.0f), 0.5f,CCollider::ETag::ELEG)//足,球コライダ
+	, mColBody(this, nullptr, CVector(0.0f, 25.0f, 0.0f), CVector(0.0f, 130.0f, 0.0f), 0.5f)//体,カプセルコライダ
 {
 	//タグにプレイヤーを設定
 	mCharaTag = ECharaTag::EPLAYER;
@@ -48,8 +45,8 @@ void CXPlayer::Update()
 	cameraX.SetY(0.0f); cameraX = cameraX.Normalize();
 	charZ.SetY(0.0f); charZ = charZ.Normalize();
 
-	//上昇中じゃないかつY座標が0以上なら重力適用
-	if (GetAnimationIndex() != 7)
+	//上昇中じゃないかつ地面に接触していないかつY座標が0より大きいなら重力適用
+	if (GetAnimationIndex() != 7 && IsGround == false && mPosition.GetY() > -1.0f)
 	{
 		mPosition.SetY(mPosition.GetY() - GRAVITY_AND_JUMPDEF);
 	}
@@ -165,7 +162,7 @@ void CXPlayer::Update()
 		IsReloading = true;
 	}
 	//移動中にShiftキーが押されたら、移動速度上昇し走る
-	if (mInput.Key(VK_SHIFT) && isMove == true && IsJump == false)
+	if (mInput.Key(VK_SHIFT) && isMove == true && IsJump == false && IsReloading == false)
 	{
 		if (IsRun == false)
 		{
@@ -260,12 +257,31 @@ void CXPlayer::Collision(CCollider* m, CCollider* o)
 			}
 		}
 		break;
+
 		//自分のコライダが球の場合
 		//敵の攻撃と衝突したらダメージ
 		//地面とぶつかると衝突しない位置まで戻す
 	case CCollider::EType::ESPHERE:
-		//自分のコライダのタグが体
+		//自分のコライダのタグが頭
 		if (m->GetTag() == CCollider::ETag::EBODY)
+		{
+			//相手のコライダも球
+			//タグは弾丸
+			//親(弾丸)の親(武器)の親(キャラクタ)が敵なら
+			if (o->GetType() == CCollider::EType::ESPHERE &&
+				o->GetTag() == CCollider::ETag::EBULLET &&
+				o->GetParent()->GetParent()->GetParent()->GetCharaTag() == CCharacter3::ECharaTag::EENEMY)
+			{
+				//衝突しているなら
+				if (m->Collision(m, o) == true)
+				{
+					//30フレームかけてダウンし、繰り返さない
+					ChangeAnimation(11, false, 30);
+				}
+			}
+		}
+		//自分のコライダのタグが体
+		else if (m->GetTag() == CCollider::ETag::EBODY)
 		{
 			//相手のコライダも球
 			//タグは弾丸
@@ -309,6 +325,11 @@ void CXPlayer::Collision(CCollider* m, CCollider* o)
 			{
 				//衝突しない位置まで戻す
 				mPosition = mPosition + adjust;
+				IsGround = true;
+			}
+			else
+			{
+				IsGround = false;
 			}
 		}
 		break;
@@ -323,8 +344,6 @@ void CXPlayer::Init(CModelX* model)
 	//合成行列の設定
 	//頭
 	mColSphereHead.SetMatrix(&mpCombinedMatrix[7]);
-	//体
-	mColSphereBody.SetMatrix(&mpCombinedMatrix[5]);
 	//足
 	mColSphereLeg.SetMatrix(&mpCombinedMatrix[1]);
 	//キャラ同士が重ならないための体コライダ 

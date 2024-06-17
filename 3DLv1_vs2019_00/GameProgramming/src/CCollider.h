@@ -25,9 +25,10 @@ public:
 	//タグ
 	enum class ETag
 	{
+		EHEAD, //頭
 		EBODY, //体
 		ELEG,  //足
-		ESWORD,//剣
+		ESEARCH,//索敵用
 		EBULLET,//弾丸
 	};
 	//mTagの値を返す

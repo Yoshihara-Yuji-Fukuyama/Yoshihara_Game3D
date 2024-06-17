@@ -43,9 +43,8 @@ CApplication::~CApplication()
 //初期設定
 void CApplication::Init()
 {
-	//3Dモデルファイル読み込み
+	//プレイヤー3Dモデルファイル読み込み
 	mPlayerModel.Load(MODEL_PLAYER);//0:前歩き
-	mKnightModel.Load(MODEL_KNIGHT);
 	//追加アニメーション読み込み
 	mPlayerModel.AddAnimationSet(BACKWARD); //1:後ろ歩き
 	mPlayerModel.AddAnimationSet(L_WALK);   //2:左歩き
@@ -58,20 +57,22 @@ void CApplication::Init()
 	mPlayerModel.AddAnimationSet(RUN);//9:走り
 	mPlayerModel.AddAnimationSet(IDLE_RELOAD);//10:止まってリロード
 	mPlayerModel.AddAnimationSet(WALK_RELOAD);//11:歩きながらリロード
+	//敵3Dモデルファイル読み込み
+	mKnightModel.Load(MODEL_PLAYER);//0:前歩き
+	//追加アニメーション読み込み
+	mKnightModel.AddAnimationSet(BACKWARD); //1:後ろ歩き
+	mKnightModel.AddAnimationSet(L_WALK);   //2:左歩き
+	mKnightModel.AddAnimationSet(R_WALK);   //3:右歩き
+	mKnightModel.AddAnimationSet(AIM_IDLE); //4:構え待機
+	mKnightModel.AddAnimationSet(Fire);     //5:射撃
+	mKnightModel.AddAnimationSet(JUMP_UP);  //6:ジャンプ
+	mKnightModel.SeparateAnimationSet(6, 5, 16, "JumpUp");//7:ジャンプ上昇
+	mKnightModel.AddAnimationSet(JUMP_DOWN);//8:ジャンプ降下
+	mKnightModel.AddAnimationSet(RUN);//9:走り
+	mKnightModel.AddAnimationSet(IDLE_RELOAD);//10:止まってリロード
+	mKnightModel.AddAnimationSet(WALK_RELOAD);//11:歩きながらリロード
 	//パラディンのインスタンス作成
 	mpPaladin = new CPaladin();
-	//敵のアニメーションを抜き出す
-	mKnightModel.SeparateAnimationSet(0, 10, 80, "walk");//1:移動
-	mKnightModel.SeparateAnimationSet(0, 1530, 1830, "idle1");//2:待機
-	mKnightModel.SeparateAnimationSet(0, 10, 80, "walk");//3:ダミー
-	mKnightModel.SeparateAnimationSet(0, 10, 80, "walk");//4:ダミー
-	mKnightModel.SeparateAnimationSet(0, 10, 80, "walk");//5:ダミー
-	mKnightModel.SeparateAnimationSet(0, 10, 80, "walk");//6:ダミー
-	mKnightModel.SeparateAnimationSet(0, 440, 520, "attack1");//7:Attack1
-	mKnightModel.SeparateAnimationSet(0, 520, 615, "attack2");//8:Attack2
-	mKnightModel.SeparateAnimationSet(0, 10, 80, "walk");//9:ダミー
-	mKnightModel.SeparateAnimationSet(0, 10, 80, "walk");//10:ダミー
-	mKnightModel.SeparateAnimationSet(0, 1160, 1260, "death1");//11:ダウン
 	
 	//背景モデル
 	mBackGround.Load(MODEL_BACKGROUND);

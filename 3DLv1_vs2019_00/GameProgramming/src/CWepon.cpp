@@ -84,7 +84,6 @@ void CWepon::SetMatrix(CMatrix* m)
 //’e‚ð”­ŽË‚·‚é
 void CWepon::ShotBullet()
 {
-	//TODO:’e‚ªo‚éŠp“x
 	//’e‚ª1”­ˆÈã‚ ‚éê‡
 	if (mAmmo > 0)
 	{
@@ -95,7 +94,7 @@ void CWepon::ShotBullet()
 
 		//”­ŽË‚³‚ê‚é•ûŒü
 		bullet->SetRotation(
-			CVector(CActionCamera::GetInstance()->GetRotation().GetX() + 200.0f,
+			CVector(CActionCamera::GetInstance()->GetRotation().GetX() + 190.0f,
 				mRotation.GetY() - 90.0f,
 				mRotation.GetZ()));
 

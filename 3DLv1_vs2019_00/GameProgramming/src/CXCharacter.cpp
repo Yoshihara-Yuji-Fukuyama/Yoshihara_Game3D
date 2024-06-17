@@ -133,7 +133,7 @@ int CXCharacter::GetAnimationIndex()
 void CXCharacter::ChangeDirection(CVector charZ, CVector direction)
 {
 	//—V‚Ñ
-	const float MARGIN = 0.06f;
+	const float MARGIN = 0.1f;
 	//©•ª‚ÌŒü‚«‚ÆŒü‚©‚¹‚½‚¢Œü‚«‚ÅŠOÏ
 	float cross = charZ.Cross(direction).GetY();
 	//©•ª‚ÌŒü‚«‚ÆŒü‚©‚¹‚½‚¢Œü‚«‚Å“àÏ

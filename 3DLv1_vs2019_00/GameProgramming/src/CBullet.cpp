@@ -51,8 +51,8 @@ void CBullet::Update()
 //Collision(コライダ1,コライダ2)
 void CBullet::Collision(CCollider* m, CCollider* o)
 {
-	//コライダのmとoが衝突しているか判定
-	if (CCollider::Collision(m, o))
+	//相手が索敵用以外の時コライダのmとoが衝突しているか判定
+	if (CCollider::Collision(m, o) && o->GetTag() != CCollider::ETag::ESEARCH)
 	{
 		//衝突しているときは無効にする
 		mEnabled = false;
