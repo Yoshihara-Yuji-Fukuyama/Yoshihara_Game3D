@@ -1,7 +1,7 @@
 #include "CBullet.h"
 #include "CCollisionManager.h"
 
-#define VELOCITY CVector(0.0f,0.0f,1.0f)
+#define Bullet_Speed 0.1f
 
 #define AR_OBJ "res\\Guns\\ammo_machinegun.obj"
 #define AR_MTL "res\\Guns\\ammo_machinegun.mtl"
@@ -38,7 +38,7 @@ void CBullet::Update()
 	{
 		CTransform::Update();
 		//ˆÊ’uXV
-		mPosition = mPosition + VELOCITY * mMatrixRotate;
+		mPosition = mPosition + mMoveDirection * Bullet_Speed;
 	}
 	else
 	{
@@ -57,6 +57,11 @@ void CBullet::Collision(CCollider* m, CCollider* o)
 		//Õ“Ë‚µ‚Ä‚¢‚é‚Æ‚«‚Í–³Œø‚É‚·‚é
 		mEnabled = false;
 	}
+}
+//“®‚­•ûŒü‚ğİ’è
+void CBullet::SetDirection()
+{
+	//TODO:“®‚­•ûŒü‚ğİ’è
 }
 
 //Õ“Ëˆ—

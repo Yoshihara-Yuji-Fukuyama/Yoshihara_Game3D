@@ -41,7 +41,7 @@ public:
 	/// </summary>
 	/// <param name="charZ">キャラの方向</param>
 	/// <param name="direction">向かせたい方向</param>
-	void ChangeDirection(CVector charZ,CVector direction);
+	void ChangeDirection(CVector charZ, CVector direction, float margin = 0.06f);
 protected:
 	CModelX* mpModel;//モデルデータ
 	int mAnimationIndex;      //アニメーション番号

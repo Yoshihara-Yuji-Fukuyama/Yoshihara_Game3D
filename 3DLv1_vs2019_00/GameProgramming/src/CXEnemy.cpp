@@ -22,6 +22,7 @@ CXEnemy::CXEnemy()
 
 
 //更新
+//TODO:敵の動き
 void CXEnemy::Update()
 {
 	//キャラクタの前方
@@ -74,38 +75,51 @@ void CXEnemy::Update()
 			IsWaitReload = false;
 		}
 	}
+
+		//弾が切れたら、弾を補充＋リロードアニメーション再生
+	if (mWepon.GetAmmo() == 0 && IsRun == false && IsReloading == false)
+	{
+		//動いているなら動きながらのリロードアニメーション
+		if (IsMove == true)
+		{
+			ChangeAnimation(11, false, 210);
+			IsWalkReload = true;
+		}
+		//動いていないなら停止したリロードアニメーション
+		else
+		{
+			ChangeAnimation(10, false, 90);
+			IsWaitReload = true;
+		}
+		//リロード
+		mWepon.Reload();
+		IsReloading = true;
+	}
+
 	//プレイヤーを見つけていたら
 	if (IsFoundPlayer == true)
 	{
+		mWepon.ShotBullet();
 		//プレイヤーの方へ進む
 		//プレイヤーへの方向を計算
 		CVector moveDirection = mPosition - CXPlayer::GetInstance()->GetPosition();
 		//プレイヤーとの距離が10以上の場合近づく
-		if (moveDirection.Length() >= 10.0f)
+		if (moveDirection.Length() > 10.0f && IsReloading == false)
 		{
 			moveDirection = moveDirection.Normalize();
+			mPosition = mPosition - moveDirection * mEnemySpeed;
 			ChangeAnimation(0, true, 90 * (1 - (mEnemySpeed * 0.1f)));
 			IsMove = true;
 		}
 		//プレイヤーとの距離が10未満の場合待機アニメーションにする
-		else
+		else if (IsReloading == false)
 		{
 			moveDirection = moveDirection.Normalize();
 			ChangeAnimation(4, true, 90);
+			IsMove = false;
 		}
-		//trueの間プレイヤーの方向へ移動する
-		if (IsMove == true)
-		{
-			mPosition = mPosition - moveDirection * 0.1f;
-			if (IsAnimationFinished() == true)
-			{
-				IsMove = false;
-			}
-		}
-		//TODO:敵の移動
 		//移動方向を向かせる
-		ChangeDirection(charZ, moveDirection * -1);
-
+		ChangeDirection(charZ, moveDirection * -1, 0.6f);
 	}
 	//変換行列、アニメーションの更新
 	CXCharacter::Update();

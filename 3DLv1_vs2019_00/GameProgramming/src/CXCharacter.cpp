@@ -130,10 +130,10 @@ int CXCharacter::GetAnimationIndex()
 }
 
 //ƒLƒƒƒ‰‚Ì•ûŒü‚ğŒü‚©‚¹‚½‚¢•ûŒü‚É•Ï‚¦‚é
-void CXCharacter::ChangeDirection(CVector charZ, CVector direction)
+void CXCharacter::ChangeDirection(CVector charZ, CVector direction, float margin)
 {
 	//—V‚Ñ
-	const float MARGIN = 0.1f;
+	float MARGIN = margin;
 	//©•ª‚ÌŒü‚«‚ÆŒü‚©‚¹‚½‚¢Œü‚«‚ÅŠOÏ
 	float cross = charZ.Cross(direction).GetY();
 	//©•ª‚ÌŒü‚«‚ÆŒü‚©‚¹‚½‚¢Œü‚«‚Å“àÏ

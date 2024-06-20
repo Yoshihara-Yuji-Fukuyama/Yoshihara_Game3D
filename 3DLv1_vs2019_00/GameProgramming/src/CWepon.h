@@ -39,6 +39,8 @@ public:
 	void SetRun(bool isRun);
 	//IsJumpを設定
 	void SetJump(bool isJump);
+	//残弾数を返す
+	int GetAmmo();
 private:
 	static CModel sModel;//モデルデータ
 	EWeponType mWeponType;//武器の種類

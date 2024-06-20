@@ -92,11 +92,30 @@ void CWepon::ShotBullet()
 		bullet->SetScale(25.0f);
 		bullet->SetPosition(CVector(4.0f, 0.5f, 0.0f) * mMatrix);
 
-		//発射される方向
-		bullet->SetRotation(
-			CVector(CActionCamera::GetInstance()->GetRotation().GetX() + 190.0f,
-				mRotation.GetY() - 90.0f,
-				mRotation.GetZ()));
+		//プレイヤーの場合
+		if (mpParent->GetCharaTag() == ECharaTag::EPLAYER)
+		{
+			/*
+			//発射される方向
+			bullet->SetRotation(
+				CVector(CActionCamera::GetInstance()->GetRotation().GetX() + 190.0f,
+					mRotation.GetY() - 90.0f,
+					mRotation.GetZ()));
+					*/
+			
+		}
+		//敵の場合
+		else
+		{
+			CVector direction = CXPlayer::GetInstance()->GetPosition() - mPosition;
+			direction.Normalize();
+			//発射される方向
+			bullet->SetRotation(
+				CVector(,
+					mRotation.GetY() - 90.0f,
+					mRotation.GetZ()));
+		}
+
 
 		bullet->Update();
 		//弾数を減らす
@@ -136,5 +155,10 @@ void CWepon::SetRun(bool isRun)
 void CWepon::SetJump(bool isJump)
 {
 	IsJump = isJump;
+}
+//残弾数を返す
+int CWepon::GetAmmo()
+{
+	return mAmmo;
 }
 
