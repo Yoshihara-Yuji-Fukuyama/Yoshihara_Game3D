@@ -10,6 +10,7 @@ class CXEnemy : public CXCharacter
 {
 public:
 	CXEnemy();
+	CXEnemy(CVector pos);
 	//更新
 	//移動、攻撃入力
 	//変換行列、アニメーション、カプセルコライダの更新
@@ -30,16 +31,7 @@ private:
 	CColliderCapsule mColBody;//キャラとキャラが重ならないための体コライダ
 	CCollider mColSphereSearch;//プレイヤー索敵用コライダ
 
-	float mEnemySpeed;//敵の移動速度
-	float mJumpPower;//ジャンプ力
-
-	bool IsMove;//動いているかどうか
-	bool IsRun;//走っているかどうか
-	bool IsGround;//地面についているか
-	bool IsJump;//ジャンプしているかどうか
-	bool IsReloading;//リロードしているか
-	bool IsWalkReload;//歩いてリロードしているか
-	bool IsWaitReload;//止まってリロードしているか
+	static CModelX sModel;//モデルデータ
 
 	bool IsFoundPlayer;//プレイヤーを見つけている
 	bool IsInRange;    //射程内にプレイヤーがいる

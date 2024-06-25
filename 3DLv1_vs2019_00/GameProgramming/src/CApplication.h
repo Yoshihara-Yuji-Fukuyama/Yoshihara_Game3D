@@ -48,6 +48,7 @@ public:
 	void Start();
 	void Update();
 
+	void SpawnEnemy();
 private:
 	static CMatrix mModelViewInverse;//モデルビューの逆行列
 	static CUi* spUi;                //Uiクラスのポインタ
@@ -56,14 +57,13 @@ private:
 	CModel mModelC5;
 	CModel mBackGround;//背景のモデル
 	CModelX mPlayerModel; //プレイヤーのモデル
-	CModelX mKnightModel; //Knightのモデル
 
 	CColliderTriangle mColliderTriangle;
 	CColliderMesh mColliderMesh;//モデルからコライダを生成
 	CMatrix mMatrix;
 
 	CXPlayer mXPlayer;
-	CXEnemy mXEnemy;
+	std::vector<CXEnemy*> mpXEnemy;
 
 	CEnemy3* mpEnemy3;
 

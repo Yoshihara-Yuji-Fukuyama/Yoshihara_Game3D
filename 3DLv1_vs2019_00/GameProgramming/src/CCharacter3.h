@@ -36,6 +36,12 @@ public:
 	CCharacter3* GetParent();
 	//描画処理
 	void Render();
+	/// <summary>
+	/// キャラの方向を向かせたい方向に変える
+	/// </summary>
+	/// <param name="charZ">キャラの方向</param>
+	/// <param name="direction">向かせたい方向</param>
+	void ChangeDirection(CVector charZ, CVector direction, float margin = 0.06f);
 protected:
 	CModel* mpModel;//モデルのポインタ
 	CCharacter3* mpParent;//親

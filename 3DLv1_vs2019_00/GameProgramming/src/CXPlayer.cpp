@@ -6,12 +6,7 @@
 CXPlayer* CXPlayer::spInstance = nullptr;
 
 CXPlayer::CXPlayer()
-	: mPlayerSpeed(0.1f)
-	, IsGround(false)
-	, IsJump(false)
-	, mJumpPower(1.0f)
-	, IsReloading(false)
-	, mWepon(this, &mMatrix, CVector(-10.0f, 5.0f, -5.0f), &mRotation)
+	: mWepon(this, &mMatrix, CVector(-10.0f, 5.0f, -5.0f), &mRotation)
 	, mColSphereHead(this, nullptr, CVector(0.0f, 5.0f, -3.0f), 0.5f,CCollider::ETag::EHEAD)//頭,球コライダ
 	, mColSphereLeg(this, nullptr, CVector(0.0f, 25.0f, 0.0f), 0.5f,CCollider::ETag::ELEG)//足,球コライダ
 	, mColBody(this, nullptr, CVector(0.0f, 25.0f, 0.0f), CVector(0.0f, 130.0f, 0.0f), 0.5f)//体,カプセルコライダ
@@ -34,189 +29,216 @@ CXPlayer* CXPlayer::GetInstance()
 
 void CXPlayer::Update()
 {
-	//カメラの前方
-	CVector cameraZ = CActionCamera::GetInstance()->GetVectorZ();
-	//カメラの左方向
-	CVector cameraX = CActionCamera::GetInstance()->GetVectorX();
-	//キャラクタの前方
-	CVector charZ = mMatrixRotate.GetVectorZ();
-	//XZ平面にして正規化
-	cameraZ.SetY(0.0f); cameraZ = cameraZ.Normalize();
-	cameraX.SetY(0.0f); cameraX = cameraX.Normalize();
-	charZ.SetY(0.0f); charZ = charZ.Normalize();
-
-	//上昇中じゃないかつ地面に接触していないかつY座標が0より大きいなら重力適用
-	if (GetAnimationIndex() != 7 && IsGround == false && mPosition.GetY() > -1.0f)
+	//死亡アニメーションが終わったら消去
+	if (GetAnimationIndex() == 14)
 	{
-		mPosition.SetY(mPosition.GetY() - GRAVITY_AND_JUMPDEF);
-	}
-	//ジャンプ上昇アニメーションの時
-	if (GetAnimationIndex() == 7)
-	{
-		mPosition.SetY(mPosition.GetY() + GRAVITY_AND_JUMPDEF);
-		//アニメーションが終了したら
-		//降下アニメーションにする
-		if (IsAnimationFinished() == true)
+		if (IsAnimationFinished())
 		{
-			ChangeAnimation(8, false, 90 * mJumpPower);
+			
 		}
 	}
-	//ジャンプ降下アニメーションの時
-	else if (GetAnimationIndex() == 8)
+	//死亡していなければ更新
+	if (IsDead() == false)
 	{
-		//アニメーションが終了したら
-		//待機アニメーションにする
-		if (IsAnimationFinished() == true)
-		{
-			ChangeAnimation(1, true, 90);
-			IsJump = false;
-		}
-	}
-	//リロードアニメーションの時
-	if (GetAnimationIndex() == 10 || GetAnimationIndex() == 11)
-	{
-		//動きながらのリロードなら
-		if (GetAnimationIndex() == 11)
-		{
-			mPosition = mPosition - charZ * mPlayerSpeed;
-		}
-		//アニメーションが終了したら
-		//待機アニメーションにする
-		if (IsAnimationFinished() == true)
-		{
-			ChangeAnimation(1, true, 90);
-			IsReloading = false;
-			IsWalkReload = false;
-			IsWaitReload = false;
-		}
-	}
+		//カメラの前方
+		CVector cameraZ = CActionCamera::GetInstance()->GetVectorZ();
+		//カメラの左方向
+		CVector cameraX = CActionCamera::GetInstance()->GetVectorX();
+		//キャラクタの前方
+		CVector charZ = mMatrixRotate.GetVectorZ();
+		//XZ平面にして正規化
+		cameraZ.SetY(0.0f); cameraZ = cameraZ.Normalize();
+		cameraX.SetY(0.0f); cameraX = cameraX.Normalize();
+		charZ.SetY(0.0f); charZ = charZ.Normalize();
 
-	//移動方向の設定
-	CVector move;
-	bool isMove = false;//動いているか
-	bool isMoveB = false;//後ろ移動をしているか
-	bool isAim = false;//構えているか
-	//前進
-	if (mInput.Key('W'))
-	{
-		move = move + cameraZ;
-		isMove = true;
-	}
-	//後退
-	else if (mInput.Key('S'))
-	{
-		move = move - cameraZ;
-		isMove = true;
-		isMoveB = true;
-	}
-
-	//左移動
-	if (mInput.Key('A'))
-	{
-		move = move + cameraX;
-		isMove = true;
-	}
-	//右移動
-	else if (mInput.Key('D'))
-	{
-		move = move - cameraX;
-		isMove = true;
-	}
-
-	//ジャンプ
-	if (mInput.Key(VK_SPACE) && IsJump == false && IsReloading == false)
-	{
-		ChangeAnimation(7, false, 45 * mJumpPower);
-		IsJump = true;
-	}
-
-	//左クリックが押されたら、弾丸を飛ばす
-	if (mInput.Key(VK_LBUTTON) && IsRun == false && IsReloading == false)
-	{
-		//弾の生成
-		mWepon.ShotBullet();
-	}
-	//右クリックが押されたら、構える
-	if (mInput.Key(VK_RBUTTON) && IsRun == false && IsReloading == false)
-	{
-		ChangeDirection(charZ, cameraZ);
-		isAim = true;
-	}
-	//Rキーが押されたら、弾を補充＋リロードアニメーション再生
-	if (mInput.Key('R') && IsRun == false && IsReloading == false)
-	{
-		//動いているなら動きながらのリロードアニメーション
-		if (isMove == true)
+		//上昇中じゃないかつ地面に接触していないかつY座標が0より大きいなら重力適用
+		if (GetAnimationIndex() != 7 && IsGround == false && mPosition.GetY() > -1.0f)
 		{
-			ChangeAnimation(11, false, 210);
-			IsWalkReload = true;
+			mPosition.SetY(mPosition.GetY() - GRAVITY_AND_JUMPDEF);
 		}
-		//動いていないなら停止したリロードアニメーション
+		//ジャンプ上昇アニメーションの時
+		if (GetAnimationIndex() == 7)
+		{
+			mPosition.SetY(mPosition.GetY() + GRAVITY_AND_JUMPDEF);
+			//アニメーションが終了したら
+			//降下アニメーションにする
+			if (IsAnimationFinished() == true)
+			{
+				ChangeAnimation(8, false, 90 * mJumpPower);
+			}
+		}
+		//ジャンプ降下アニメーションの時
+		else if (GetAnimationIndex() == 8)
+		{
+			//アニメーションが終了したら
+			//待機アニメーションにする
+			if (IsAnimationFinished() == true)
+			{
+				ChangeAnimation(4, true, 90);
+				IsJump = false;
+			}
+		}
+		//リロードアニメーションの時
+		if (GetAnimationIndex() == 10 || GetAnimationIndex() == 11)
+		{
+			//動きながらのリロードなら
+			if (GetAnimationIndex() == 11)
+			{
+				mPosition = mPosition - charZ * mSpeed;
+			}
+			//アニメーションが終了したら
+			//待機アニメーションにする
+			if (IsAnimationFinished() == true)
+			{
+				ChangeAnimation(4, true, 90);
+				IsReloading = false;
+				IsWalkReload = false;
+				IsWaitReload = false;
+			}
+		}
+		//被弾アニメーションの時
+		if (GetAnimationIndex() == 12)
+		{
+			if (IsAnimationFinished() == true)
+			{
+				ChangeAnimation(4, true, 90);
+
+				IsRun = false;
+				IsJump = false;
+				IsReloading = false;
+				IsWalkReload = false;
+				IsWaitReload = false;
+			}
+		}
+
+		//移動方向の設定
+		CVector move;
+		bool isMove = false;//動いているか
+		bool isMoveB = false;//後ろ移動をしているか
+		bool isAim = false;//構えているか
+		//前進
+		if (mInput.Key('W'))
+		{
+			move = move + cameraZ;
+			isMove = true;
+		}
+		//後退
+		else if (mInput.Key('S'))
+		{
+			move = move - cameraZ;
+			isMove = true;
+			isMoveB = true;
+		}
+
+		//左移動
+		if (mInput.Key('A'))
+		{
+			move = move + cameraX;
+			isMove = true;
+		}
+		//右移動
+		else if (mInput.Key('D'))
+		{
+			move = move - cameraX;
+			isMove = true;
+		}
+
+		//ジャンプ
+		if (mInput.Key(VK_SPACE) && IsJump == false && IsReloading == false)
+		{
+			ChangeAnimation(7, false, 45 * mJumpPower);
+			IsJump = true;
+		}
+
+		//左クリックが押されたら、弾丸を飛ばす
+		if (mInput.Key(VK_LBUTTON) && IsRun == false && IsReloading == false)
+		{
+			//弾の生成
+			mWepon.ShotBullet();
+		}
+		//右クリックが押されたら、構える
+		if (mInput.Key(VK_RBUTTON) && IsRun == false && IsReloading == false)
+		{
+			ChangeDirection(charZ, cameraZ);
+			isAim = true;
+		}
+		//Rキーが押されたら、弾を補充＋リロードアニメーション再生
+		if (mInput.Key('R') && IsRun == false && IsReloading == false)
+		{
+			//動いているなら動きながらのリロードアニメーション
+			if (isMove == true)
+			{
+				ChangeAnimation(11, false, 210);
+				IsWalkReload = true;
+			}
+			//動いていないなら停止したリロードアニメーション
+			else
+			{
+				ChangeAnimation(10, false, 90);
+				IsWaitReload = true;
+			}
+			//リロード
+			mWepon.Reload();
+			IsReloading = true;
+		}
+		//移動中にShiftキーが押されたら、移動速度上昇し走る
+		if (mInput.Key(VK_SHIFT) && isMove == true && IsJump == false && IsReloading == false)
+		{
+			if (IsRun == false)
+			{
+				mSpeed = mSpeed * 2.0f;
+			}
+			IsRun = true;
+			mWepon.SetRun(IsRun);
+		}
+		//押されていないなら、元の速度に戻る
 		else
 		{
-			ChangeAnimation(10, false, 90);
-			IsWaitReload = true;
+			if (IsRun == true)
+			{
+				mSpeed = mSpeed / 2.0f;
+			}
+			IsRun = false;
+			mWepon.SetRun(IsRun);
 		}
-		//リロード
-		mWepon.Reload();
-		IsReloading = true;
-	}
-	//移動中にShiftキーが押されたら、移動速度上昇し走る
-	if (mInput.Key(VK_SHIFT) && isMove == true && IsJump == false && IsReloading == false)
-	{
-		if (IsRun == false)
-		{
-			mPlayerSpeed = mPlayerSpeed * 2.0f;
-		}	
-		IsRun = true;
-		mWepon.SetRun(IsRun);
-	}
-	//押されていないなら、元の速度に戻る
-	else
-	{
-		if (IsRun == true)
-		{
-			mPlayerSpeed = mPlayerSpeed / 2.0f;
-		}
-		IsRun = false;
-		mWepon.SetRun(IsRun);
-	}
 
-	//移動あり、止まってリロード中は動けない
-	if (move.Length() > 0.0f && IsWaitReload == false)
-	{
-		//正規化
-		move = move.Normalize();
-		if (IsWalkReload == false)
+		//移動あり、止まってリロード中は動けない
+		if (move.Length() > 0.0f && IsWaitReload == false)
 		{
-			//移動方向へ移動
-			mPosition = mPosition + move * mPlayerSpeed;
+			//正規化
+			move = move.Normalize();
+			if (IsWalkReload == false)
+			{
+				//移動方向へ移動
+				mPosition = mPosition + move * mSpeed;
+			}
+			//他の動きをしていなければアニメーションを移動に変える
+			if (IsRun == false && IsJump == false && IsReloading == false)
+			{
+				//前移動
+				ChangeAnimation(0, true, 90 * (1 - (mSpeed * 0.1f)));
+			}
+			else if (IsJump == false && IsReloading == false)
+			{
+				//走り移動
+				ChangeAnimation(9, true, 90 * (0.7f - (mSpeed * 0.1f)));
+			}
+			//構えていないなら
+			if (isAim == false)
+			{
+				//移動方向を向かせる
+				ChangeDirection(charZ, move);
+			}
 		}
-		//他の動きをしていなければアニメーションを移動に変える
-		if (IsRun == false && IsJump == false && IsReloading == false)
-		{
-			//前移動
-			ChangeAnimation(0, true, 90 * (1 - (mPlayerSpeed * 0.1f)));
-		}
+		//移動もジャンプもリロードもしていない場合、待機アニメーションに切り替え
+		//正面を向く
 		else if (IsJump == false && IsReloading == false)
 		{
-			//走り移動
-			ChangeAnimation(9, true, 90 * (0.7f - (mPlayerSpeed * 0.1f)));
-		}
-		//構えていないなら
-		if (isAim == false)
-		{
-			//移動方向を向かせる
-			ChangeDirection(charZ, move);
+			//待機アニメーションに変更
+			ChangeAnimation(4, true, 90);
 		}
 	}
-	//移動もジャンプもリロードもしていない場合、待機アニメーションに切り替え
-	//正面を向く
-	else if (IsJump == false && IsReloading == false)
-	{
-		//待機アニメーションに変更
-		ChangeAnimation(4, true, 90);
-	}
+	
 	
 	//変換行列、アニメーションの更新
 	CXCharacter::Update();
@@ -275,8 +297,9 @@ void CXPlayer::Collision(CCollider* m, CCollider* o)
 				//衝突しているなら
 				if (m->Collision(m, o) == true)
 				{
-					//30フレームかけてダウンし、繰り返さない
-					ChangeAnimation(11, false, 30);
+					mHp--;
+					//被弾アニメーション
+					ChangeAnimation(12, false, 30);
 				}
 			}
 		}
@@ -293,8 +316,9 @@ void CXPlayer::Collision(CCollider* m, CCollider* o)
 				//衝突しているなら
 				if (m->Collision(m, o) == true)
 				{
-					//30フレームかけてダウンし、繰り返さない
-					ChangeAnimation(11, false, 30);
+					mHp--;
+					//被弾アニメーション
+					ChangeAnimation(12, false, 30);
 				}
 			}
 		}
@@ -311,8 +335,9 @@ void CXPlayer::Collision(CCollider* m, CCollider* o)
 				//衝突しているなら
 				if (m->Collision(m, o) == true)
 				{
-					//30フレームかけてダウンし、繰り返さない
-					ChangeAnimation(11, false, 30);
+					mHp--;
+					//被弾アニメーション
+					ChangeAnimation(12, false, 30);
 				}
 			}
 		}

@@ -1,7 +1,7 @@
 #include "CBullet.h"
 #include "CCollisionManager.h"
 
-#define Bullet_Speed 0.1f
+#define Bullet_Speed 1.0f
 
 #define AR_OBJ "res\\Guns\\ammo_machinegun.obj"
 #define AR_MTL "res\\Guns\\ammo_machinegun.mtl"
@@ -33,12 +33,25 @@ void CBullet::SetScale(float scale)
 //更新
 void CBullet::Update()
 {
+	//キャラクタの前方
+	CVector charZ = mMatrixRotate.GetVectorZ();
+	//正規化
+	charZ = charZ.Normalize();
 	//生存時間の判定
 	if (mLife-- > 0)
 	{
 		CTransform::Update();
 		//位置更新
-		mPosition = mPosition + mMoveDirection * Bullet_Speed;
+		//プレイヤーの弾は正面へ進んでいく
+		if (mpParent->GetParent()->GetCharaTag() == ECharaTag::EPLAYER)
+		{
+			mPosition = mPosition + CVector(0.0f, 0.0f, 1.0f) * mMatrixRotate;
+		}
+		//敵の弾は移動方向へ進んでいく
+		else if (mpParent->GetParent()->GetCharaTag() == ECharaTag::EENEMY)
+		{
+			mPosition = mPosition + mMoveDirection * Bullet_Speed;
+		}
 	}
 	else
 	{
@@ -59,9 +72,11 @@ void CBullet::Collision(CCollider* m, CCollider* o)
 	}
 }
 //動く方向を設定
-void CBullet::SetDirection()
+void CBullet::SetDirection(CVector m, CVector o)
 {
-	//TODO:動く方向を設定
+	//動く方向を設定
+	mMoveDirection = o - m;
+	mMoveDirection = mMoveDirection.Normalize();
 }
 
 //衝突処理

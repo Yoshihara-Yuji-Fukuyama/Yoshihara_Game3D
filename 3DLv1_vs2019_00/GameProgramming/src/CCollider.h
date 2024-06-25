@@ -30,6 +30,7 @@ public:
 		ELEG,  //‘«
 		ESEARCH,//õ“G—p
 		EBULLET,//’eŠÛ
+		ECAMERA,//ƒJƒƒ‰
 	};
 	//mTag‚Ì’l‚ğ•Ô‚·
 	ETag GetTag();

@@ -27,7 +27,7 @@ public:
 	//Collision(コライダ1,コライダ2)
 	void Collision(CCollider* m, CCollider* o);
 	//動く方向を設定
-	void SetDirection();
+	void SetDirection(CVector m, CVector o);
 private:
 	int mLife;//生存時間
 	CVector mMoveDirection;//動く方向

@@ -36,12 +36,9 @@ public:
 	bool IsAnimationFinished();
 	//アニメーション番号の取得
 	int GetAnimationIndex();
-	/// <summary>
-	/// キャラの方向を向かせたい方向に変える
-	/// </summary>
-	/// <param name="charZ">キャラの方向</param>
-	/// <param name="direction">向かせたい方向</param>
-	void ChangeDirection(CVector charZ, CVector direction, float margin = 0.06f);
+
+	//死んでいるかどうか
+	bool IsDead();
 protected:
 	CModelX* mpModel;//モデルデータ
 	int mAnimationIndex;      //アニメーション番号
@@ -49,5 +46,19 @@ protected:
 	float mAnimationFrame;    //アニメーションの再生フレーム
 	float mAnimationFrameSize;//アニメーションの再生フレーム数
 	CMatrix* mpCombinedMatrix;//合成行列退避
+
+	int mHp;//体力
+	float mSpeed;//プレイヤーの移動速度
+	float mJumpPower;//ジャンプ力
+
+	bool IsDeath;//死んでいるかどうか
+	bool IsMove;//動いているかどうか
+	bool IsRun;//走っているかどうか
+	bool IsGround;//地面についているか
+	bool IsJump;//ジャンプしているかどうか
+	bool IsReloading;//リロードしているか
+	bool IsWalkReload;//歩いてリロードしているか
+	bool IsWaitReload;//止まってリロードしているか
+	bool IsHit;//被弾しているかどうか
 };
 #endif

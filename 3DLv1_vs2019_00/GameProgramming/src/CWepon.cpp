@@ -95,27 +95,22 @@ void CWepon::ShotBullet()
 		//ƒvƒŒƒCƒ„[‚Ìê‡
 		if (mpParent->GetCharaTag() == ECharaTag::EPLAYER)
 		{
-			/*
 			//”­Ë‚³‚ê‚é•ûŒü
 			bullet->SetRotation(
 				CVector(CActionCamera::GetInstance()->GetRotation().GetX() + 190.0f,
 					mRotation.GetY() - 90.0f,
 					mRotation.GetZ()));
-					*/
-			
 		}
 		//“G‚Ìê‡
 		else
 		{
-			CVector direction = CXPlayer::GetInstance()->GetPosition() - mPosition;
-			direction.Normalize();
 			//”­Ë‚³‚ê‚é•ûŒü
 			bullet->SetRotation(
-				CVector(,
+				CVector(180.0f,
 					mRotation.GetY() - 90.0f,
 					mRotation.GetZ()));
+			bullet->SetDirection(mPosition, CXPlayer::GetInstance()->GetPosition());
 		}
-
 
 		bullet->Update();
 		//’e”‚ğŒ¸‚ç‚·

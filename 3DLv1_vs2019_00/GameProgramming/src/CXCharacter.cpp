@@ -2,6 +2,19 @@
 
 CXCharacter::CXCharacter()
 	: mpCombinedMatrix(nullptr)
+	, mHp(10)
+	, mSpeed(0.1f)
+	, mJumpPower(1.0f)
+	, IsDeath(false)
+	, IsMove(false)
+	, IsRun(false)
+	, IsGround(false)
+	, IsJump(false)
+	, IsReloading(false)
+	, IsWalkReload(false)
+	, IsWaitReload(false)
+	, IsHit(false)
+
 {
 	mScale = CVector(1.0f, 1.0f, 1.0f);
 }
@@ -129,29 +142,18 @@ int CXCharacter::GetAnimationIndex()
 	return mAnimationIndex;
 }
 
-//キャラの方向を向かせたい方向に変える
-void CXCharacter::ChangeDirection(CVector charZ, CVector direction, float margin)
+bool CXCharacter::IsDead()
 {
-	//遊び
-	float MARGIN = margin;
-	//自分の向きと向かせたい向きで外積
-	float cross = charZ.Cross(direction).GetY();
-	//自分の向きと向かせたい向きで内積
-	float dot = charZ.Dot(direction);
-	//外積がプラスは右回転
-	if (cross > MARGIN)
+	//HP0以下なら死亡
+	if (mHp <= 0)
 	{
-		mRotation.SetY(mRotation.GetY() - 5.0f);
+		IsDeath = true;
+		ChangeAnimation(14, false, 30);
 	}
-	//外積がマイナスは左回転
-	else if (cross < -MARGIN)
+	//HPが0より大きいなら死んでいない
+	else
 	{
-		mRotation.SetY(mRotation.GetY() + 5.0f);
+		IsDeath = false;
 	}
-	//前後の向きが同じとき内積は1.0f
-	//向かせたい方向を向いていたら何もしない
-	else if (dot < 1.0f - MARGIN)
-	{
-
-	}
+	return IsDeath;
 }

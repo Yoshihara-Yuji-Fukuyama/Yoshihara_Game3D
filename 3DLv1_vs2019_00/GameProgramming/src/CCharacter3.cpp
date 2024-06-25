@@ -42,3 +42,30 @@ CCharacter3::CCharacter3(int priority)
 	mPriority = priority;
 	CTaskManager::GetInstance()->Add(this);
 }
+
+//キャラの方向を向かせたい方向に変える
+void CCharacter3::ChangeDirection(CVector charZ, CVector direction, float margin)
+{
+	//遊び
+	float MARGIN = margin;
+	//自分の向きと向かせたい向きで外積
+	float cross = charZ.Cross(direction).GetY();
+	//自分の向きと向かせたい向きで内積
+	float dot = charZ.Dot(direction);
+	//外積がプラスは右回転
+	if (cross > MARGIN)
+	{
+		mRotation.SetY(mRotation.GetY() - 5.0f);
+	}
+	//外積がマイナスは左回転
+	else if (cross < -MARGIN)
+	{
+		mRotation.SetY(mRotation.GetY() + 5.0f);
+	}
+	//前後の向きが同じとき内積は1.0f
+	//向かせたい方向を向いていたら何もしない
+	else if (dot < 1.0f - MARGIN)
+	{
+
+	}
+}

@@ -36,15 +36,5 @@ private:
 	CCollider mColSphereHead; //頭
 	CCollider mColSphereLeg;  //足
 	CColliderCapsule mColBody;//キャラとキャラが重ならないための体コライダ
-	
-	float mPlayerSpeed;//プレイヤーの移動速度
-	float mJumpPower;//ジャンプ力
-
-	bool IsRun;//走っているかどうか
-	bool IsGround;//地面についているか
-	bool IsJump;//ジャンプしているかどうか
-	bool IsReloading;//リロードしているか
-	bool IsWalkReload;//歩いてリロードしているか
-	bool IsWaitReload;//止まってリロードしているか
 };
 #endif

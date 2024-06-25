@@ -15,6 +15,8 @@ CTexture CApplication::mTexture;
 #define SOUND_BGM "res\\mario.wav" //BGM音声ファイル
 #define SOUND_OVER "res\\mdai.wav" //ゲームオーバー音声ファイル
 
+#define MAX_ENEMY 3//敵の最大数
+
 //モデルビュー行列の取得
 const CMatrix& CApplication::GetModelViewInverse()
 {
@@ -57,20 +59,9 @@ void CApplication::Init()
 	mPlayerModel.AddAnimationSet(RUN);//9:走り
 	mPlayerModel.AddAnimationSet(IDLE_RELOAD);//10:止まってリロード
 	mPlayerModel.AddAnimationSet(WALK_RELOAD);//11:歩きながらリロード
-	//敵3Dモデルファイル読み込み
-	mKnightModel.Load(MODEL_PLAYER);//0:前歩き
-	//追加アニメーション読み込み
-	mKnightModel.AddAnimationSet(BACKWARD); //1:後ろ歩き
-	mKnightModel.AddAnimationSet(L_WALK);   //2:左歩き
-	mKnightModel.AddAnimationSet(R_WALK);   //3:右歩き
-	mKnightModel.AddAnimationSet(AIM_IDLE); //4:構え待機
-	mKnightModel.AddAnimationSet(Fire);     //5:射撃
-	mKnightModel.AddAnimationSet(JUMP_UP);  //6:ジャンプ
-	mKnightModel.SeparateAnimationSet(6, 5, 16, "JumpUp");//7:ジャンプ上昇
-	mKnightModel.AddAnimationSet(JUMP_DOWN);//8:ジャンプ降下
-	mKnightModel.AddAnimationSet(RUN);//9:走り
-	mKnightModel.AddAnimationSet(IDLE_RELOAD);//10:止まってリロード
-	mKnightModel.AddAnimationSet(WALK_RELOAD);//11:歩きながらリロード
+	mPlayerModel.AddAnimationSet(HIT);//12:被弾
+	mPlayerModel.AddAnimationSet(WALK_HIT);//13:歩きながら被弾
+	mPlayerModel.AddAnimationSet(DEATH);//14:死亡
 	//パラディンのインスタンス作成
 	mpPaladin = new CPaladin();
 	
@@ -78,11 +69,7 @@ void CApplication::Init()
 	mBackGround.Load(MODEL_BACKGROUND);
 	//プレイヤーの初期設定
 	mXPlayer.Init(&mPlayerModel);
-	
-	//敵の初期設定
-	mXEnemy.Init(&mKnightModel);
-	//待機アニメーションに変更
-	mXEnemy.ChangeAnimation(2, true, 200);
+
 	//攻撃アニメーションに変更
 	mpPaladin->ChangeAnimation(1, true, 50);
 	
@@ -100,8 +87,6 @@ void CApplication::Start()
 	//背景モデルから三角コライダを生成
 	//親インスタンスと親行列はなし
 	mColliderMesh.Set(nullptr, nullptr, &mBackGround);
-	//敵の配置
-	mXEnemy.SetPosition(CVector(7.0f, 0.0f, 0.0f));
 	//パラディンの配置
 	mpPaladin->SetPosition(CVector(-1.0f, 0.0f, 5.0f));
 	mpPaladin->SetScale(CVector(0.025f, 0.025f, 0.025f));
@@ -109,6 +94,7 @@ void CApplication::Start()
 
 void CApplication::Update()
 {	
+	SpawnEnemy();
 	/*
 	//プレイヤーの更新
 	mXPlayer.Update();
@@ -159,7 +145,7 @@ void CApplication::Update()
 	
 	CVector screen;
 	//Enemyの座標をスクリーン座標へ変換する
-	if (CActionCamera::GetInstance()->WorldToScreen(&screen, mXEnemy.GetPosition()))
+	if (CActionCamera::GetInstance()->WorldToScreen(&screen, mpXEnemy[0]->GetPosition()))
 	{
 		//変換先の座標に文字列を出力する
 		mFont.Draw(screen.GetX(), screen.GetY(), 7, 14, "ENEMY");
@@ -167,5 +153,16 @@ void CApplication::Update()
 	
 	//2Dの描画終了
 	CCamera::End();
+}
+
+void CApplication::SpawnEnemy()
+{
+	//TODO:制限を付ける
+	//敵の最大数まで生成する
+	for (int i = 0; i <= MAX_ENEMY; i++)
+	{
+		//X座標-100から100、Y座標0、Z座標-100から100にランダムに生成
+		mpXEnemy.push_back(new CXEnemy(CVector(rand() % 200 - 100, 0.0f, rand() % 200 - 100)));
+	}
 }
 

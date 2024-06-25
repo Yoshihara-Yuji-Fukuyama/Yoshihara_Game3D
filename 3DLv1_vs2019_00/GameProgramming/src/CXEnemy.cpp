@@ -3,15 +3,38 @@
 
 #define GRAVITY_AND_JUMPDEF 0.1f//重力とジャンプの基準値
 
+CModelX CXEnemy::sModel;
+
 CXEnemy::CXEnemy()
 	: mWepon(this, &mMatrix, CVector(-10.0f, 5.0f, -5.0f), &mRotation)
 	, mColSphereHead(this, nullptr, CVector(0.0f, 5.0f, -3.0f), 0.5f, CCollider::ETag::EHEAD)//頭,球コライダ
 	, mColSphereLeg(this, nullptr, CVector(0.0f, 25.0f, 0.0f), 0.5f, CCollider::ETag::ELEG)//足,球コライダ
 	, mColBody(this, nullptr, CVector(0.0f, 25.0f, 0.0f), CVector(0.0f, 130.0f, 0.0f), 0.5f)//体,カプセルコライダ
 	, mColSphereSearch(this, nullptr, CVector(), 30.0f, CCollider::ETag::ESEARCH)//索敵用、球コライダ
-	, mEnemySpeed(0.1f)
-	, IsMove(false)
 {
+	//モデルを読み込んでないなら読み込む
+	if (sModel.IsLoaded() == false)
+	{
+		//敵3Dモデルファイル読み込み
+		sModel.Load(MODEL_PLAYER);//0:前歩き
+		//追加アニメーション読み込み
+		sModel.AddAnimationSet(BACKWARD); //1:後ろ歩き
+		sModel.AddAnimationSet(L_WALK);   //2:左歩き
+		sModel.AddAnimationSet(R_WALK);   //3:右歩き
+		sModel.AddAnimationSet(AIM_IDLE); //4:構え待機
+		sModel.AddAnimationSet(Fire);     //5:射撃
+		sModel.AddAnimationSet(JUMP_UP);  //6:ジャンプ
+		sModel.SeparateAnimationSet(6, 5, 16, "JumpUp");//7:ジャンプ上昇
+		sModel.AddAnimationSet(JUMP_DOWN);//8:ジャンプ降下
+		sModel.AddAnimationSet(RUN);//9:走り
+		sModel.AddAnimationSet(IDLE_RELOAD);//10:止まってリロード
+		sModel.AddAnimationSet(WALK_RELOAD);//11:歩きながらリロード
+		sModel.AddAnimationSet(HIT);//12:被弾
+		sModel.AddAnimationSet(WALK_HIT);//13:歩きながら被弾
+		sModel.AddAnimationSet(DEATH);//14:死亡
+	}
+	//モデルの設定
+	Init(&sModel);
 	//タグに敵を設定
 	mCharaTag = ECharaTag::EENEMY;
 	//サイズ設定
@@ -19,108 +42,150 @@ CXEnemy::CXEnemy()
 	//前を向ける
 	SetRotation(CVector(0.0f, 180.0f, 0.0f));
 }
+//座標を設定
+CXEnemy::CXEnemy(CVector pos)
+	: CXEnemy()
+{
+	mPosition = pos;
+}
 
 
 //更新
-//TODO:敵の動き
+//敵の動き
 void CXEnemy::Update()
 {
-	//キャラクタの前方
-	CVector charZ = mMatrixRotate.GetVectorZ();
-	//XZ平面にして正規化
-	charZ.SetY(0.0f); charZ = charZ.Normalize();
+	//死亡アニメーションが終わったら消去
+	if (GetAnimationIndex() == 14)
+	{
+		if (IsAnimationFinished())
+		{
+			mEnabled = false;
+		}
+	}
+	//死亡していなければ更新
+	if (IsDead() == false)
+	{
+		//キャラクタの前方
+		CVector charZ = mMatrixRotate.GetVectorZ();
+		//XZ平面にして正規化
+		charZ.SetY(0.0f); charZ = charZ.Normalize();
 
-	//上昇中じゃないかつ地面に接触していないかつY座標が-1以上なら重力適用
-	if (GetAnimationIndex() != 7 && IsGround == false && mPosition.GetY() >= -1.0f)
-	{
-		mPosition.SetY(mPosition.GetY() - GRAVITY_AND_JUMPDEF);
-	}
-	//ジャンプ上昇アニメーションの時
-	if (GetAnimationIndex() == 7)
-	{
-		mPosition.SetY(mPosition.GetY() + GRAVITY_AND_JUMPDEF);
-		//アニメーションが終了したら
-		//降下アニメーションにする
-		if (IsAnimationFinished() == true)
+		//上昇中じゃないかつ地面に接触していないかつY座標が-1以上なら重力適用
+		if (GetAnimationIndex() != 7 && IsGround == false && mPosition.GetY() >= -1.0f)
 		{
-			ChangeAnimation(8, false, 90 * mJumpPower);
+			mPosition.SetY(mPosition.GetY() - GRAVITY_AND_JUMPDEF);
 		}
-	}
-	//ジャンプ降下アニメーションの時
-	else if (GetAnimationIndex() == 8)
-	{
-		//アニメーションが終了したら
-		//待機アニメーションにする
-		if (IsAnimationFinished() == true)
+		//ジャンプ上昇アニメーションの時
+		if (GetAnimationIndex() == 7)
 		{
-			ChangeAnimation(1, true, 90);
-			IsJump = false;
+			mPosition.SetY(mPosition.GetY() + GRAVITY_AND_JUMPDEF);
+			//アニメーションが終了したら
+			//降下アニメーションにする
+			if (IsAnimationFinished() == true)
+			{
+				ChangeAnimation(8, false, 90 * mJumpPower);
+			}
 		}
-	}
-	//リロードアニメーションの時
-	if (GetAnimationIndex() == 10 || GetAnimationIndex() == 11)
-	{
-		//動きながらのリロードなら
-		if (GetAnimationIndex() == 11)
+		//ジャンプ降下アニメーションの時
+		else if (GetAnimationIndex() == 8)
 		{
-			mPosition = mPosition - charZ * mEnemySpeed;
+			//アニメーションが終了したら
+			//待機アニメーションにする
+			if (IsAnimationFinished() == true)
+			{
+				ChangeAnimation(4, true, 90);
+				IsJump = false;
+			}
 		}
-		//アニメーションが終了したら
-		//待機アニメーションにする
-		if (IsAnimationFinished() == true)
+		//リロードアニメーションの時
+		if (GetAnimationIndex() == 10 || GetAnimationIndex() == 11)
 		{
-			ChangeAnimation(1, true, 90);
-			IsReloading = false;
-			IsWalkReload = false;
-			IsWaitReload = false;
+			//動きながらのリロードなら
+			if (GetAnimationIndex() == 11)
+			{
+				mPosition = mPosition - charZ * mSpeed;
+			}
+			//アニメーションが終了したら
+			//待機アニメーションにする
+			if (IsAnimationFinished() == true)
+			{
+				ChangeAnimation(4, true, 90);
+				IsReloading = false;
+				IsWalkReload = false;
+				IsWaitReload = false;
+			}
 		}
-	}
+		//被弾アニメーションの時
+		if (GetAnimationIndex() == 12)
+		{
+			if (IsAnimationFinished() == true)
+			{
+				ChangeAnimation(4, true, 90);
+
+				IsRun = false;
+				IsJump = false;
+				IsReloading = false;
+				IsWalkReload = false;
+				IsWaitReload = false;
+			}
+		}
 
 		//弾が切れたら、弾を補充＋リロードアニメーション再生
-	if (mWepon.GetAmmo() == 0 && IsRun == false && IsReloading == false)
-	{
-		//動いているなら動きながらのリロードアニメーション
-		if (IsMove == true)
+		if (mWepon.GetAmmo() == 0 && IsRun == false && IsReloading == false)
 		{
-			ChangeAnimation(11, false, 210);
-			IsWalkReload = true;
+			//動いているなら動きながらのリロードアニメーション
+			if (IsMove == true)
+			{
+				ChangeAnimation(11, false, 210);
+				IsWalkReload = true;
+			}
+			//動いていないなら停止したリロードアニメーション
+			else
+			{
+				ChangeAnimation(10, false, 90);
+				IsWaitReload = true;
+			}
+			//リロード
+			mWepon.Reload();
+			IsReloading = true;
 		}
-		//動いていないなら停止したリロードアニメーション
+
+		//プレイヤーを見つけていたら
+		if (IsFoundPlayer == true)
+		{
+			//弾があり、リロードしていないなら撃つ
+			if (mWepon.GetAmmo() > 0 && IsReloading == false)
+			{
+				mWepon.ShotBullet();
+			}
+			//プレイヤーの方へ進む
+			//プレイヤーへの方向を計算
+			CVector moveDirection = mPosition - CXPlayer::GetInstance()->GetPosition();
+			//プレイヤーとの距離が10以上の場合近づく
+			if (moveDirection.Length() > 10.0f && IsReloading == false)
+			{
+				moveDirection = moveDirection.Normalize();
+				mPosition = mPosition - moveDirection * mSpeed;
+				ChangeAnimation(0, true, 90 * (1 - (mSpeed * 0.1f)));
+				IsMove = true;
+			}
+			//プレイヤーとの距離が10未満の場合待機アニメーションにする
+			else if (IsReloading == false)
+			{
+				moveDirection = moveDirection.Normalize();
+				ChangeAnimation(4, true, 90);
+				IsMove = false;
+			}
+			//移動方向を向かせる
+			ChangeDirection(charZ, moveDirection * -1, 0.6f);
+		}
+		//見つけていないなら
 		else
 		{
-			ChangeAnimation(10, false, 90);
-			IsWaitReload = true;
-		}
-		//リロード
-		mWepon.Reload();
-		IsReloading = true;
-	}
-
-	//プレイヤーを見つけていたら
-	if (IsFoundPlayer == true)
-	{
-		mWepon.ShotBullet();
-		//プレイヤーの方へ進む
-		//プレイヤーへの方向を計算
-		CVector moveDirection = mPosition - CXPlayer::GetInstance()->GetPosition();
-		//プレイヤーとの距離が10以上の場合近づく
-		if (moveDirection.Length() > 10.0f && IsReloading == false)
-		{
-			moveDirection = moveDirection.Normalize();
-			mPosition = mPosition - moveDirection * mEnemySpeed;
-			ChangeAnimation(0, true, 90 * (1 - (mEnemySpeed * 0.1f)));
-			IsMove = true;
-		}
-		//プレイヤーとの距離が10未満の場合待機アニメーションにする
-		else if (IsReloading == false)
-		{
-			moveDirection = moveDirection.Normalize();
 			ChangeAnimation(4, true, 90);
-			IsMove = false;
 		}
-		//移動方向を向かせる
-		ChangeDirection(charZ, moveDirection * -1, 0.6f);
 	}
+	
 	//変換行列、アニメーションの更新
 	CXCharacter::Update();
 	//カプセルコライダの更新
@@ -163,7 +228,7 @@ void CXEnemy::Collision(CCollider* m, CCollider* o)
 		break;
 
 		//自分のコライダが球の場合
-		//敵の攻撃と衝突したらダウンする
+		//敵の攻撃と衝突したらダメージ
 	case CCollider::EType::ESPHERE:
 		//自分のコライダのタグが頭
 		if (m->GetTag() == CCollider::ETag::EHEAD)
@@ -178,8 +243,9 @@ void CXEnemy::Collision(CCollider* m, CCollider* o)
 				//衝突しているなら
 				if (m->Collision(m, o) == true)
 				{
-					//30フレームかけてダウンし、繰り返さない
-					ChangeAnimation(11, false, 30);
+					mHp--;
+					//被弾アニメーション
+					ChangeAnimation(12, false, 30);
 				}
 			}
 		}
@@ -196,8 +262,9 @@ void CXEnemy::Collision(CCollider* m, CCollider* o)
 				//衝突しているなら
 				if (m->Collision(m, o) == true)
 				{
-					//30フレームかけてダウンし、繰り返さない
-					ChangeAnimation(11, false, 30);
+					mHp--;
+					//被弾アニメーション
+					ChangeAnimation(12, false, 30);
 				}
 			}
 		}
@@ -214,8 +281,9 @@ void CXEnemy::Collision(CCollider* m, CCollider* o)
 				//衝突しているなら
 				if (m->Collision(m, o) == true)
 				{
-					//30フレームかけてダウンし、繰り返さない
-					ChangeAnimation(11, false, 30);
+					mHp--;
+					//被弾アニメーション
+					ChangeAnimation(12, false, 30);
 				}
 			}
 		}

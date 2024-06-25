@@ -29,6 +29,9 @@ class CMyShader;    //CMyShaderクラスの宣言
 #define RUN "res\\RifleRun.x"              //走り
 #define IDLE_RELOAD "res\\IdleReload.x"    //止まってリロード
 #define WALK_RELOAD "res\\WalkReload.x"	   //歩きながらリロード
+#define HIT "res\\HitReaction.x"           //止まってるときの被弾
+#define WALK_HIT "res\\WalkingHitReaction.x"//歩いてる時の被弾
+#define DEATH "res\\Death.x"               //死亡
 
 #define MODEL_KNIGHT "res\\knight\\knight_low.x"//敵モデル
 
