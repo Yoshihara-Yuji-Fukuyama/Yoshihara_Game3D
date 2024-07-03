@@ -26,6 +26,7 @@
     <ClCompile Include="src\CEffect.cpp" />
     <ClCompile Include="src\CEnemy.cpp" />
     <ClCompile Include="src\CEnemy3.cpp" />
+    <ClCompile Include="src\CEnemyAi.cpp" />
     <ClCompile Include="src\CFont.cpp" />
     <ClCompile Include="src\CMaterial.cpp" />
     <ClCompile Include="src\CMatrix.cpp" />
@@ -65,6 +66,7 @@
     <ClInclude Include="src\CEffect.h" />
     <ClInclude Include="src\CEnemy.h" />
     <ClInclude Include="src\CEnemy3.h" />
+    <ClInclude Include="src\CEnemyAi.h" />
     <ClInclude Include="src\CFont.h" />
     <ClInclude Include="src\CMaterial.h" />
     <ClInclude Include="src\CMatrix.h" />

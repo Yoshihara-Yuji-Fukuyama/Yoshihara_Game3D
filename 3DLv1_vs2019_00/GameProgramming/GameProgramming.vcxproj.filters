@@ -147,6 +147,9 @@
     <ClCompile Include="src\CWepon.cpp">
       <Filter>ソース ファイル\Character</Filter>
     </ClCompile>
+    <ClCompile Include="src\CEnemyAi.cpp">
+      <Filter>ソース ファイル\Character</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\CSound.h">
@@ -264,6 +267,9 @@
       <Filter>ソース ファイル\Collider</Filter>
     </ClInclude>
     <ClInclude Include="src\CWepon.h">
+      <Filter>ソース ファイル\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CEnemyAi.h">
       <Filter>ソース ファイル\Character</Filter>
     </ClInclude>
   </ItemGroup>

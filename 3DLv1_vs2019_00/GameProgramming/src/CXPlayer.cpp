@@ -81,11 +81,6 @@ void CXPlayer::Update()
 		//リロードアニメーションの時
 		if (GetAnimationIndex() == 10 || GetAnimationIndex() == 11)
 		{
-			//動きながらのリロードなら
-			if (GetAnimationIndex() == 11)
-			{
-				mPosition = mPosition - charZ * mSpeed;
-			}
 			//アニメーションが終了したら
 			//待機アニメーションにする
 			if (IsAnimationFinished() == true)
@@ -123,7 +118,7 @@ void CXPlayer::Update()
 			isMove = true;
 		}
 		//後退
-		else if (mInput.Key('S'))
+		if (mInput.Key('S'))
 		{
 			move = move - cameraZ;
 			isMove = true;
@@ -137,7 +132,7 @@ void CXPlayer::Update()
 			isMove = true;
 		}
 		//右移動
-		else if (mInput.Key('D'))
+		if (mInput.Key('D'))
 		{
 			move = move - cameraX;
 			isMove = true;
@@ -207,7 +202,7 @@ void CXPlayer::Update()
 		{
 			//正規化
 			move = move.Normalize();
-			if (IsWalkReload == false)
+			if (IsWaitReload == false)
 			{
 				//移動方向へ移動
 				mPosition = mPosition + move * mSpeed;
@@ -297,9 +292,12 @@ void CXPlayer::Collision(CCollider* m, CCollider* o)
 				//衝突しているなら
 				if (m->Collision(m, o) == true)
 				{
-					mHp--;
-					//被弾アニメーション
-					ChangeAnimation(12, false, 30);
+					if (IsDead() == false)
+					{
+						mHp--;
+						//被弾アニメーション
+						ChangeAnimation(12, false, 30);
+					}
 				}
 			}
 		}
@@ -316,9 +314,12 @@ void CXPlayer::Collision(CCollider* m, CCollider* o)
 				//衝突しているなら
 				if (m->Collision(m, o) == true)
 				{
-					mHp--;
-					//被弾アニメーション
-					ChangeAnimation(12, false, 30);
+					if (IsDead() == false)
+					{
+						mHp--;
+						//被弾アニメーション
+						ChangeAnimation(12, false, 30);
+					}
 				}
 			}
 		}
@@ -335,9 +336,12 @@ void CXPlayer::Collision(CCollider* m, CCollider* o)
 				//衝突しているなら
 				if (m->Collision(m, o) == true)
 				{
-					mHp--;
-					//被弾アニメーション
-					ChangeAnimation(12, false, 30);
+					if (IsDead() == false)
+					{
+						mHp--;
+						//被弾アニメーション
+						ChangeAnimation(12, false, 30);
+					}
 				}
 			}
 		}

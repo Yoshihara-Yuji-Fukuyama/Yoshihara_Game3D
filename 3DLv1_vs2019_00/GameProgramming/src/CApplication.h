@@ -40,6 +40,8 @@ public:
 	static CTexture* GetTexture();
 	//UIクラスのインスタンスを取得
 	static CUi* GetUi();
+	//インスタンスの取得
+	static CApplication* GetInstance();
 	//デストラクタ
 	~CApplication();
 	//初期設定
@@ -48,14 +50,19 @@ public:
 	void Start();
 	void Update();
 
+	//敵を出現させる
 	void SpawnEnemy();
+	//mEnemyNumを減らす
+	void DeathEnemy();
 private:
 	static CMatrix mModelViewInverse;//モデルビューの逆行列
 	static CUi* spUi;                //Uiクラスのポインタ
 	static CTexture mTexture;        //Textureクラスのインスタンス
+	static CApplication* spInstance;//CApplicationのインスタンス
 	CModel mModel;
 	CModel mModelC5;
 	CModel mBackGround;//背景のモデル
+	CModel mStage;//ステージのモデル
 	CModelX mPlayerModel; //プレイヤーのモデル
 
 	CColliderTriangle mColliderTriangle;
@@ -64,6 +71,7 @@ private:
 
 	CXPlayer mXPlayer;
 	std::vector<CXEnemy*> mpXEnemy;
+	int mEnemyNum;//敵の出現している数
 
 	CEnemy3* mpEnemy3;
 
@@ -89,6 +97,4 @@ private:
 		EOVER,	//ゲームオーバー
 	};
 	EState mState;
-
-	CWepon* mWepon;
 };

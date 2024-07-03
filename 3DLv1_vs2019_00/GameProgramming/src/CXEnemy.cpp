@@ -1,5 +1,6 @@
 #include "CXEnemy.h"
 #include "CXPlayer.h"
+#include "CApplication.h"
 
 #define GRAVITY_AND_JUMPDEF 0.1f//重力とジャンプの基準値
 
@@ -35,6 +36,8 @@ CXEnemy::CXEnemy()
 	}
 	//モデルの設定
 	Init(&sModel);
+	//AI初期設定
+	CEnemyAi::Init();
 	//タグに敵を設定
 	mCharaTag = ECharaTag::EENEMY;
 	//サイズ設定
@@ -49,141 +52,69 @@ CXEnemy::CXEnemy(CVector pos)
 	mPosition = pos;
 }
 
+//球コライダの生成とボーンとの連動
+void CXEnemy::Init(CModelX* model)
+{
+	CXCharacter::Init(model);
+	//合成行列の設定
+	//頭
+	mColSphereHead.SetMatrix(&mpCombinedMatrix[7]);
+	//足
+	mColSphereLeg.SetMatrix(&mpCombinedMatrix[1]);
+	//キャラ同士が重ならないための体コライダ
+	mColBody.SetMatrix(&mpCombinedMatrix[1]);
+	//プレイヤー索敵用コライダ
+	mColSphereSearch.SetMatrix(&mpCombinedMatrix[5]);
+	//左手に引き金がくる数値
+	mWepon.SetMatrix(&mpCombinedMatrix[38]);
+}
+
+//敵の生成中数の数字を減らす
+CXEnemy::~CXEnemy()
+{
+	CApplication::GetInstance()->DeathEnemy();
+}
+
 
 //更新
 //敵の動き
 void CXEnemy::Update()
 {
-	//死亡アニメーションが終わったら消去
-	if (GetAnimationIndex() == 14)
+	//上昇中じゃないかつ地面に接触していないかつY座標が-1以上なら重力適用
+	if (GetAnimationIndex() != 7 && IsGround == false && mPosition.GetY() >= -1.0f)
 	{
-		if (IsAnimationFinished())
-		{
-			mEnabled = false;
-		}
+		mPosition.SetY(mPosition.GetY() - GRAVITY_AND_JUMPDEF);
 	}
-	//死亡していなければ更新
-	if (IsDead() == false)
+
+	switch (mAiState)
 	{
-		//キャラクタの前方
-		CVector charZ = mMatrixRotate.GetVectorZ();
-		//XZ平面にして正規化
-		charZ.SetY(0.0f); charZ = charZ.Normalize();
-
-		//上昇中じゃないかつ地面に接触していないかつY座標が-1以上なら重力適用
-		if (GetAnimationIndex() != 7 && IsGround == false && mPosition.GetY() >= -1.0f)
-		{
-			mPosition.SetY(mPosition.GetY() - GRAVITY_AND_JUMPDEF);
-		}
-		//ジャンプ上昇アニメーションの時
-		if (GetAnimationIndex() == 7)
-		{
-			mPosition.SetY(mPosition.GetY() + GRAVITY_AND_JUMPDEF);
-			//アニメーションが終了したら
-			//降下アニメーションにする
-			if (IsAnimationFinished() == true)
-			{
-				ChangeAnimation(8, false, 90 * mJumpPower);
-			}
-		}
-		//ジャンプ降下アニメーションの時
-		else if (GetAnimationIndex() == 8)
-		{
-			//アニメーションが終了したら
-			//待機アニメーションにする
-			if (IsAnimationFinished() == true)
-			{
-				ChangeAnimation(4, true, 90);
-				IsJump = false;
-			}
-		}
-		//リロードアニメーションの時
-		if (GetAnimationIndex() == 10 || GetAnimationIndex() == 11)
-		{
-			//動きながらのリロードなら
-			if (GetAnimationIndex() == 11)
-			{
-				mPosition = mPosition - charZ * mSpeed;
-			}
-			//アニメーションが終了したら
-			//待機アニメーションにする
-			if (IsAnimationFinished() == true)
-			{
-				ChangeAnimation(4, true, 90);
-				IsReloading = false;
-				IsWalkReload = false;
-				IsWaitReload = false;
-			}
-		}
-		//被弾アニメーションの時
-		if (GetAnimationIndex() == 12)
-		{
-			if (IsAnimationFinished() == true)
-			{
-				ChangeAnimation(4, true, 90);
-
-				IsRun = false;
-				IsJump = false;
-				IsReloading = false;
-				IsWalkReload = false;
-				IsWaitReload = false;
-			}
-		}
-
-		//弾が切れたら、弾を補充＋リロードアニメーション再生
-		if (mWepon.GetAmmo() == 0 && IsRun == false && IsReloading == false)
-		{
-			//動いているなら動きながらのリロードアニメーション
-			if (IsMove == true)
-			{
-				ChangeAnimation(11, false, 210);
-				IsWalkReload = true;
-			}
-			//動いていないなら停止したリロードアニメーション
-			else
-			{
-				ChangeAnimation(10, false, 90);
-				IsWaitReload = true;
-			}
-			//リロード
-			mWepon.Reload();
-			IsReloading = true;
-		}
-
-		//プレイヤーを見つけていたら
-		if (IsFoundPlayer == true)
-		{
-			//弾があり、リロードしていないなら撃つ
-			if (mWepon.GetAmmo() > 0 && IsReloading == false)
-			{
-				mWepon.ShotBullet();
-			}
-			//プレイヤーの方へ進む
-			//プレイヤーへの方向を計算
-			CVector moveDirection = mPosition - CXPlayer::GetInstance()->GetPosition();
-			//プレイヤーとの距離が10以上の場合近づく
-			if (moveDirection.Length() > 10.0f && IsReloading == false)
-			{
-				moveDirection = moveDirection.Normalize();
-				mPosition = mPosition - moveDirection * mSpeed;
-				ChangeAnimation(0, true, 90 * (1 - (mSpeed * 0.1f)));
-				IsMove = true;
-			}
-			//プレイヤーとの距離が10未満の場合待機アニメーションにする
-			else if (IsReloading == false)
-			{
-				moveDirection = moveDirection.Normalize();
-				ChangeAnimation(4, true, 90);
-				IsMove = false;
-			}
-			//移動方向を向かせる
-			ChangeDirection(charZ, moveDirection * -1, 0.6f);
-		}
-		//見つけていないなら
-		else
-		{
-			ChangeAnimation(4, true, 90);
-		}
+	case CEnemyAi::EAiState::EWAIT://待機
+		Wait();
+		break;
+	case CEnemyAi::EAiState::EWANDERING://徘徊
+		Wandering();
+		break;
+	case CEnemyAi::EAiState::ECHASE://追跡
+		Chase();
+		break;
+	case CEnemyAi::EAiState::EATTACK://攻撃
+		Attack();
+		break;
+	case CEnemyAi::EAiState::EMOVEATTACK://移動しながら攻撃
+		MoveAttack();
+		break;
+	case CEnemyAi::EAiState::ERELOAD://リロード
+		Reload();
+		break;
+	case CEnemyAi::EAiState::EESCAPE://逃亡
+		Escape();
+		break;
+	case CEnemyAi::EAiState::EDAMAGE://被弾
+		Damage();
+		break;
+	case CEnemyAi::EAiState::EDIE://死亡
+		Die();
+		break;
 	}
 	
 	//変換行列、アニメーションの更新
@@ -329,19 +260,112 @@ void CXEnemy::Collision(CCollider* m, CCollider* o)
 	}
 }
 
-//球コライダの生成とボーンとの連動
-void CXEnemy::Init(CModelX* model)
+void CXEnemy::Wait()
 {
-	CXCharacter::Init(model);
-	//合成行列の設定
-	//頭
-	mColSphereHead.SetMatrix(&mpCombinedMatrix[7]);
-	//足
-	mColSphereLeg.SetMatrix(&mpCombinedMatrix[1]);
-	//キャラ同士が重ならないための体コライダ
-	mColBody.SetMatrix(&mpCombinedMatrix[1]);
-	//プレイヤー索敵用コライダ
-	mColSphereSearch.SetMatrix(&mpCombinedMatrix[5]);
-	//左手に引き金がくる数値
-	mWepon.SetMatrix(&mpCombinedMatrix[38]);
+	//待機アニメーション
+	ChangeAnimation(4, true, 90);
+}
+
+void CXEnemy::Wandering()
+{
+}
+
+void CXEnemy::Chase()
+{
+	//キャラクタの前方
+	CVector charZ = mMatrixRotate.GetVectorZ();
+	//XZ平面にして正規化
+	charZ.SetY(0.0f); charZ = charZ.Normalize();
+	//プレイヤーの方へ進む
+	//プレイヤーへの方向を計算
+	CVector moveDirection = mPosition - CXPlayer::GetInstance()->GetPosition();
+	//プレイヤーとの距離が10以上の場合近づく
+	if (moveDirection.Length() > 10.0f)
+	{
+		moveDirection = moveDirection.Normalize();
+		mPosition = mPosition - moveDirection * mSpeed;
+		ChangeAnimation(0, true, 90 * (1 - (mSpeed * 0.1f)));
+	}
+	//移動方向を向かせる
+	ChangeDirection(charZ, moveDirection * -1, 0.6f);
+}
+
+void CXEnemy::Attack()
+{
+	//射撃
+	mWepon.ShotBullet();
+	//残弾数が0ならリロード
+	if (mWepon.GetAmmo() == 0)
+	{
+		mAiState = CEnemyAi::EAiState::ERELOAD;
+	}
+}
+
+void CXEnemy::MoveAttack()
+{
+}
+
+void CXEnemy::Reload()
+{
+	//弾が切れたら、弾を補充＋リロードアニメーション再生
+	if (mWepon.GetAmmo() == 0)
+	{
+		//リロードモーション
+		ChangeAnimation(10, false, 90);
+		mWepon.Reload();
+	}
+	//リロードアニメーションの時
+	if (GetAnimationIndex() == 10)
+	{
+		//アニメーションが終了したら
+		//待機アニメーションにする
+		if (IsAnimationFinished() == true)
+		{
+			ChangeAnimation(4, true, 90);
+		}
+	}
+}
+
+void CXEnemy::Escape()
+{
+	//キャラクタの前方
+	CVector charZ = mMatrixRotate.GetVectorZ();
+	//XZ平面にして正規化
+	charZ.SetY(0.0f); charZ = charZ.Normalize();
+	//プレイヤーと逆の方へ進む
+	//プレイヤーと逆への方向を計算
+	CVector moveDirection = CXPlayer::GetInstance()->GetPosition() - mPosition;
+	//正規化
+	moveDirection = moveDirection.Normalize();
+	mPosition = mPosition - moveDirection * mSpeed;
+	ChangeAnimation(0, true, 90 * (1 - (mSpeed * 0.1f)));
+	//移動方向を向かせる
+	ChangeDirection(charZ, moveDirection * -1, 0.6f);
+}
+
+void CXEnemy::Damage()
+{
+	//被弾アニメーションの時
+	if (GetAnimationIndex() == 12)
+	{
+		//アニメーションが終了したら
+		//待機アニメーションにする
+		if (IsAnimationFinished() == true)
+		{
+			ChangeAnimation(4, true, 90);
+		}
+	}
+}
+
+void CXEnemy::Die()
+{
+	ChangeAnimation(14, false, 90);
+	//死亡アニメーションが終わったら消去
+	if (GetAnimationIndex() == 14)
+	{
+		if (IsAnimationFinished())
+		{
+			mEnabled = false;
+		}
+	}
 }
