@@ -6,6 +6,7 @@
 #include "CColliderCapsule.h"
 #include "CWepon.h"
 #include "CEnemyAi.h"
+#include <time.h>
 
 class CXEnemy : public CXCharacter , public CEnemyAi
 {
@@ -22,6 +23,8 @@ public:
 	
 	void Collision(CCollider* m, CCollider* o);	//衝突処理
 
+	bool IsTime(int lag);//lag秒ごとにtrueを返す
+
 	//行動系
 	void Wait();      //待機
 	void Wandering(); //徘徊
@@ -36,13 +39,19 @@ private:
 	CWepon mWepon;//武器のインスタンス
 
 	CCollider mColSphereHead; //頭
+	CCollider mColSphereBody; //体
 	CCollider mColSphereLeg;  //足
 	CColliderCapsule mColBody;//キャラとキャラが重ならないための体コライダ
 	CCollider mColSphereSearch;//プレイヤー索敵用コライダ
+
+	clock_t start;//始まりの時間を保存
+	double mCount;//秒数カウンタ
+
 
 	static CModelX sModel;	//モデルデータ
 
 	bool IsFoundPlayer;//プレイヤーを見つけている
 	bool IsInRange;    //射程内にプレイヤーがいる
+	bool IsAttack;     //攻撃できるか
 };
 #endif

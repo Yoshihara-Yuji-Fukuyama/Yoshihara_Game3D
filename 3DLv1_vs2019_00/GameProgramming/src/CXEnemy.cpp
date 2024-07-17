@@ -9,9 +9,10 @@ CModelX CXEnemy::sModel;
 CXEnemy::CXEnemy()
 	: mWepon(this, &mMatrix, CVector(-10.0f, 5.0f, -5.0f), &mRotation)
 	, mColSphereHead(this, nullptr, CVector(0.0f, 5.0f, -3.0f), 0.5f, CCollider::ETag::EHEAD)//頭,球コライダ
+	, mColSphereBody(this, nullptr, CVector(0.0f, 0.0f, 0.0f), 0.5f)//体,球コライダ
 	, mColSphereLeg(this, nullptr, CVector(0.0f, 25.0f, 0.0f), 0.5f, CCollider::ETag::ELEG)//足,球コライダ
 	, mColBody(this, nullptr, CVector(0.0f, 25.0f, 0.0f), CVector(0.0f, 130.0f, 0.0f), 0.5f)//体,カプセルコライダ
-	, mColSphereSearch(this, nullptr, CVector(), 30.0f, CCollider::ETag::ESEARCH)//索敵用、球コライダ
+	, mColSphereSearch(this, nullptr, CVector(), 60.0f, CCollider::ETag::ESEARCH)//索敵用、球コライダ
 {
 	//モデルを読み込んでないなら読み込む
 	if (sModel.IsLoaded() == false)
@@ -44,6 +45,10 @@ CXEnemy::CXEnemy()
 	SetScale(CVector(0.025f, 0.025f, 0.025f));
 	//前を向ける
 	SetRotation(CVector(0.0f, 180.0f, 0.0f));
+	//始まりの時間を保存
+	start = clock();
+	//秒数カウンタを1に
+	mCount = 1;
 }
 //座標を設定
 CXEnemy::CXEnemy(CVector pos)
@@ -59,6 +64,8 @@ void CXEnemy::Init(CModelX* model)
 	//合成行列の設定
 	//頭
 	mColSphereHead.SetMatrix(&mpCombinedMatrix[7]);
+	//体
+	mColSphereBody.SetMatrix(&mpCombinedMatrix[7]);
 	//足
 	mColSphereLeg.SetMatrix(&mpCombinedMatrix[1]);
 	//キャラ同士が重ならないための体コライダ
@@ -84,6 +91,11 @@ void CXEnemy::Update()
 	if (GetAnimationIndex() != 7 && IsGround == false && mPosition.GetY() >= -1.0f)
 	{
 		mPosition.SetY(mPosition.GetY() - GRAVITY_AND_JUMPDEF);
+	}
+	//HPが0以下なら死亡
+	if (mHp <= 0)
+	{
+		ChangeState(CEnemyAi::EAiState::EDIE);
 	}
 
 	switch (mAiState)
@@ -260,17 +272,38 @@ void CXEnemy::Collision(CCollider* m, CCollider* o)
 	}
 }
 
-void CXEnemy::Wait()
+bool CXEnemy::IsTime(int lag)
+{
+	clock_t end = clock();//経過時間
+	double sec = (double)(end - start) / CLOCKS_PER_SEC;//秒数変換
+	if (sec >= mCount)
+	{
+		mCount = mCount + lag;
+		return true;
+	}
+	return false;
+}
+
+void CXEnemy::Wait()//待機
 {
 	//待機アニメーション
 	ChangeAnimation(4, true, 90);
+	if (IsFoundPlayer == true)
+	{
+		ChangeState(CEnemyAi::EAiState::ECHASE);
+	}
 }
 
-void CXEnemy::Wandering()
+void CXEnemy::Wandering()//徘徊
 {
+	//プレイヤーを見つけたなら、追跡
+	if (IsFoundPlayer == true)
+	{
+		ChangeState(CEnemyAi::EAiState::ECHASE);
+	}
 }
 
-void CXEnemy::Chase()
+void CXEnemy::Chase()//追跡
 {
 	//キャラクタの前方
 	CVector charZ = mMatrixRotate.GetVectorZ();
@@ -279,30 +312,56 @@ void CXEnemy::Chase()
 	//プレイヤーの方へ進む
 	//プレイヤーへの方向を計算
 	CVector moveDirection = mPosition - CXPlayer::GetInstance()->GetPosition();
-	//プレイヤーとの距離が10以上の場合近づく
-	if (moveDirection.Length() > 10.0f)
+	//プレイヤーとの距離が30以上の場合近づく
+	if (moveDirection.Length() > 30.0f)
 	{
 		moveDirection = moveDirection.Normalize();
 		mPosition = mPosition - moveDirection * mSpeed;
 		ChangeAnimation(0, true, 90 * (1 - (mSpeed * 0.1f)));
 	}
+	//それより近ければ攻撃
+	else
+	{
+		ChangeState(CEnemyAi::EAiState::EATTACK);
+	}
 	//移動方向を向かせる
-	ChangeDirection(charZ, moveDirection * -1, 0.6f);
+	ChangeDirection(charZ, moveDirection * -1, 0.06f);
+
+	if (IsFoundPlayer == false)
+	{
+		ChangeState(CEnemyAi::EAiState::EWANDERING);
+	}
 }
 
-void CXEnemy::Attack()
+void CXEnemy::Attack()//攻撃
+{
+	//キャラクタの前方
+	CVector charZ = mMatrixRotate.GetVectorZ();
+	//XZ平面にして正規化
+	charZ.SetY(0.0f); charZ = charZ.Normalize();
+	//プレイヤーの方へ進む
+	//プレイヤーへの方向を計算
+	CVector moveDirection = mPosition - CXPlayer::GetInstance()->GetPosition();
+	//プレイヤーの方向を向かせる
+	ChangeDirection(charZ, moveDirection * -1, 0.06f);
+	//射撃
+	mWepon.ShotBullet();
+	//残弾数が0ならリロード
+	if (mWepon.GetAmmo() == 0)
+	{
+		ChangeState(CEnemyAi::EAiState::ERELOAD);
+	}
+}
+
+void CXEnemy::MoveAttack()
 {
 	//射撃
 	mWepon.ShotBullet();
 	//残弾数が0ならリロード
 	if (mWepon.GetAmmo() == 0)
 	{
-		mAiState = CEnemyAi::EAiState::ERELOAD;
+		ChangeState(CEnemyAi::EAiState::ERELOAD);
 	}
-}
-
-void CXEnemy::MoveAttack()
-{
 }
 
 void CXEnemy::Reload()
@@ -318,10 +377,10 @@ void CXEnemy::Reload()
 	if (GetAnimationIndex() == 10)
 	{
 		//アニメーションが終了したら
-		//待機アニメーションにする
+		//待機ステートにする
 		if (IsAnimationFinished() == true)
 		{
-			ChangeAnimation(4, true, 90);
+			ChangeState(CEnemyAi::EAiState::EWAIT);
 		}
 	}
 }
@@ -341,6 +400,12 @@ void CXEnemy::Escape()
 	ChangeAnimation(0, true, 90 * (1 - (mSpeed * 0.1f)));
 	//移動方向を向かせる
 	ChangeDirection(charZ, moveDirection * -1, 0.6f);
+
+	//プレイヤーを見つけていなければ待機に移行
+	if (IsFoundPlayer == false)
+	{
+		ChangeState(CEnemyAi::EAiState::EWAIT);
+	}
 }
 
 void CXEnemy::Damage()
@@ -349,10 +414,10 @@ void CXEnemy::Damage()
 	if (GetAnimationIndex() == 12)
 	{
 		//アニメーションが終了したら
-		//待機アニメーションにする
+		//待機ステートにする
 		if (IsAnimationFinished() == true)
 		{
-			ChangeAnimation(4, true, 90);
+			ChangeState(CEnemyAi::EAiState::EWAIT);
 		}
 	}
 }

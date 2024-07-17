@@ -32,9 +32,14 @@ private:
 	static CXPlayer* spInstance;//インスタンス
 	CInput mInput;//CInputのインスタンス作成
 	CWepon mWepon;//武器のインスタンス
+
+	CVector mMoveSave;//動く方向を保存
 	
 	CCollider mColSphereHead; //頭
-	CCollider mColSphereLeg;  //足
+	CCollider mColSphereBody0;//体
+	CCollider mColSphereBody1;//体
+	CCollider mColSphereLeg0; //足
+	CCollider mColSphereLeg1; //足
 	CColliderCapsule mColBody;//キャラとキャラが重ならないための体コライダ
 };
 #endif

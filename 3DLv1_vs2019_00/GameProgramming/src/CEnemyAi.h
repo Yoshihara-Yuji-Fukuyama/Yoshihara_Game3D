@@ -3,7 +3,7 @@
 
 class CEnemyAi
 {
-	//TODO:AIの作成
+	//AIのステート
 public:
 	enum class EAiState
 	{
@@ -19,6 +19,8 @@ public:
 	};
 	//初期設定
 	void Init();
+	//ステートの変更
+	void ChangeState(EAiState aiState);
 protected:
 	EAiState mAiState;
 };

@@ -32,6 +32,7 @@ class CMyShader;    //CMyShaderƒNƒ‰ƒX‚ÌéŒ¾
 #define HIT "res\\HitReaction.x"           //~‚Ü‚Á‚Ä‚é‚Æ‚«‚Ì”í’e
 #define WALK_HIT "res\\WalkingHitReaction.x"//•à‚¢‚Ä‚é‚Ì”í’e
 #define DEATH "res\\Death.x"               //€–S
+#define ROLL "res\\Roll.x"                 //ƒ[ƒŠƒ“ƒO
 
 #define MODEL_KNIGHT "res\\knight\\knight_low.x"//“Gƒ‚ƒfƒ‹
 

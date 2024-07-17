@@ -12,10 +12,12 @@ CPaladin::CPaladin()
 	if (sModel.IsLoaded() == false)
 	{
 		sModel.Load(TEST);
+		sModel.AddAnimationSet(ROLL);
 	}
 	Init(&sModel);
 	//¶è‚Éˆø‚«‹à‚ª‚­‚é”’l
 	mWepon.SetMatrix(&mpCombinedMatrix[38]);
+	ChangeAnimation(1, true, 90);
 }
 
 void CPaladin::WeponUpdate()

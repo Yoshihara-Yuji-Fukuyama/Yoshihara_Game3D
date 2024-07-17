@@ -60,5 +60,6 @@ protected:
 	bool IsWalkReload;//歩いてリロードしているか
 	bool IsWaitReload;//止まってリロードしているか
 	bool IsHit;//被弾しているかどうか
+	bool IsRoll;//ローリングしているか
 };
 #endif

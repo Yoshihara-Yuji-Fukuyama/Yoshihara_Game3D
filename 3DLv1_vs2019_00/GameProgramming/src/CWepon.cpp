@@ -81,6 +81,7 @@ void CWepon::SetMatrix(CMatrix* m)
 	mpMatrix = m;
 }
 
+//TODO:“G‚ð—\‘ªŽËŒ‚‰»
 //’e‚ð”­ŽË‚·‚é
 void CWepon::ShotBullet()
 {

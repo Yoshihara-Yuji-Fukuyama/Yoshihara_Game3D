@@ -7,8 +7,11 @@ CXPlayer* CXPlayer::spInstance = nullptr;
 
 CXPlayer::CXPlayer()
 	: mWepon(this, &mMatrix, CVector(-10.0f, 5.0f, -5.0f), &mRotation)
-	, mColSphereHead(this, nullptr, CVector(0.0f, 5.0f, -3.0f), 0.5f,CCollider::ETag::EHEAD)//頭,球コライダ
-	, mColSphereLeg(this, nullptr, CVector(0.0f, 25.0f, 0.0f), 0.5f,CCollider::ETag::ELEG)//足,球コライダ
+	, mColSphereHead(this, nullptr, CVector(0.0f, 5.0f, -3.0f), 0.5f, CCollider::ETag::EHEAD)//頭,球コライダ
+	, mColSphereBody0(this, nullptr, CVector(0.0f, 0.0f, 0.0f), 0.5f)//体,球コライダ
+	, mColSphereBody1(this, nullptr, CVector(0.0f, -1.0f, 0.0f), 0.5f)//体,球コライダ
+	, mColSphereLeg0(this, nullptr, CVector(0.0f, 25.0f, 0.0f), 0.5f,CCollider::ETag::ELEG)//足,球コライダ
+	, mColSphereLeg1(this, nullptr, CVector(0.0f, 25.0f, 0.0f), 0.5f, CCollider::ETag::ELEG)//足,球コライダ
 	, mColBody(this, nullptr, CVector(0.0f, 25.0f, 0.0f), CVector(0.0f, 130.0f, 0.0f), 0.5f)//体,カプセルコライダ
 {
 	//タグにプレイヤーを設定
@@ -105,10 +108,25 @@ void CXPlayer::Update()
 				IsWaitReload = false;
 			}
 		}
+		//ローリングの時
+		if (GetAnimationIndex() == 15)
+		{
+			//移動方向へ移動
+			mPosition = mPosition + mMoveSave * mSpeed;
+			//移動方向を向かせる
+			ChangeDirection(charZ, mMoveSave);
+			if (IsAnimationFinished() == true)
+			{
+				ChangeAnimation(4, true, 90);
+				mSpeed = mSpeed / 1.5f;
+				IsRoll = false;
+			}
+		}
 
 		//移動方向の設定
 		CVector move;
 		bool isMove = false;//動いているか
+		bool isMoveLR = false;//左右移動をしているか
 		bool isMoveB = false;//後ろ移動をしているか
 		bool isAim = false;//構えているか
 		//前進
@@ -130,16 +148,25 @@ void CXPlayer::Update()
 		{
 			move = move + cameraX;
 			isMove = true;
+			isMoveLR = true;
 		}
 		//右移動
 		if (mInput.Key('D'))
 		{
 			move = move - cameraX;
 			isMove = true;
+			isMoveLR = true;
 		}
-
+		//ローリング
+		if (mInput.Key(VK_SPACE) && isMoveLR == true && IsRoll == false && IsJump == false)
+		{
+			ChangeAnimation(15, false, 90);
+			mSpeed = mSpeed * 1.5f;
+			mMoveSave = move;
+			IsRoll = true;
+		}
 		//ジャンプ
-		if (mInput.Key(VK_SPACE) && IsJump == false && IsReloading == false)
+		else if (mInput.Key(VK_SPACE) && IsJump == false && IsReloading == false && IsRoll == false)
 		{
 			ChangeAnimation(7, false, 45 * mJumpPower);
 			IsJump = true;
@@ -198,7 +225,7 @@ void CXPlayer::Update()
 		}
 
 		//移動あり、止まってリロード中は動けない
-		if (move.Length() > 0.0f && IsWaitReload == false)
+		if (move.Length() > 0.0f && IsWaitReload == false && IsRoll == false)
 		{
 			//正規化
 			move = move.Normalize();
@@ -208,12 +235,12 @@ void CXPlayer::Update()
 				mPosition = mPosition + move * mSpeed;
 			}
 			//他の動きをしていなければアニメーションを移動に変える
-			if (IsRun == false && IsJump == false && IsReloading == false)
+			if (IsRun == false && IsJump == false && IsReloading == false && IsRoll == false)
 			{
 				//前移動
 				ChangeAnimation(0, true, 90 * (1 - (mSpeed * 0.1f)));
 			}
-			else if (IsJump == false && IsReloading == false)
+			else if (IsRun == true)
 			{
 				//走り移動
 				ChangeAnimation(9, true, 90 * (0.7f - (mSpeed * 0.1f)));
@@ -227,7 +254,7 @@ void CXPlayer::Update()
 		}
 		//移動もジャンプもリロードもしていない場合、待機アニメーションに切り替え
 		//正面を向く
-		else if (IsJump == false && IsReloading == false)
+		else if (IsJump == false && IsReloading == false && IsRoll == false)
 		{
 			//待機アニメーションに変更
 			ChangeAnimation(4, true, 90);
@@ -280,7 +307,7 @@ void CXPlayer::Collision(CCollider* m, CCollider* o)
 		//地面とぶつかると衝突しない位置まで戻す
 	case CCollider::EType::ESPHERE:
 		//自分のコライダのタグが頭
-		if (m->GetTag() == CCollider::ETag::EBODY)
+		if (m->GetTag() == CCollider::ETag::EHEAD)
 		{
 			//相手のコライダも球
 			//タグは弾丸
@@ -365,6 +392,7 @@ void CXPlayer::Collision(CCollider* m, CCollider* o)
 	}
 }
 
+//TODO:コライダの設定
 //初期設定
 //球コライダの生成と、ボーンとの連動
 void CXPlayer::Init(CModelX* model)
@@ -373,8 +401,12 @@ void CXPlayer::Init(CModelX* model)
 	//合成行列の設定
 	//頭
 	mColSphereHead.SetMatrix(&mpCombinedMatrix[7]);
+	//体
+	mColSphereBody0.SetMatrix(&mpCombinedMatrix[5]);
+	mColSphereBody1.SetMatrix(&mpCombinedMatrix[5]);
 	//足
-	mColSphereLeg.SetMatrix(&mpCombinedMatrix[1]);
+	mColSphereLeg0.SetMatrix(&mpCombinedMatrix[1]);
+	mColSphereLeg1.SetMatrix(&mpCombinedMatrix[1]);
 	//キャラ同士が重ならないための体コライダ 
 	mColBody.SetMatrix(&mpCombinedMatrix[1]);
 	//左手に引き金がくる数値

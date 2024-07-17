@@ -85,6 +85,7 @@ void CApplication::Start()
 	mPlayerModel.AddAnimationSet(HIT);//12:被弾
 	mPlayerModel.AddAnimationSet(WALK_HIT);//13:歩きながら被弾
 	mPlayerModel.AddAnimationSet(DEATH);//14:死亡
+	mPlayerModel.AddAnimationSet(ROLL);//15:ローリング
 	//背景モデル
 	mBackGround.Load(MODEL_BACKGROUND);
 	//ステージモデル
