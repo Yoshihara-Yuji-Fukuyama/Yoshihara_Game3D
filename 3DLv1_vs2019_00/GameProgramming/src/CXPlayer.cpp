@@ -2,16 +2,14 @@
 
 #define PLAYER_ROTATION CVector(0.0f,2.0f,0.0f)//回転速度
 #define GRAVITY_AND_JUMPDEF 0.1f//重力とジャンプの基準値
+#define MAX_HP 50//最大HP
 
 CXPlayer* CXPlayer::spInstance = nullptr;
 
 CXPlayer::CXPlayer()
 	: mWepon(this, &mMatrix, CVector(-10.0f, 5.0f, -5.0f), &mRotation)
 	, mColSphereHead(this, nullptr, CVector(0.0f, 5.0f, -3.0f), 0.5f, CCollider::ETag::EHEAD)//頭,球コライダ
-	, mColSphereBody0(this, nullptr, CVector(0.0f, 0.0f, 0.0f), 0.5f)//体,球コライダ
-	, mColSphereBody1(this, nullptr, CVector(0.0f, -1.0f, 0.0f), 0.5f)//体,球コライダ
 	, mColSphereLeg0(this, nullptr, CVector(0.0f, 25.0f, 0.0f), 0.5f,CCollider::ETag::ELEG)//足,球コライダ
-	, mColSphereLeg1(this, nullptr, CVector(0.0f, 25.0f, 0.0f), 0.5f, CCollider::ETag::ELEG)//足,球コライダ
 	, mColBody(this, nullptr, CVector(0.0f, 25.0f, 0.0f), CVector(0.0f, 130.0f, 0.0f), 0.5f)//体,カプセルコライダ
 {
 	//タグにプレイヤーを設定
@@ -158,7 +156,7 @@ void CXPlayer::Update()
 			isMoveLR = true;
 		}
 		//ローリング
-		if (mInput.Key(VK_SPACE) && isMoveLR == true && IsRoll == false && IsJump == false)
+		if (mInput.Key(VK_SPACE) && isMoveLR == true && IsRoll == false && IsJump == false && IsRun == false)
 		{
 			ChangeAnimation(15, false, 90);
 			mSpeed = mSpeed * 1.5f;
@@ -171,12 +169,14 @@ void CXPlayer::Update()
 			ChangeAnimation(7, false, 45 * mJumpPower);
 			IsJump = true;
 		}
-
+		//TODO:線分コライダを出す
+		//着弾点を求めておく
 		//左クリックが押されたら、弾丸を飛ばす
 		if (mInput.Key(VK_LBUTTON) && IsRun == false && IsReloading == false)
 		{
 			//弾の生成
 			mWepon.ShotBullet();
+			
 		}
 		//右クリックが押されたら、構える
 		if (mInput.Key(VK_RBUTTON) && IsRun == false && IsReloading == false)
@@ -204,8 +204,7 @@ void CXPlayer::Update()
 			IsReloading = true;
 		}
 		//移動中にShiftキーが押されたら、移動速度上昇し走る
-		if (mInput.Key(VK_SHIFT) && isMove == true && IsJump == false && IsReloading == false)
-		{
+		if (mInput.Key(VK_SHIFT) && isMove == true && IsJump == false && IsReloading == false && IsRoll == false)		{
 			if (IsRun == false)
 			{
 				mSpeed = mSpeed * 2.0f;
@@ -300,6 +299,24 @@ void CXPlayer::Collision(CCollider* m, CCollider* o)
 				CTransform::Update();
 			}
 		}
+		//相手のコライダが球
+		//タグは弾丸
+		//親(弾丸)の親(武器)の親(キャラクタ)が敵なら
+		else if(o->GetType() == CCollider::EType::ESPHERE &&
+			o->GetTag() == CCollider::ETag::EBULLET &&
+			o->GetParent()->GetParent()->GetParent()->GetCharaTag() == CCharacter3::ECharaTag::EENEMY)
+		{
+			//衝突しているなら
+			if (m->CollisionCapsuleSphere(m, o) == true)
+			{
+				if (IsDead() == false && IsRoll == false)
+				{
+					mHp--;
+					//被弾アニメーション
+					ChangeAnimation(12, false, 30);
+				}
+			}
+		}
 		break;
 
 		//自分のコライダが球の場合
@@ -319,29 +336,7 @@ void CXPlayer::Collision(CCollider* m, CCollider* o)
 				//衝突しているなら
 				if (m->Collision(m, o) == true)
 				{
-					if (IsDead() == false)
-					{
-						mHp--;
-						//被弾アニメーション
-						ChangeAnimation(12, false, 30);
-					}
-				}
-			}
-		}
-		//自分のコライダのタグが体
-		else if (m->GetTag() == CCollider::ETag::EBODY)
-		{
-			//相手のコライダも球
-			//タグは弾丸
-			//親(弾丸)の親(武器)の親(キャラクタ)が敵なら
-			if (o->GetType() == CCollider::EType::ESPHERE &&
-				o->GetTag() == CCollider::ETag::EBULLET &&
-				o->GetParent()->GetParent()->GetParent()->GetCharaTag() == CCharacter3::ECharaTag::EENEMY)
-			{
-				//衝突しているなら
-				if (m->Collision(m, o) == true)
-				{
-					if (IsDead() == false)
+					if (IsDead() == false && IsRoll == false)
 					{
 						mHp--;
 						//被弾アニメーション
@@ -363,7 +358,7 @@ void CXPlayer::Collision(CCollider* m, CCollider* o)
 				//衝突しているなら
 				if (m->Collision(m, o) == true)
 				{
-					if (IsDead() == false)
+					if (IsDead() == false && IsRoll == false)
 					{
 						mHp--;
 						//被弾アニメーション
@@ -392,7 +387,6 @@ void CXPlayer::Collision(CCollider* m, CCollider* o)
 	}
 }
 
-//TODO:コライダの設定
 //初期設定
 //球コライダの生成と、ボーンとの連動
 void CXPlayer::Init(CModelX* model)
@@ -401,16 +395,28 @@ void CXPlayer::Init(CModelX* model)
 	//合成行列の設定
 	//頭
 	mColSphereHead.SetMatrix(&mpCombinedMatrix[7]);
-	//体
-	mColSphereBody0.SetMatrix(&mpCombinedMatrix[5]);
-	mColSphereBody1.SetMatrix(&mpCombinedMatrix[5]);
 	//足
 	mColSphereLeg0.SetMatrix(&mpCombinedMatrix[1]);
-	mColSphereLeg1.SetMatrix(&mpCombinedMatrix[1]);
 	//キャラ同士が重ならないための体コライダ 
 	mColBody.SetMatrix(&mpCombinedMatrix[1]);
 	//左手に引き金がくる数値
 	mWepon.SetMatrix(&mpCombinedMatrix[38]);
+}
+
+//TODO
+//回復処理
+void CXPlayer::Heal()
+{
+	//最大値よりHPが低いなら2割のHPを回復する
+	if (mHp < MAX_HP)
+	{
+		mHp += MAX_HP / 5;
+	}
+	//最大値より回復していたら最大値にする
+	if (mHp > MAX_HP)
+	{
+		mHp = MAX_HP;
+	}
 }
 
 

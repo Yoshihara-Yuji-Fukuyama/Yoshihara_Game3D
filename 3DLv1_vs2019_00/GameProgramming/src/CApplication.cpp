@@ -57,9 +57,9 @@ void CApplication::Init()
 	mXPlayer.Init(&mPlayerModel);
 
 	//パラディンのインスタンス作成
-	mpPaladin = new CPaladin();
+	//mpPaladin = new CPaladin();
 	//攻撃アニメーションに変更
-	mpPaladin->ChangeAnimation(1, true, 50);
+	//mpPaladin->ChangeAnimation(1, true, 50);
 	
 	mEnemyNum = 0;//敵の数は0
 }
@@ -103,23 +103,14 @@ void CApplication::Start()
 	mColliderMesh.Set(nullptr, nullptr, &mBackGround);
 	//mColliderMesh.Set(nullptr, nullptr, &mStage);
 	//パラディンの配置
-	mpPaladin->SetPosition(CVector(-1.0f, 0.0f, 5.0f));
-	mpPaladin->SetScale(CVector(0.025f, 0.025f, 0.025f));
+	//mpPaladin->SetPosition(CVector(-1.0f, 0.0f, 5.0f));
+	//mpPaladin->SetScale(CVector(0.025f, 0.025f, 0.025f));
 }
 
 void CApplication::Update()
 {	
 	SpawnEnemy();
-	/*
-	//プレイヤーの更新
-	mXPlayer.Update();
-	mXPlayer.WeponUpdate();
-	//敵の更新
-	mXEnemy.Update();
-	//パラディンの更新
-	mpPaladin->Update();
-	mpPaladin->WeponUpdate();
-	*/
+
 	CTaskManager::GetInstance()->Update();
 	
 	mActionCamera.SetPosition(CVector(mXPlayer.GetPosition().GetX(), mXPlayer.GetPosition().GetY() + 5.0f, mXPlayer.GetPosition().GetZ()));
@@ -133,16 +124,7 @@ void CApplication::Update()
 	mModelViewInverse.M(1, 3, 0);
 	mModelViewInverse.M(2, 3, 0);
 
-	/*
-	//プレイヤー描画
-	mXPlayer.Render();
-	mXPlayer.WeponRender();//プレイヤーの武器描画
-	//敵描画
-	mXEnemy.Render();
-	//パラディンの描画
-	mpPaladin->Render();
-	mpPaladin->WeponRender();
-	*/
+
 	mBackGround.Render();
 	//mStage.Render();
 	CTaskManager::GetInstance()->Render();
@@ -158,6 +140,7 @@ void CApplication::Update()
 	CCamera::Start(0, 1920, 0, 1080);
 
 	mFont.Draw(20, 20, 10, 12, "3D PROGRAMING");
+	
 	
 	CVector screen;
 	//Enemyの座標をスクリーン座標へ変換する

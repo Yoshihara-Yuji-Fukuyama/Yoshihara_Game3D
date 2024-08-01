@@ -16,6 +16,7 @@
     <ClCompile Include="src\CBillBoard.cpp" />
     <ClCompile Include="src\CBullet.cpp" />
     <ClCompile Include="src\CCamera.cpp" />
+    <ClCompile Include="src\CCharacter.cpp" />
     <ClCompile Include="src\CCharacter3.cpp" />
     <ClCompile Include="src\CCollider.cpp" />
     <ClCompile Include="src\CColliderCapsule.cpp" />
@@ -28,6 +29,7 @@
     <ClCompile Include="src\CEnemy3.cpp" />
     <ClCompile Include="src\CEnemyAi.cpp" />
     <ClCompile Include="src\CFont.cpp" />
+    <ClCompile Include="src\CItem.cpp" />
     <ClCompile Include="src\CMaterial.cpp" />
     <ClCompile Include="src\CMatrix.cpp" />
     <ClCompile Include="src\CModel.cpp" />
@@ -35,6 +37,7 @@
     <ClCompile Include="src\CMyShader.cpp" />
     <ClCompile Include="src\CPaladin.cpp" />
     <ClCompile Include="src\CPlayer.cpp" />
+    <ClCompile Include="src\CRectangle.cpp" />
     <ClCompile Include="src\CShader.cpp" />
     <ClCompile Include="src\CSound.cpp" />
     <ClCompile Include="src\CTaskManager.cpp" />
@@ -43,6 +46,7 @@
     <ClCompile Include="src\CTransform.cpp" />
     <ClCompile Include="src\CTriangle.cpp" />
     <ClCompile Include="src\CUi.cpp" />
+    <ClCompile Include="src\CUiTexture.cpp" />
     <ClCompile Include="src\CVector.cpp" />
     <ClCompile Include="src\CWepon.cpp" />
     <ClCompile Include="src\CXCharacter.cpp" />
@@ -56,6 +60,7 @@
     <ClInclude Include="src\CBillBoard.h" />
     <ClInclude Include="src\CBullet.h" />
     <ClInclude Include="src\CCamera.h" />
+    <ClInclude Include="src\CCharacter.h" />
     <ClInclude Include="src\CCharacter3.h" />
     <ClInclude Include="src\CCollider.h" />
     <ClInclude Include="src\CColliderCapsule.h" />
@@ -68,6 +73,7 @@
     <ClInclude Include="src\CEnemy3.h" />
     <ClInclude Include="src\CEnemyAi.h" />
     <ClInclude Include="src\CFont.h" />
+    <ClInclude Include="src\CItem.h" />
     <ClInclude Include="src\CMaterial.h" />
     <ClInclude Include="src\CMatrix.h" />
     <ClInclude Include="src\CModel.h" />
@@ -75,6 +81,7 @@
     <ClInclude Include="src\CMyShader.h" />
     <ClInclude Include="src\CPaladin.h" />
     <ClInclude Include="src\CPlayer.h" />
+    <ClInclude Include="src\CRectangle.h" />
     <ClInclude Include="src\CShader.h" />
     <ClInclude Include="src\CSound.h" />
     <ClInclude Include="src\CTask.h" />
@@ -83,6 +90,7 @@
     <ClInclude Include="src\CInput.h" />
     <ClInclude Include="src\CTransform.h" />
     <ClInclude Include="src\CUi.h" />
+    <ClInclude Include="src\CUiTexture.h" />
     <ClInclude Include="src\CVector.h" />
     <ClInclude Include="src\CVertex.h" />
     <ClInclude Include="src\CWepon.h" />

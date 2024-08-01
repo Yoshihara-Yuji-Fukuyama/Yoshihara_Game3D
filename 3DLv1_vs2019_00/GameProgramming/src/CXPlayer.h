@@ -28,6 +28,8 @@ public:
 	//初期設定
 	//球コライダの生成とボーンとの連動
 	void Init(CModelX* model);
+	//回復処理
+	void Heal();
 private:
 	static CXPlayer* spInstance;//インスタンス
 	CInput mInput;//CInputのインスタンス作成
@@ -36,10 +38,7 @@ private:
 	CVector mMoveSave;//動く方向を保存
 	
 	CCollider mColSphereHead; //頭
-	CCollider mColSphereBody0;//体
-	CCollider mColSphereBody1;//体
 	CCollider mColSphereLeg0; //足
-	CCollider mColSphereLeg1; //足
 	CColliderCapsule mColBody;//キャラとキャラが重ならないための体コライダ
 };
 #endif

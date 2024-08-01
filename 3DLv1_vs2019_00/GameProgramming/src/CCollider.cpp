@@ -202,6 +202,29 @@ bool CCollider::CollisionCapsuleCapseule(CCollider* m, CCollider* o, CVector* ad
 	return false;
 }
 
+//カプセルコライダと球コライダの衝突判定
+bool CCollider::CollisionCapsuleSphere(CCollider* m, CCollider* o)
+{
+	//球コライダの中心座標を求める
+	CVector sphereCenter = o->mPosition * *o->mpMatrix;
+	//カプセルの軸を表すベクトル
+	CVector capsuleLine = m->GetV(1) - m->GetV(0);//終点－始点
+	//カプセルの開始点から球の中心までのベクトル
+	CVector capsuleStartToSphere = sphereCenter - m->GetV(0);
+	//球の中心からカプセルの軸への最も近い点を求めるためのパラメータｔを計算
+	float t = capsuleStartToSphere.Dot(capsuleLine) / capsuleLine.Dot(capsuleLine);
+	//tを0から1の範囲にクランプ
+	t = std::max(0.0f, std::min(1.0f, t));
+	//カプセルの軸上の最も近い点を計算
+	CVector closestPointOnCapsule = m->GetV(0) + capsuleLine * t;
+	//最も近い点から球の中心までのベクトルを計算
+	CVector closestToSphereCenter = sphereCenter - closestPointOnCapsule;
+	//最も近い点から球の中心までの距離を計算
+	float distance = closestToSphereCenter.Length();
+	//距離がカプセルの半径と球の半径の合計より小さいかどうかで衝突を判定
+	return distance <= (m->mRadius + o->mRadius);
+}
+
 
 //配列mV[i]の要素を返す
 const CVector& CCollider::GetV(int i)

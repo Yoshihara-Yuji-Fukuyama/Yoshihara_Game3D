@@ -9,8 +9,7 @@ CModelX CXEnemy::sModel;
 CXEnemy::CXEnemy()
 	: mWepon(this, &mMatrix, CVector(-10.0f, 5.0f, -5.0f), &mRotation)
 	, mColSphereHead(this, nullptr, CVector(0.0f, 5.0f, -3.0f), 0.5f, CCollider::ETag::EHEAD)//頭,球コライダ
-	, mColSphereBody(this, nullptr, CVector(0.0f, 0.0f, 0.0f), 0.5f)//体,球コライダ
-	, mColSphereLeg(this, nullptr, CVector(0.0f, 25.0f, 0.0f), 0.5f, CCollider::ETag::ELEG)//足,球コライダ
+	, mColSphereLeg0(this, nullptr, CVector(0.0f, 25.0f, 0.0f), 0.5f, CCollider::ETag::ELEG)//足,球コライダ
 	, mColBody(this, nullptr, CVector(0.0f, 25.0f, 0.0f), CVector(0.0f, 130.0f, 0.0f), 0.5f)//体,カプセルコライダ
 	, mColSphereSearch(this, nullptr, CVector(), 60.0f, CCollider::ETag::ESEARCH)//索敵用、球コライダ
 {
@@ -49,6 +48,7 @@ CXEnemy::CXEnemy()
 	start = clock();
 	//秒数カウンタを1に
 	mCount = 1;
+	mHp = 1;
 }
 //座標を設定
 CXEnemy::CXEnemy(CVector pos)
@@ -64,10 +64,8 @@ void CXEnemy::Init(CModelX* model)
 	//合成行列の設定
 	//頭
 	mColSphereHead.SetMatrix(&mpCombinedMatrix[7]);
-	//体
-	mColSphereBody.SetMatrix(&mpCombinedMatrix[7]);
 	//足
-	mColSphereLeg.SetMatrix(&mpCombinedMatrix[1]);
+	mColSphereLeg0.SetMatrix(&mpCombinedMatrix[1]);
 	//キャラ同士が重ならないための体コライダ
 	mColBody.SetMatrix(&mpCombinedMatrix[1]);
 	//プレイヤー索敵用コライダ
@@ -168,6 +166,23 @@ void CXEnemy::Collision(CCollider* m, CCollider* o)
 				CTransform::Update();
 			}
 		}
+		//相手のコライダが球
+		//タグは弾丸
+		//親(弾丸)の親(武器)の親(キャラクタ)がプレイヤーなら
+		else if (o->GetType() == CCollider::EType::ESPHERE &&
+			o->GetTag() == CCollider::ETag::EBULLET &&
+			o->GetParent()->GetParent()->GetParent()->GetCharaTag() == CCharacter3::ECharaTag::EPLAYER)
+		{
+			//衝突しているなら
+			if (m->CollisionCapsuleSphere(m, o) == true)
+			{
+				mHp--;
+				//被弾アニメーション
+				ChangeAnimation(12, false, 30);
+				ChangeState(CEnemyAi::EAiState::EDAMAGE);
+			}
+		}
+		
 		break;
 
 		//自分のコライダが球の場合
@@ -189,25 +204,7 @@ void CXEnemy::Collision(CCollider* m, CCollider* o)
 					mHp--;
 					//被弾アニメーション
 					ChangeAnimation(12, false, 30);
-				}
-			}
-		}
-		//自分のコライダのタグが体
-		else if (m->GetTag() == CCollider::ETag::EBODY)
-		{
-			//相手のコライダも球
-			//タグは弾丸
-			//親(弾丸)の親(武器)の親(キャラクタ)がプレイヤーなら
-			if (o->GetType() == CCollider::EType::ESPHERE &&
-				o->GetTag() == CCollider::ETag::EBULLET &&
-				o->GetParent()->GetParent()->GetParent()->GetCharaTag() == CCharacter3::ECharaTag::EPLAYER)
-			{
-				//衝突しているなら
-				if (m->Collision(m, o) == true)
-				{
-					mHp--;
-					//被弾アニメーション
-					ChangeAnimation(12, false, 30);
+					ChangeState(CEnemyAi::EAiState::EDAMAGE);
 				}
 			}
 		}
@@ -227,6 +224,7 @@ void CXEnemy::Collision(CCollider* m, CCollider* o)
 					mHp--;
 					//被弾アニメーション
 					ChangeAnimation(12, false, 30);
+					ChangeState(CEnemyAi::EAiState::EDAMAGE);
 				}
 			}
 		}
@@ -430,7 +428,14 @@ void CXEnemy::Die()
 	{
 		if (IsAnimationFinished())
 		{
+			DropItem();
 			mEnabled = false;
 		}
 	}
+}
+//TOOD::アイテムが落ちる位置の調整
+//アイテムを生成する
+void CXEnemy::DropItem()
+{
+	new CItem(mPosition);
 }

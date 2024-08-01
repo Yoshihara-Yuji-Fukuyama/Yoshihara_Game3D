@@ -19,6 +19,7 @@ public:
 		EPLAYER,//0
 		EENEMY, //1
 		EWEPON, //2
+		EITEM,  //3
 	};
 	//Ž©•ª‚ÌƒLƒƒƒ‰ƒ^ƒO‚ð•Ô‚·
 	ECharaTag GetCharaTag();

@@ -37,6 +37,8 @@ public:
 	//アニメーション番号の取得
 	int GetAnimationIndex();
 
+	//HPの値を返す
+	int GetHp();
 	//死んでいるかどうか
 	bool IsDead();
 protected:

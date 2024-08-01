@@ -31,6 +31,7 @@ public:
 		ESEARCH,//索敵用
 		EBULLET,//弾丸
 		ECAMERA,//カメラ
+		EITEM,  //アイテム
 	};
 	//mTagの値を返す
 	ETag GetTag();
@@ -85,7 +86,13 @@ public:
 	/// <param name="adjust">調整値</param>
 	/// <returns>衝突の可否</returns>
 	static bool CollisionCapsuleCapseule(CCollider* m, CCollider* o, CVector* adjust);
-
+	/// <summary>
+	/// カプセルコライダと球コライダの衝突判定
+	/// </summary>
+	/// <param name="m">カプセルコライダ</param>
+	/// <param name="o">球コライダ</param>
+	/// <returns>衝突の可否</returns>
+	static bool CollisionCapsuleSphere(CCollider* m, CCollider* o);
 	//配列mV[i]の要素を返す
 	const CVector& GetV(int i);
 	//親ポインタの取得

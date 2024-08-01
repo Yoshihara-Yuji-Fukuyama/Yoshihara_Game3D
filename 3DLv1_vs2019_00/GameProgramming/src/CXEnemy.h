@@ -6,6 +6,7 @@
 #include "CColliderCapsule.h"
 #include "CWepon.h"
 #include "CEnemyAi.h"
+#include "CItem.h"
 #include <time.h>
 
 class CXEnemy : public CXCharacter , public CEnemyAi
@@ -35,12 +36,12 @@ public:
 	void Escape();    //逃亡
 	void Damage();    //被弾
 	void Die();       //死亡
+	void DropItem();  //アイテムドロップ
 private:
 	CWepon mWepon;//武器のインスタンス
 
 	CCollider mColSphereHead; //頭
-	CCollider mColSphereBody; //体
-	CCollider mColSphereLeg;  //足
+	CCollider mColSphereLeg0;  //足
 	CColliderCapsule mColBody;//キャラとキャラが重ならないための体コライダ
 	CCollider mColSphereSearch;//プレイヤー索敵用コライダ
 
