@@ -50,5 +50,7 @@ private:
 	bool IsRun;//走っているかどうかを保存する
 	bool IsJump;//ジャンプをしているかどうかを保存する
 	int mAmmo;//残弾数
+	float mFireRate;//連射速度(1秒あたりの発射回数)
+	float mTimeSinceLastShot;//最後に撃った時からの時間
 };
 #endif

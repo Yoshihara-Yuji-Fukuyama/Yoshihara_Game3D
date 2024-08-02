@@ -48,7 +48,7 @@ CXEnemy::CXEnemy()
 	start = clock();
 	//秒数カウンタを1に
 	mCount = 1;
-	mHp = 1;
+	mHp = 50;
 }
 //座標を設定
 CXEnemy::CXEnemy(CVector pos)
@@ -176,10 +176,13 @@ void CXEnemy::Collision(CCollider* m, CCollider* o)
 			//衝突しているなら
 			if (m->CollisionCapsuleSphere(m, o) == true)
 			{
-				mHp--;
-				//被弾アニメーション
-				ChangeAnimation(12, false, 30);
-				ChangeState(CEnemyAi::EAiState::EDAMAGE);
+				if (IsDead() == false)//死んでいなければ
+				{
+					mHp--;
+					//被弾アニメーション
+					ChangeAnimation(12, false, 30);
+					ChangeState(CEnemyAi::EAiState::EDAMAGE);
+				}
 			}
 		}
 		
@@ -201,10 +204,13 @@ void CXEnemy::Collision(CCollider* m, CCollider* o)
 				//衝突しているなら
 				if (m->Collision(m, o) == true)
 				{
-					mHp--;
-					//被弾アニメーション
-					ChangeAnimation(12, false, 30);
-					ChangeState(CEnemyAi::EAiState::EDAMAGE);
+					if (IsDead() == false)//死んでいなければ
+					{
+						mHp -= 2;
+						//被弾アニメーション
+						ChangeAnimation(12, false, 30);
+						ChangeState(CEnemyAi::EAiState::EDAMAGE);
+					}
 				}
 			}
 		}
@@ -221,10 +227,13 @@ void CXEnemy::Collision(CCollider* m, CCollider* o)
 				//衝突しているなら
 				if (m->Collision(m, o) == true)
 				{
-					mHp--;
-					//被弾アニメーション
-					ChangeAnimation(12, false, 30);
-					ChangeState(CEnemyAi::EAiState::EDAMAGE);
+					if (IsDead() == false)//死んでいなければ
+					{
+						mHp--;
+						//被弾アニメーション
+						ChangeAnimation(12, false, 30);
+						ChangeState(CEnemyAi::EAiState::EDAMAGE);
+					}
 				}
 			}
 		}

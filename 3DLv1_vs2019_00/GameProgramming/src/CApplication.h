@@ -28,6 +28,7 @@
 #include "CInput.h"
 #include "CFont.h"
 #include "CUi.h"
+#include "CUiTexture.h"
 #include "CSound.h"
 
 #include "CWepon.h"
@@ -81,6 +82,7 @@ private:
 
 	CInput mInput;
 	CFont mFont;
+	CUiTexture* mpHpBar;
 
 	CVector mEye; //ƒJƒƒ‰‚Ì‹“_
 	CActionCamera mActionCamera;//CActionCamera

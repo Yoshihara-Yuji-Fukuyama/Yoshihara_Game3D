@@ -53,15 +53,6 @@ public:
 	bool GetEnabled();
 
 	/// <summary>
-	/// 処理順番を設定
-	/// </summary>
-	/// <param name="order">処理順番</param>
-	void SetSortOrder(float order);
-
-	//処理順番を取得
-	float GetSortOrder();
-
-	/// <summary>
 	/// テクスチャの設定
 	/// </summary>
 	/// <param name="pTexture">テクスチャのポインタ</param>
@@ -85,56 +76,12 @@ public:
 	/// <param name="o">コライダ2</param>
 	virtual void Collision(CCollider* m, CCollider* o) {}
 
-	//足元の座標を取得
-	float GetUnderPosY();
-	//影の座標を取得
-	float GetShadowPosY();
-
-	//HPを取得
-	float GetHp();
-	//HPを設定
-	void SetHp(float hp);
-
 	//識別子の取得
 	ETag GetTag();
 
-	EState GetState();
-
-	void SetLeg(float leg);
 
 protected:
 	ETag mTag;			//識別子の格納
-	EState mState;      //状態
-	bool isMove;        //移動しているか
-	bool isMoveX;       //X軸移動しているか
-	bool isMoveY;       //Y軸移動しているか
-	bool isAttack;      //攻撃しているか
-	bool isAttackNext;  //次も攻撃するか
-	bool isHit;			//攻撃を受けているか
-	bool isGuard;		//防御しているか
-	bool isGeneration;	//コライダが生成されているか
-	//足元計算用
-	float mLeg;
-	//影計算用
-	float mShadow;
-	//足元の座標
-	float mUnderPosY;
-	//影の座標
-	float mShadowPosX;
-	float mShadowPosY;
-	//ジャンプ距離
-	float mJump;
-	//HP
-	float mHp;
-	//アニメーションごとの枚数
-	int MoveNum;
-	int AttackNum;
-	int AttackNum2;
-	int AttackNum3;
-	int WaitNum;
-	int JumpNum;
-	int HitNum;
-	int GuardNum;
 
 	float mVx, mVy;		//速度
 private:

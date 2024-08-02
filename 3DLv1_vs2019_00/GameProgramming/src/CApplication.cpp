@@ -97,6 +97,8 @@ void CApplication::Start()
 	//CApplicationのInit()
 	Init();
 	
+	CUiTexture::GetTextureHpBar()->Load(TEXTURE_HP_BAR);//HPバー画像の読み込み
+	mpHpBar = new CUiTexture(HP_SIZE, CUiTexture::EUiType::Hp);//HPバーの生成
 	//TODO:ステージの設置
 	//背景モデルから三角コライダを生成
 	//親インスタンスと親行列はなし
@@ -140,7 +142,9 @@ void CApplication::Update()
 	CCamera::Start(0, 1920, 0, 1080);
 
 	mFont.Draw(20, 20, 10, 12, "3D PROGRAMING");
-	
+
+	mpHpBar->Update();
+	mpHpBar->Render();
 	
 	CVector screen;
 	//Enemyの座標をスクリーン座標へ変換する

@@ -2,6 +2,7 @@
 #include "CXPlayer.h"
 #include "CBullet.h"
 #include "CActionCamera.h"
+#include <chrono>
 
 #define AR_OBJ "res\\Guns\\AssaultRifle2_1.obj"
 #define AR_MTL "res\\Guns\\AssaultRifle2_1.mtl"
@@ -16,6 +17,7 @@ CWepon::CWepon()
 	, mpMatrix(&mMatrix)
 	, mpRotation(nullptr)
 	, mAmmo(30)
+	, mFireRate(0.5f)
 {
 	//ƒ‚ƒfƒ‹‚ª‚È‚¢‚Æ‚«‚Í“Ç‚Ýž‚Þ
 	if (sModel.Triangles().size() == 0)
@@ -82,11 +84,14 @@ void CWepon::SetMatrix(CMatrix* m)
 }
 
 //TODO:“G‚ð—\‘ªŽËŒ‚‰»
+//TODO:deltaTime‚ªŽg‚¦‚é‚æ‚¤‚É‚·‚é
 //’e‚ð”­ŽË‚·‚é
 void CWepon::ShotBullet()
 {
-	//’e‚ª1”­ˆÈã‚ ‚éê‡
-	if (mAmmo > 0)
+	mTimeSinceLastShot += deltaTime;
+	//’e‚ª1”­ˆÈã‚ ‚é‚©‚Â
+	//ÅŒã‚ÉŒ‚‚Á‚½Žž‚©‚ç (1/˜AŽË‘¬“x) •bŒo‚Á‚Ä‚¢‚½‚ç
+	if (mAmmo > 0 && mTimeSinceLastShot >= 1.0f / mFireRate)
 	{
 		//’e‚ð”­ŽË‚µ‚Ü‚·
 		CBullet* bullet = new CBullet(this);

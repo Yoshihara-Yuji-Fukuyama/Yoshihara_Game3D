@@ -338,7 +338,7 @@ void CXPlayer::Collision(CCollider* m, CCollider* o)
 				{
 					if (IsDead() == false && IsRoll == false)
 					{
-						mHp--;
+						mHp -= 2;
 						//被弾アニメーション
 						ChangeAnimation(12, false, 30);
 					}
