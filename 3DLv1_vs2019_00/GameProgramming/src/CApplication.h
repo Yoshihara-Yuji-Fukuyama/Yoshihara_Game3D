@@ -60,8 +60,7 @@ private:
 	static CUi* spUi;                //Uiクラスのポインタ
 	static CTexture mTexture;        //Textureクラスのインスタンス
 	static CApplication* spInstance;//CApplicationのインスタンス
-	CModel mModel;
-	CModel mModelC5;
+
 	CModel mBackGround;//背景のモデル
 	CModel mStage;//ステージのモデル
 	CModelX mPlayerModel; //プレイヤーのモデル
@@ -74,15 +73,10 @@ private:
 	std::vector<CXEnemy*> mpXEnemy;
 	int mEnemyNum;//敵の出現している数
 
-	CEnemy3* mpEnemy3;
-
-	CPlayer* mpPlayer;
-	CEnemy* mpEnemy;
-	CPaladin* mpPaladin;
-
 	CInput mInput;
 	CFont mFont;
 	CUiTexture* mpHpBar;
+	CUiTexture* mpEnemyHpBar;
 
 	CVector mEye; //カメラの視点
 	CActionCamera mActionCamera;//CActionCamera

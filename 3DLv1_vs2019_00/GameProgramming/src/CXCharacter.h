@@ -38,7 +38,7 @@ public:
 	int GetAnimationIndex();
 
 	//HPの値を返す
-	int GetHp();
+	float GetHp();
 	//死んでいるかどうか
 	bool IsDead();
 protected:
@@ -49,7 +49,7 @@ protected:
 	float mAnimationFrameSize;//アニメーションの再生フレーム数
 	CMatrix* mpCombinedMatrix;//合成行列退避
 
-	int mHp;//体力
+	float mHp;//体力
 	float mSpeed;//プレイヤーの移動速度
 	float mJumpPower;//ジャンプ力
 
@@ -63,5 +63,6 @@ protected:
 	bool IsWaitReload;//止まってリロードしているか
 	bool IsHit;//被弾しているかどうか
 	bool IsRoll;//ローリングしているか
+	bool IsAction;//何らかの行動をしているかどうか
 };
 #endif

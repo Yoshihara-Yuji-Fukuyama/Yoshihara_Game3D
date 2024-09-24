@@ -3,6 +3,7 @@
 #include "CApplication.h"
 
 #define GRAVITY_AND_JUMPDEF 0.1f//重力とジャンプの基準値
+#define MAX_HP 20//最大HP
 
 CModelX CXEnemy::sModel;
 
@@ -48,7 +49,7 @@ CXEnemy::CXEnemy()
 	start = clock();
 	//秒数カウンタを1に
 	mCount = 1;
-	mHp = 50;
+	mHp = MAX_HP;
 }
 //座標を設定
 CXEnemy::CXEnemy(CVector pos)

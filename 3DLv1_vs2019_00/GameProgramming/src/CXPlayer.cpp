@@ -20,6 +20,7 @@ CXPlayer::CXPlayer()
 	SetScale(CVector(0.025f, 0.025f, 0.025f));
 	//前を向ける
 	SetRotation(CVector(0.0f, 180.0f, 0.0f));
+	mHp = MAX_HP; 
 }
 
 //インスタンスの取得
@@ -77,6 +78,7 @@ void CXPlayer::Update()
 			{
 				ChangeAnimation(4, true, 90);
 				IsJump = false;
+				IsAction = false;
 			}
 		}
 		//リロードアニメーションの時
@@ -90,6 +92,7 @@ void CXPlayer::Update()
 				IsReloading = false;
 				IsWalkReload = false;
 				IsWaitReload = false;
+				IsAction = false;
 			}
 		}
 		//被弾アニメーションの時
@@ -104,6 +107,7 @@ void CXPlayer::Update()
 				IsReloading = false;
 				IsWalkReload = false;
 				IsWaitReload = false;
+				IsAction = false;
 			}
 		}
 		//ローリングの時
@@ -118,6 +122,7 @@ void CXPlayer::Update()
 				ChangeAnimation(4, true, 90);
 				mSpeed = mSpeed / 1.5f;
 				IsRoll = false;
+				IsAction = false;
 			}
 		}
 
@@ -162,12 +167,14 @@ void CXPlayer::Update()
 			mSpeed = mSpeed * 1.5f;
 			mMoveSave = move;
 			IsRoll = true;
+			IsAction = true;
 		}
 		//ジャンプ
 		else if (mInput.Key(VK_SPACE) && IsJump == false && IsReloading == false && IsRoll == false)
 		{
 			ChangeAnimation(7, false, 45 * mJumpPower);
 			IsJump = true;
+			IsAction = true;
 		}
 		//TODO:線分コライダを出す
 		//着弾点を求めておく
@@ -185,19 +192,21 @@ void CXPlayer::Update()
 			isAim = true;
 		}
 		//Rキーが押されたら、弾を補充＋リロードアニメーション再生
-		if (mInput.Key('R') && IsRun == false && IsReloading == false)
+		if (mInput.Key('R') && IsReloading == false)
 		{
 			//動いているなら動きながらのリロードアニメーション
 			if (isMove == true)
 			{
 				ChangeAnimation(11, false, 210);
 				IsWalkReload = true;
+				IsAction = true;
 			}
 			//動いていないなら停止したリロードアニメーション
 			else
 			{
 				ChangeAnimation(10, false, 90);
 				IsWaitReload = true;
+				IsAction = true;
 			}
 			//リロード
 			mWepon.Reload();
@@ -313,6 +322,7 @@ void CXPlayer::Collision(CCollider* m, CCollider* o)
 				{
 					mHp--;
 					//被弾アニメーション
+					if (IsAction == false)//他の行動をしていなければ
 					ChangeAnimation(12, false, 30);
 				}
 			}
@@ -340,6 +350,7 @@ void CXPlayer::Collision(CCollider* m, CCollider* o)
 					{
 						mHp -= 2;
 						//被弾アニメーション
+						if (IsAction == false)//他の行動をしていなければ
 						ChangeAnimation(12, false, 30);
 					}
 				}
@@ -362,6 +373,7 @@ void CXPlayer::Collision(CCollider* m, CCollider* o)
 					{
 						mHp--;
 						//被弾アニメーション
+						if (IsAction == false)//他の行動をしていなければ
 						ChangeAnimation(12, false, 30);
 					}
 				}
@@ -403,7 +415,6 @@ void CXPlayer::Init(CModelX* model)
 	mWepon.SetMatrix(&mpCombinedMatrix[38]);
 }
 
-//TODO
 //回復処理
 void CXPlayer::Heal()
 {

@@ -88,10 +88,10 @@ void CWepon::SetMatrix(CMatrix* m)
 //’e‚ð”­ŽË‚·‚é
 void CWepon::ShotBullet()
 {
-	mTimeSinceLastShot += deltaTime;
+	//mTimeSinceLastShot += deltaTime;
 	//’e‚ª1”­ˆÈã‚ ‚é‚©‚Â
 	//ÅŒã‚ÉŒ‚‚Á‚½Žž‚©‚ç (1/˜AŽË‘¬“x) •bŒo‚Á‚Ä‚¢‚½‚ç
-	if (mAmmo > 0 && mTimeSinceLastShot >= 1.0f / mFireRate)
+	if (mAmmo > 0/* && mTimeSinceLastShot >= 1.0f / mFireRate*/)
 	{
 		//’e‚ð”­ŽË‚µ‚Ü‚·
 		CBullet* bullet = new CBullet(this);

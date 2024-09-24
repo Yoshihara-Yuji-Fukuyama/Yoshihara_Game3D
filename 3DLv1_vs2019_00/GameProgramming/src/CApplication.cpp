@@ -55,11 +55,6 @@ void CApplication::Init()
 {
 	//プレイヤーの初期設定
 	mXPlayer.Init(&mPlayerModel);
-
-	//パラディンのインスタンス作成
-	//mpPaladin = new CPaladin();
-	//攻撃アニメーションに変更
-	//mpPaladin->ChangeAnimation(1, true, 50);
 	
 	mEnemyNum = 0;//敵の数は0
 }
@@ -88,25 +83,22 @@ void CApplication::Start()
 	mPlayerModel.AddAnimationSet(ROLL);//15:ローリング
 	//背景モデル
 	mBackGround.Load(MODEL_BACKGROUND);
-	//ステージモデル
-	//mStage.Load(MODEL_STAGE);
 	//フォントのロード
 	mFont.Load("FontG.png", 1, 4096 / 64);
 	//カメラの設定
 	mActionCamera.Set(5.0f, -15.0f, 180.0f);
 	//CApplicationのInit()
 	Init();
+	//敵を出現させる
+	SpawnEnemy();
 	
 	CUiTexture::GetTextureHpBar()->Load(TEXTURE_HP_BAR);//HPバー画像の読み込み
-	mpHpBar = new CUiTexture(HP_SIZE, CUiTexture::EUiType::Hp);//HPバーの生成
-	//TODO:ステージの設置
+	mpHpBar = new CUiTexture(CXPlayer::GetInstance()->GetHp(),HP_SIZE, CUiTexture::EUiType::Hp);//HPバーの生成
+	mpEnemyHpBar = new CUiTexture(mpXEnemy[0]->GetHp(),ENEMY_HP_SIZE, CUiTexture::EUiType::Hp);//敵HPバーの生成
+
 	//背景モデルから三角コライダを生成
 	//親インスタンスと親行列はなし
 	mColliderMesh.Set(nullptr, nullptr, &mBackGround);
-	//mColliderMesh.Set(nullptr, nullptr, &mStage);
-	//パラディンの配置
-	//mpPaladin->SetPosition(CVector(-1.0f, 0.0f, 5.0f));
-	//mpPaladin->SetScale(CVector(0.025f, 0.025f, 0.025f));
 }
 
 void CApplication::Update()
@@ -128,12 +120,12 @@ void CApplication::Update()
 
 
 	mBackGround.Render();
-	//mStage.Render();
+
 	CTaskManager::GetInstance()->Render();
 	CTaskManager::GetInstance()->Delete();
 
 	//コライダの描画
-	CCollisionManager::GetInstance()->Render();
+	//CCollisionManager::GetInstance()->Render();
 	//衝突処理
 	CCollisionManager::GetInstance()->Collision();
 
@@ -143,6 +135,7 @@ void CApplication::Update()
 
 	mFont.Draw(20, 20, 10, 12, "3D PROGRAMING");
 
+	mpHpBar->SetHp(CXPlayer::GetInstance()->GetHp());//プレイヤーの現在HPを設定
 	mpHpBar->Update();
 	mpHpBar->Render();
 	
@@ -150,8 +143,12 @@ void CApplication::Update()
 	//Enemyの座標をスクリーン座標へ変換する
 	if (CActionCamera::GetInstance()->WorldToScreen(&screen, mpXEnemy[0]->GetPosition()))
 	{
-		//変換先の座標に文字列を出力する
-		mFont.Draw(screen.GetX(), screen.GetY(), 7, 14, "ENEMY");
+		//変換先の座標にHPバーを出力する
+		mpEnemyHpBar->Set(screen.GetX(), screen.GetY(),
+			mpEnemyHpBar->GetW(), mpEnemyHpBar->GetH());
+		mpEnemyHpBar->SetHp(mpXEnemy[0]->GetHp());//敵の現在HPを設定
+		mpEnemyHpBar->Update();
+		mpEnemyHpBar->Render();
 	}
 	
 	//2Dの描画終了

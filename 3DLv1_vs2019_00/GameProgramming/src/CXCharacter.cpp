@@ -2,7 +2,7 @@
 
 CXCharacter::CXCharacter()
 	: mpCombinedMatrix(nullptr)
-	, mHp(50)
+	, mHp(10)
 	, mSpeed(0.1f)
 	, mJumpPower(1.0f)
 	, IsDeath(false)
@@ -143,7 +143,7 @@ int CXCharacter::GetAnimationIndex()
 }
 
 //HP‚Ì’l‚ð•Ô‚·
-int CXCharacter::GetHp()
+float CXCharacter::GetHp()
 {
 	return mHp;
 }

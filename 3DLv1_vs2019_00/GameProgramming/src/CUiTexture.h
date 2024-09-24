@@ -17,6 +17,7 @@
 #define TEX_HP_10 0,625,1037,1127//HP-10の画像内座標
 
 #define HP_SIZE 312.5f,45.0f //HPバーの大きさ
+#define ENEMY_HP_SIZE 62.5f,9.0f//敵のHPバーの大きさ
 #define HP_POS 312.5f,45.0f //HPバーの座標
 
 class CUiTexture : public CCharacter
@@ -39,13 +40,17 @@ public:
 	/// <param name="right">テクスチャの右</param>
 	/// <param name="bottom">テクスチャの下</param>
 	/// <param name="top">テクスチャの上</param>
-	CUiTexture(float w, float h, EUiType uiType, int left = 0, int right = 0, int bottom = 0, int top = 0);
+	/// <param name="maxHp">最大HP</param>
+	CUiTexture(float maxHp , float w, float h, EUiType uiType,
+		int left = 0, int right = 0, int bottom = 0, int top = 0);
 
 	//更新
 	void Update();
 
 	//HPの表示を更新
 	void HpBarUpdate();
+	//HPの値を設定
+	void SetHp(float hp);
 
 	//staticメソッドの宣言
 	static CTexture* GetTextureHpBar();
@@ -56,8 +61,6 @@ private:
 	float mHp;
 	//HPの最大値
 	float mMaxHp;
-	//幅の保存
-	float mW;
 
 	//static変数の宣言
 	static CTexture mTextureHpBar;

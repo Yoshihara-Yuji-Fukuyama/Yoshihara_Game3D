@@ -42,7 +42,8 @@ CMaterial::CMaterial(CModelX* model)
 	//CModelXにマテリアルを追加する
 	model->GetMaterial().push_back(this);
 	model->GetToken();// { ? Name
-	if (strcmp(model->GetOnlyToken(), "{") != 0)
+	if (
+		(model->GetOnlyToken(), "{") != 0)
 	{
 		// {でないときはマテリアル名
 		strcpy(mName, model->GetOnlyToken());

@@ -15,35 +15,29 @@ CUiTexture::CUiTexture()
 {
 }
 
-CUiTexture::CUiTexture(float w, float h, EUiType uiType, int left, int right, int bottom, int top)
+CUiTexture::CUiTexture(float maxHp, float w, float h, EUiType uiType,
+	int left, int right, int bottom, int top)
 	: CUiTexture()
 {
 	SetW(w);
 	SetH(h);
-	mW = w;
 
 	mUiType = uiType;
 	//HPの最大値を設定
-	mMaxHp = CXPlayer::GetInstance()->GetHp();
+	mMaxHp = maxHp;
 	if (mUiType == EUiType::Hp)
 	{
+		//テクスチャ設定
 		Texture(GetTextureHpBar(), TEX_HP_MAX);
+		//HPバーの座標を設定
+		Set(HP_POS, GetW(), GetH());
 	}
 }
 
 //更新
 void CUiTexture::Update()
 {
-	//現在のHPを設定
-	mHp = CXPlayer::GetInstance()->GetHp();
-
 	HpBarUpdate();//HP表示を更新
-
-	//HPバーの座標を設定
-	if (mUiType == EUiType::Hp)
-	{
-		Set(HP_POS, GetW(), GetH());
-	}
 }
 
 //HP表示を更新
@@ -96,4 +90,10 @@ void CUiTexture::HpBarUpdate()
 	{
 		Texture(GetTextureHpBar(), TEX_HP_10);
 	}
+}
+
+void CUiTexture::SetHp(float hp)
+{
+	//現在のHPを設定
+	mHp = hp;
 }
